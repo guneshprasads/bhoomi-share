@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Your dashboard &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="page__head">
+  <div>
+    <h1>{{ user['name'].split(' ')[0] }}&rsquo;s dashboard</h1>
+    <p class="pair" style="margin-top:.75rem">
+      <span>{{ user['district'] }}, {{ user['state'] }}</span>
+      <span>{{ user['phone'] }}</span>
+      <span>{% for r in role_list(user) %}{{ role_labels[r] }}{% if not loop.last %}, {% endif %}{% else %}No side picked yet{% endfor %}</span>
+      <a href="/dashboard/profile">Edit profile</a>
+    </p>
+  </div>
+  <div class="page__actions">
+    <a class="btn btn--line" href="/dashboard/listings/new">List land</a>
+    <a class="btn btn--solid" href="/dashboard/seasons/new">List a season plan</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><span class="stat__n">{{ listings|length }}</span><span class="stat__label">parcels you list</span></div>
+  <div class="stat"><span class="stat__n">{{ inquiries|length }}</span><span class="stat__label">farmers asking</span></div>
+  <div class="stat"><span class="stat__n">{{ seasons|length }}</span><span class="stat__label">season plans</span></div>
+  <div class="stat"><span class="stat__n">{{ pledges|length }}</span><span class="stat__label">plans you back</span></div>
+  <div class="stat"><span class="stat__n">&#8377;{{ inr(pledged_total) }}</span><span class="stat__label">interest registered</span></div>
+</div>
+
+<section class="block">
+  <div class="block__head">
+    <h2>Your land</h2>
+    <a class="btn btn--line btn--small" href="/dashboard/listings/new">Add a parcel</a>
+  </div>
+  {% if listings %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Parcel</th><th>Where</th><th>Size</th><th>Rent</th><th>Status</th><th>Asks</th><th></th></tr></thead>
+        <tbody>
+          {% for l in listings %}
+            <tr>
+              <td><a href="/land/{{ l['id'] }}">{{ l['title'] }}</a></td>
+              <td>{{ l['district'] }}, {{ l['state'] }}</td>
+              <td class="num">{{ acres(l['acres']) }}</td>
+              <td class="num">{% if l['rent_per_acre'] %}&#8377;{{ inr(l['rent_per_acre']) }}{% else %}share{% endif %}</td>
+              <td><span class="badge badge--{{ l['status'] }}">{{ l['status'] }}</span></td>
+              <td class="num">{{ l['inquiry_count'] }}</td>
+              <td>
+                <div class="row-actions">
+                  <a class="btn btn--line btn--small" href="/dashboard/listings/{{ l['id'] }}/edit">Edit</a>
+                  <form method="post" action="/dashboard/listings/{{ l['id'] }}/delete" class="inline-form" onsubmit="return confirm('Remove this listing?')">
+                    <button class="btn btn--danger btn--small" type="submit">Remove</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty">No parcels listed. If you have land you are not farming this year, <a href="/dashboard/listings/new">put it up</a> &mdash; it stays a fixed-term licence, never an open-ended tenancy.</p>
+  {% endif %}
+</section>
+
+<section class="block">
+  <div class="block__head"><h2>Farmers asking about your land</h2></div>
+  {% if inquiries %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Who</th><th>Parcel</th><th>Message</th><th>When</th><th></th></tr></thead>
+        <tbody>
+          {% for i in inquiries %}
+            <tr>
+              <td>{{ i['sender_name'] }}<br><span class="help">{{ i['sender_phone'] }} &middot; {{ i['sender_district'] }}</span></td>
+              <td><a href="/land/{{ i['listing_id'] }}">{{ i['listing_title'] }}</a></td>
+              <td>{{ i['message'] }}</td>
+              <td>{{ short_date(i['created_at']) }}<br><span class="badge badge--{{ i['status'] }}">{{ i['status'] }}</span></td>
+              <td>
+                {% if i['status'] != 'closed' %}
+                <form method="post" action="/dashboard/inquiries/{{ i['id'] }}/close" class="inline-form">
+                  <button class="btn btn--line btn--small" type="submit">Mark handled</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty">Nobody has written yet. We open district by district, so this fills up slowly on purpose.</p>
+  {% endif %}
+</section>
+
+<section class="block">
+  <div class="block__head">
+    <h2>Your season plans</h2>
+    <a class="btn btn--line btn--small" href="/dashboard/seasons/new">Add a plan</a>
+  </div>
+  {% if seasons %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Plan</th><th>Season</th><th>Budget</th><th>Spoken for</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for s in seasons %}
+            <tr>
+              <td><a href="/seasons/{{ s['id'] }}">{{ s['crop'] }} on {{ s['parcel_label'] }}</a></td>
+              <td>{{ s['season_label'] }}</td>
+              <td class="num">&#8377;{{ inr(s['input_budget']) }}</td>
+              <td class="num">&#8377;{{ inr(s['pledged']) }} <span class="help">({{ s['backers'] }})</span></td>
+              <td><span class="badge badge--{{ s['status'] }}">{{ s['status'] }}</span></td>
+              <td>
+                <div class="row-actions">
+                  <a class="btn btn--line btn--small" href="/dashboard/seasons/{{ s['id'] }}/edit">Edit</a>
+                  <form method="post" action="/dashboard/seasons/{{ s['id'] }}/delete" class="inline-form" onsubmit="return confirm('Remove this plan?')">
+                    <button class="btn btn--danger btn--small" type="submit">Remove</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty">No plans yet. A plan is one crop on one parcel for one season, costed &mdash; <a href="/dashboard/seasons/new">write one</a>.</p>
+  {% endif %}
+</section>
+
+<section class="block">
+  <div class="block__head"><h2>Plans you are backing</h2></div>
+  {% if pledges %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Plan</th><th>Where</th><th>Your interest</th><th>Stage</th></tr></thead>
+        <tbody>
+          {% for p in pledges %}
+            <tr>
+              <td><a href="/seasons/{{ p['season_id'] }}">{{ p['crop'] }} on {{ p['parcel_label'] }}</a><br><span class="help">{{ p['season_label'] }}</span></td>
+              <td>{{ p['district'] }}, {{ p['state'] }}</td>
+              <td class="num">&#8377;{{ inr(p['amount']) }}</td>
+              <td><span class="badge badge--{{ p['season_status'] }}">{{ p['season_status'] }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="help" style="margin-top:.75rem">Registered interest, not payment. Nothing is owed by you and nothing is owed to you until there is a signed deed for that season.</p>
+  {% else %}
+    <p class="empty">You are not backing any plan yet. <a href="/seasons">The open ones are here</a>.</p>
+  {% endif %}
+</section>
+
+{% if sent_inquiries %}
+<section class="block">
+  <div class="block__head"><h2>Parcels you have asked about</h2></div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Parcel</th><th>Where</th><th>You wrote</th><th>When</th></tr></thead>
+      <tbody>
+        {% for i in sent_inquiries %}
+          <tr>
+            <td><a href="/land/{{ i['listing_id'] }}">{{ i['listing_title'] }}</a></td>
+            <td>{{ i['district'] }}, {{ i['state'] }}</td>
+            <td>{{ i['message'] }}</td>
+            <td>{{ short_date(i['created_at']) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

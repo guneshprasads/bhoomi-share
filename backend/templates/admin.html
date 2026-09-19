@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Admin &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="page__head">
+  <div>
+    <h1>Admin</h1>
+    <p>Everything in the pilot, in one place. Be careful: these are people&rsquo;s phone numbers.</p>
+  </div>
+  <div class="page__actions">
+    <a class="btn btn--line" href="/admin/waitlist.csv">Waitlist CSV</a>
+  </div>
+</div>
+
+<div class="stats">
+  {% for label, value in counts.items() %}
+    <div class="stat"><span class="stat__n">{{ value }}</span><span class="stat__label">{{ label }}</span></div>
+  {% endfor %}
+</div>
+
+<section class="block">
+  <div class="block__head"><h2>Waitlist</h2><span class="help">{{ waitlist|length }} shown</span></div>
+  {% if waitlist %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Name</th><th>Phone</th><th>Side</th><th>District and state</th><th>Joined</th><th></th></tr></thead>
+        <tbody>
+          {% for w in waitlist %}
+            <tr>
+              <td>{{ w['name'] }}</td>
+              <td>{{ w['phone'] }}</td>
+              <td><span class="badge">{{ w['role'] }}</span></td>
+              <td>{{ w['place'] }}</td>
+              <td>{{ short_date(w['created_at']) }}</td>
+              <td>
+                <form method="post" action="/admin/waitlist/{{ w['id'] }}/delete" class="inline-form" onsubmit="return confirm('Delete this waitlist entry?')">
+                  <button class="btn btn--danger btn--small" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty">Nobody on the waitlist yet.</p>
+  {% endif %}
+</section>
+
+<section class="block">
+  <div class="block__head"><h2>Accounts</h2></div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Sides</th><th>Where</th><th>Joined</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>{{ u['name'] }}{% if u['is_admin'] %} <span class="badge badge--new">admin</span>{% endif %}</td>
+            <td>{{ u['email'] }}</td>
+            <td>{{ u['phone'] }}</td>
+            <td>{{ u['roles'] }}</td>
+            <td>{{ u['district'] }}, {{ u['state'] }}</td>
+            <td>{{ short_date(u['created_at']) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block__head"><h2>Season plans</h2></div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Plan</th><th>Grower</th><th>Budget</th><th>Interest</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for s in seasons %}
+          <tr>
+            <td><a href="/seasons/{{ s['id'] }}">{{ s['crop'] }} on {{ s['parcel_label'] }}</a></td>
+            <td>{{ s['grower_name'] }}</td>
+            <td class="num">&#8377;{{ inr(s['input_budget']) }}</td>
+            <td class="num">&#8377;{{ inr(s['pledged']) }} <span class="help">({{ s['backers'] }})</span></td>
+            <td><span class="badge badge--{{ s['status'] }}">{{ s['status'] }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5">No plans yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block__head"><h2>Land listings</h2></div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>Parcel</th><th>Owner</th><th>Where</th><th>Size</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for l in listings %}
+          <tr>
+            <td><a href="/land/{{ l['id'] }}">{{ l['title'] }}</a></td>
+            <td>{{ l['owner_name'] }}</td>
+            <td>{{ l['district'] }}, {{ l['state'] }}</td>
+            <td class="num">{{ acres(l['acres']) }}</td>
+            <td><span class="badge badge--{{ l['status'] }}">{{ l['status'] }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5">No listings yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

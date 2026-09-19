@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}{{ site_name }}{% endblock %}</title>
+<meta name="theme-color" content="#F3ECDC">
+<meta name="description" content="{% block description %}Fund a season's crop on a named parcel, or list farmland you aren't farming. Piloted on our own 15 acres first.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Public+Sans:wght@400..700&display=swap">
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="/static/parcel.svg" type="image/svg+xml">
+</head>
+<body>
+{% include "partials/header.html" %}
+
+<main id="top">
+  {% block body %}
+  <div class="wrap page">
+    {% if flashes %}{% include "partials/flash.html" %}{% endif %}
+    {% block content %}{% endblock %}
+  </div>
+  {% endblock %}
+</main>
+
+{% include "partials/footer.html" %}
+<script src="/static/app.js" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

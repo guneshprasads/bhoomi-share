@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}{{ season['crop'] }} on {{ season['parcel_label'] }} &mdash; {{ site_name }}{% endblock %}
+{% block description %}{{ season['season_label'] }}: {{ season['crop'] }} on {{ season['acres'] }} acres in {{ season['district'] }}, split {{ season['investor_pct'] }}/{{ season['grower_pct'] }}.{% endblock %}
+
+{% block content %}
+<p class="crumb"><a href="/seasons">Season plans</a> <span>/</span> <span>{{ season['season_label'] }}</span></p>
+
+<div class="page__head">
+  <div>
+    <h1>{{ season['crop'] }} on {{ season['parcel_label'] }}</h1>
+    <p class="pair" style="margin-top:.75rem">
+      <span>{{ season['season_label'] }}</span>
+      <span>{{ season['district'] }}, {{ season['state'] }}</span>
+      {% if season['survey_no'] %}<span>Survey {{ season['survey_no'] }}</span>{% endif %}
+      <span>Grower: {{ season['grower_name'] }}</span>
+    </p>
+  </div>
+  <span class="badge badge--{{ season['status'] }}">{{ season['status'] }}</span>
+</div>
+
+<div class="detail">
+  <div>
+    <dl class="spec spec--wide">
+      <dt>Parcel</dt><dd>{{ acres(season['acres']) }}</dd>
+      <dt>Sowing window</dt><dd>{{ season['sowing_window'] or 'To be set' }}</dd>
+      <dt>Input budget</dt><dd>&#8377;{{ inr(season['input_budget']) }} &mdash; seed, inputs, irrigation, labour</dd>
+      <dt>Expected yield</dt><dd>{{ season['expected_quintals'] }} quintals at &#8377;{{ inr(season['expected_price']) }} a quintal</dd>
+      <dt>Expected sale</dt><dd>&#8377;{{ inr(expected_sale) }}</dd>
+      <dt>Split of proceeds</dt><dd>{{ season['investor_pct'] }} investor / {{ season['grower_pct'] }} grower, agreed before sowing</dd>
+    </dl>
+
+    <h2 style="margin-top:2.25rem;font-size:1.25rem">If the season goes to plan</h2>
+    <div class="table-wrap" style="margin-top:1rem">
+      <table class="data">
+        <tr><th>Sale value</th><td class="num">&#8377;{{ inr(expected_sale) }}</td></tr>
+        <tr><th>Less input costs in the plan</th><td class="num">&#8722; &#8377;{{ inr(season['input_budget']) }}</td></tr>
+        <tr><th>Left to split</th><td class="num">&#8377;{{ inr(net) }}</td></tr>
+        <tr><th>Investor side ({{ season['investor_pct'] }}%)</th><td class="num">&#8377;{{ inr(investor_cut) }}</td></tr>
+        <tr><th>Grower side ({{ season['grower_pct'] }}%)</th><td class="num">&#8377;{{ inr(grower_cut) }}</td></tr>
+      </table>
+    </div>
+    <p class="help" style="margin-top:.75rem;max-width:62ch">Those are the grower's estimates on this parcel, not a forecast anyone stands behind. Rain, pests and the mandi price all move them. A bad season splits the same way a good one does: there is no guaranteed return and we will not offer one.</p>
+
+    {% if season['plan_note'] %}
+      <h2 style="margin-top:2.25rem;font-size:1.25rem">The grower's plan</h2>
+      <p style="margin-top:.85rem;max-width:62ch">{{ season['plan_note'] }}</p>
+    {% endif %}
+
+    <h2 style="margin-top:2.25rem;font-size:1.25rem">Season log</h2>
+    {% if updates %}
+      <ul class="timeline">
+        {% for u in updates %}
+          <li>
+            <time datetime="{{ u['created_at'] }}">{{ short_date(u['created_at']) }}</time>
+            <p>{{ u['body'] }}</p>
+            {% if u['spend'] %}<p class="spend">Spent so far: &#8377;{{ inr(u['spend']) }}</p>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty" style="margin-top:1rem">Nothing logged yet. Once sowing starts the grower posts what was spent and what went in the ground.</p>
+    {% endif %}
+
+    {% if is_grower %}
+      <h2 style="margin-top:2.25rem;font-size:1.25rem">Post an update</h2>
+      <form method="post" action="/seasons/{{ season['id'] }}/updates" style="margin-top:1rem;max-width:40rem">
+        <div class="field">
+          <label for="body">What happened</label>
+          <textarea id="body" name="body" required placeholder="Sowed 3.2 acres on the 14th. Two irrigations done."></textarea>
+        </div>
+        <div class="field">
+          <label for="spend">Spent so far (&#8377;, optional)</label>
+          <input type="number" id="spend" name="spend" min="0" step="100">
+        </div>
+        <button class="btn btn--solid" type="submit">Post to the log</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <aside class="detail__aside">
+    {% set pct = (season['pledged'] * 100 // season['input_budget']) if season['input_budget'] else 0 %}
+    <h2>&#8377;{{ inr(season['pledged']) }} of &#8377;{{ inr(season['input_budget']) }} spoken for</h2>
+    <div class="meter">
+      <div class="meter__bar" role="img" aria-label="{{ pct }} percent of the input budget spoken for">
+        {% if pct %}<div class="meter__fill" style="width:{{ [pct, 100] | min }}%"></div>{% endif %}
+      </div>
+      <p class="meter__line">
+        <span><strong>{{ pct }}%</strong></span>
+        <span>{{ season['backers'] }} interested</span>
+      </p>
+    </div>
+
+    {% if is_grower %}
+      <p class="panel-note">This is your plan. Everyone who has registered interest is listed below; their numbers are yours to call.</p>
+      {% if pledges %}
+        <div class="table-wrap" style="margin-top:1rem;border:0">
+          <table class="data" style="min-width:0">
+            {% for p in pledges %}
+              <tr><td>{{ p['investor_name'] }}<br><span class="help">{{ p['investor_phone'] }}</span></td><td class="num">&#8377;{{ inr(p['amount']) }}</td></tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endif %}
+      <p style="margin-top:1rem"><a class="btn btn--line" href="/dashboard/seasons/{{ season['id'] }}/edit">Edit this plan</a></p>
+    {% elif user %}
+      <h2 style="margin-top:1.25rem">Register interest</h2>
+      <form method="post" action="/seasons/{{ season['id'] }}/pledge">
+        <div class="field">
+          <label for="amount">Amount you would put in (&#8377;)</label>
+          <input type="number" id="amount" name="amount" min="1000" step="1000" value="{{ my_pledge['amount'] if my_pledge else '' }}" required>
+        </div>
+        <div class="field">
+          <label for="note">Anything to say <span class="hint">&mdash; optional</span></label>
+          <textarea id="note" name="note" style="min-height:4.5rem">{{ my_pledge['note'] if my_pledge else '' }}</textarea>
+        </div>
+        <button class="btn btn--gold" type="submit">{{ 'Update my interest' if my_pledge else 'Register interest' }}</button>
+      </form>
+      {% if my_pledge %}
+        <form method="post" action="/seasons/{{ season['id'] }}/pledge/withdraw" style="margin-top:.6rem">
+          <button class="btn btn--danger btn--small" type="submit">Withdraw it</button>
+        </form>
+      {% endif %}
+      <p class="panel-note">This records interest. It is not a payment, not a commitment, and not an offer of securities. If a pool opens for this plan, we come back to you with a partnership deed and counsel's structure &mdash; and you decide then.</p>
+    {% else %}
+      <h2 style="margin-top:1.25rem">Register interest</h2>
+      <p class="panel-note">Make an account first, so the grower knows who is asking.</p>
+      <p style="margin-top:1rem"><a class="btn btn--gold" href="/signup?next=/seasons/{{ season['id'] }}">Create an account</a></p>
+      <p style="margin-top:.5rem"><a class="btn btn--line" href="/login?next=/seasons/{{ season['id'] }}">I already have one</a></p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

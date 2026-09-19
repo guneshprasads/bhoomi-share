@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% block title %}Bhoomi Share &mdash; fund a season, or find land to farm{% endblock %}
+
+{% block body %}
+{% if flashes %}<div class="wrap" style="padding-top:1.5rem">{% include "partials/flash.html" %}</div>{% endif %}
+
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div>
+        <h1>A crop needs land, money, and someone to farm it.</h1>
+        <p class="hero__sub">Those three rarely sit with the same person. Bhoomi Share does two things about that: it lets an investor fund one season on one named parcel and take an agreed share of the harvest, and it lets a landowner who isn&rsquo;t farming hand the land to a farmer who will &mdash; on paper, for a fixed term.</p>
+        <div class="hero__cta">
+          <a class="btn btn--solid" href="/seasons">See open season plans</a>
+          <a class="btn btn--line" href="/land">See land on offer</a>
+        </div>
+        <p class="pilot">We farm <strong>15 acres</strong> as a family. Both models run there first &mdash; our own capital, our own soil, a full season of numbers &mdash; before we take money or land from anyone else.</p>
+      </div>
+
+      <div class="sheet">
+        <svg viewBox="0 0 520 560" role="img" aria-labelledby="mapTitle mapDesc">
+          <title id="mapTitle">Survey sheet of the family holding</title>
+          <desc id="mapDesc">A cadastral-style plan of eight parcels. The parcel marked BS-04, survey number 212 stroke 3, covers 3.2 acres and is highlighted: it is funded on a 70 percent investor to 30 percent grower split for the Rabi 2026 chana crop. A neighbouring parcel, survey number 215, is marked as leased out on a license running to 2027.</desc>
+
+          <defs>
+            <pattern id="leased" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+              <rect width="8" height="8" fill="#EAE0C8"></rect>
+              <line x1="0" y1="0" x2="0" y2="8" stroke="#D9CBA9" stroke-width="1.6"></line>
+            </pattern>
+          </defs>
+
+          <!-- neighbouring parcels -->
+          <g stroke="#D9CBA9" stroke-width="1.25">
+            <polygon points="40,44 212,40 208,158 42,168" fill="#EAE0C8"></polygon>
+            <polygon points="212,40 348,45 352,164 208,158" fill="#EAE0C8"></polygon>
+            <polygon points="348,45 480,42 478,156 352,164" fill="#EAE0C8"></polygon>
+            <polygon points="352,164 478,156 482,302 344,312" fill="#EAE0C8"></polygon>
+            <polygon points="38,306 214,300 210,458 44,452" fill="#EAE0C8"></polygon>
+            <polygon points="214,300 344,312 350,448 210,458" fill="#EAE0C8"></polygon>
+            <polygon points="344,312 482,302 478,454 350,448" fill="url(#leased)"></polygon>
+          </g>
+
+          <!-- funded parcel -->
+          <polygon points="42,168 352,164 344,312 38,306" fill="#3E4A2E" stroke="#2C3620" stroke-width="1.25"></polygon>
+
+          <!-- watercourse along the southern boundary -->
+          <path d="M40,470 C130,478 190,466 276,474 C352,481 420,470 480,476" fill="none" stroke="#A6512B" stroke-width="1.25" stroke-dasharray="7 5" opacity=".75"></path>
+          <text x="40" y="492" font-family="Public Sans, sans-serif" font-size="10" fill="#7A6C58">Canal branch &mdash; shared, 6 hours a week</text>
+
+          <!-- neighbour labels -->
+          <g font-family="Public Sans, sans-serif" font-size="10.5" fill="#7A6C58">
+            <text x="56" y="62">Sy. 210/1</text>
+            <text x="56" y="76" class="minor" fill="#9C8E79">2.1 ac &middot; fallow</text>
+            <text x="226" y="62">Sy. 210/2</text>
+            <text x="226" y="76" class="minor" fill="#9C8E79">1.8 ac &middot; tur</text>
+            <text x="364" y="64">Sy. 211</text>
+            <text x="364" y="78" class="minor" fill="#9C8E79">2.4 ac &middot; tur</text>
+            <text x="366" y="186">Sy. 213</text>
+            <text x="366" y="200" class="minor" fill="#9C8E79">2.0 ac &middot; fallow</text>
+            <text x="56" y="326">Sy. 214/1</text>
+            <text x="56" y="340" class="minor" fill="#9C8E79">1.9 ac &middot; jowar</text>
+            <text x="228" y="332">Sy. 214/2</text>
+            <text x="228" y="346" class="minor" fill="#9C8E79">1.6 ac</text>
+            <text x="360" y="332">Sy. 215</text>
+            <text x="360" y="346" class="minor" fill="#9C8E79">leased out</text>
+            <text x="360" y="360" class="minor" fill="#9C8E79">license to 2027</text>
+          </g>
+
+          <!-- funded parcel content -->
+          <g font-family="Public Sans, sans-serif">
+            <text x="66" y="196" font-size="11" font-weight="600" letter-spacing="1.1" fill="#EDE4CF">BS-04 &nbsp;&middot;&nbsp; Sy. 212/3</text>
+            <text x="328" y="196" font-size="11" font-weight="600" letter-spacing="0.6" fill="#BFB79F" text-anchor="end">3.20 acres</text>
+            <text x="64" y="256" font-family="Fraunces, Georgia, serif" font-size="46" font-weight="700" fill="#C89B3C">70 / 30</text>
+            <text x="68" y="278" font-size="10.5" fill="#BFB79F">investor / grower</text>
+            <text x="328" y="278" font-size="10.5" fill="#BFB79F" text-anchor="end">Rabi 2026 &middot; chana</text>
+          </g>
+
+          <!-- sheet furniture: north arrow + scale -->
+          <g transform="translate(40,516)">
+            <line x1="0" y1="18" x2="76" y2="18" stroke="#211A12" stroke-width="1.25"></line>
+            <line x1="0" y1="13" x2="0" y2="23" stroke="#211A12" stroke-width="1.25"></line>
+            <line x1="38" y1="14" x2="38" y2="22" stroke="#211A12" stroke-width="1"></line>
+            <line x1="76" y1="13" x2="76" y2="23" stroke="#211A12" stroke-width="1.25"></line>
+            <text x="86" y="22" font-family="Public Sans, sans-serif" font-size="10" fill="#7A6C58">100 m</text>
+          </g>
+          <g transform="translate(470,514)">
+            <path d="M6,26 L6,4 M6,4 L1.5,11 M6,4 L10.5,11" fill="none" stroke="#211A12" stroke-width="1.25"></path>
+            <text x="6" y="38" font-family="Public Sans, sans-serif" font-size="10" fill="#7A6C58" text-anchor="middle">N</text>
+          </g>
+          <text x="450" y="538" text-anchor="end" font-family="Public Sans, sans-serif" font-size="10" fill="#9C8E79">Family holding &middot; 15.0 acres &middot; illustrative sheet</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUND -->
+  <div class="seam"></div>
+  <section class="sec" id="fund" style="scroll-margin-top:70px">
+    <div class="wrap">
+      <div class="sec__head">
+        <p class="label">For investors and growers</p>
+        <h2>Fund a season, share the harvest.</h2>
+        <p>You are not buying land and you are not buying a share of a company. You are funding the inputs and labour of one crop cycle on one parcel, and taking an agreed slice of what that parcel sells for.</p>
+      </div>
+
+      <div class="panels">
+        <article class="panel panel--field">
+          <h3 class="panel__title">If you have capital</h3>
+          <div class="panel__body">
+            <p>Pick a parcel with a season plan already on it &mdash; crop, sowing window, input budget, expected quintals, the split. Put in the capital side. The grower farms it and reports through the season.</p>
+          </div>
+
+          <ol class="flow">
+            <li><span class="flow__step">You fund</span><span class="flow__note">Capital covers seed, inputs, irrigation and labour for one season.</span></li>
+            <li class="flow__arrow" aria-hidden="true">&rarr;</li>
+            <li><span class="flow__step">Grower farms</span><span class="flow__note">Sowing to harvest, with photographs and spend logged against the plan.</span></li>
+            <li class="flow__arrow" aria-hidden="true">&rarr;</li>
+            <li><span class="flow__step">Harvest sells</span><span class="flow__note">Mandi or contract sale, receipts shared, proceeds split as signed.</span></li>
+          </ol>
+
+          <div class="split">
+            <div class="split__bar" role="img" aria-label="Illustrative split of net proceeds: investor 70 percent, grower 30 percent">
+              <div class="split__seg split__seg--inv" style="flex:70 1 0">70%</div>
+              <div class="split__seg split__seg--grow" style="flex:30 1 0">30%</div>
+            </div>
+            <div class="split__key">
+              <span><i class="swatch swatch--inv" aria-hidden="true"></i>Investor capital</span>
+              <span><i class="swatch swatch--grow" aria-hidden="true"></i>Grower&rsquo;s share</span>
+            </div>
+            <p class="split__note">70/30 is the ratio on BS-04, not a fixed rule &mdash; it is agreed per parcel before sowing and written down. What gets split is the sale value minus the input costs listed in the plan. A bad season splits the same way: there is no guaranteed return, and we will not offer one.</p>
+          </div>
+
+          <div class="panel__foot">
+            <a class="btn btn--gold" href="/seasons">Read the open plans</a>
+          </div>
+        </article>
+
+        <article class="panel panel--paper">
+          <h3 class="panel__title">If you grow</h3>
+          <div class="panel__body">
+            <p>Bring a parcel and a plan for it. Costed inputs, a crop you have grown before, a realistic yield. Funded plans release capital at sowing instead of against your own borrowing.</p>
+          </div>
+
+          <ol class="flow flow--paper">
+            <li><span class="flow__step">List a plan</span><span class="flow__note">Parcel, crop, input budget, expected yield, the split you want.</span></li>
+            <li class="flow__arrow" aria-hidden="true">&rarr;</li>
+            <li><span class="flow__step">Get funded</span><span class="flow__note">Capital at sowing, against a signed agreement rather than collateral.</span></li>
+          </ol>
+
+          <div class="panel__foot">
+            <a class="btn btn--solid" href="/dashboard/seasons/new">List a season plan</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPEN PLANS (live) -->
+  {% if open_seasons %}
+  <div class="seam"></div>
+  <section class="sec">
+    <div class="wrap">
+      <div class="block__head">
+        <h2>Open this season</h2>
+        <a class="btn btn--line btn--small" href="/seasons">All season plans</a>
+      </div>
+      <div class="records">
+        {% for s in open_seasons %}{% include "partials/season_card.html" %}{% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- LAND -->
+  <div class="seam"></div>
+  <section class="sec" id="land" style="scroll-margin-top:70px">
+    <div class="wrap">
+      <div class="sec__head">
+        <p class="label">For landowners and farmers</p>
+        <h2>Land sitting idle is worth more with someone farming it.</h2>
+        <p>Most of this already happens &mdash; by word of mouth, between families, on no paper at all. That works until it doesn&rsquo;t. Four steps, and the third one is the whole point.</p>
+      </div>
+
+      <div class="steps" id="how">
+        <article class="step">
+          <span class="step__n">01</span>
+          <h3>List or search</h3>
+          <p>Acreage, survey number, water source and hours, soil, road access, and what was last grown on it. Farmers search by district and by what they can actually irrigate.</p>
+        </article>
+        <article class="step">
+          <span class="step__n">02</span>
+          <h3>Agree on terms</h3>
+          <p>Rent per acre per season, or a share of the crop. Who pays for borewell power, who repairs the bunds, who keeps the residue, what happens if the rain fails.</p>
+        </article>
+        <article class="step">
+          <span class="step__n">03</span>
+          <h3>Sign a proper license</h3>
+          <p>A fixed-term license drafted for your state, signed and witnessed. Not a handshake, and deliberately not an open-ended tenancy &mdash; see the fine print below for why that distinction matters.</p>
+        </article>
+        <article class="step">
+          <span class="step__n">04</span>
+          <h3>Renew or move on</h3>
+          <p>At the end of the term the land comes back to you, with a record of how it was farmed. Renew with the same farmer if it went well; list it again if it didn&rsquo;t.</p>
+        </article>
+      </div>
+
+      {% if recent_listings %}
+      <div class="block__head" style="margin-top:clamp(2.5rem,4vw,3.5rem)">
+        <h2>Land on offer now</h2>
+        <a class="btn btn--line btn--small" href="/land">All parcels</a>
+      </div>
+      <div class="records">
+        {% for l in recent_listings %}{% include "partials/listing_card.html" %}{% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="hero__cta" style="margin-top:2rem;margin-bottom:0">
+        <a class="btn btn--solid" href="/land">Search parcels</a>
+        <a class="btn btn--line" href="/dashboard/listings/new">List your land</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINE PRINT -->
+  <section class="sec fine" id="fineprint">
+    <div class="wrap">
+      <p class="label label--dark">The fine print</p>
+      <h2>We would rather grow slowly than fall foul of SEBI.</h2>
+      <p class="fine__lede">Two pieces of Indian law sit directly across this idea. Neither makes it impossible; both decide how it has to be built. We would rather put them on the front page than in a footnote &mdash; <a href="/fine-print" style="color:var(--gold)">the long version is here</a>.</p>
+
+      <div class="fine__grid">
+        <article class="fine__item">
+          <span class="fine__tag">Money</span>
+          <h3>Small pools, and a lawyer&rsquo;s name on the structure</h3>
+          <p>Pooling money from the public and managing it for a share of the profits can qualify as a Collective Investment Scheme under the SEBI Act &mdash; and running one unregistered is not a risk we will take with someone else&rsquo;s savings. So: capped pool size, a small number of investors, an LLP or partnership deed per season, and a counsel-reviewed structure in place before a single rupee moves. If that means fewer investors per season, fine.</p>
+        </article>
+        <article class="fine__item">
+          <span class="fine__tag">Land</span>
+          <h3>State-aware terms, short by design</h3>
+          <p>In several states a tenant who farms the same land continuously can build up occupancy or purchase rights over it. That is exactly why landowners here avoid writing anything down. So the agreements are short fixed-term licenses to cultivate, drafted against the tenancy law of the state the land sits in, with renewal as a decision rather than a default &mdash; written protection for the farmer that doesn&rsquo;t quietly cost the owner the land.</p>
+        </article>
+        <article class="fine__item">
+          <span class="fine__tag">Proof</span>
+          <h3>Proven on our own land first</h3>
+          <p>Our 15 acres is the pilot. Our capital in the investor seat, our family in the grower seat, one parcel leased out on the license we drafted. We want a full season of real numbers &mdash; including the parts that went badly &mdash; before we ask an outsider to fund a crop or hand over a field.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+  <section class="sec join" id="join">
+    <div class="wrap join__grid">
+      <div>
+        <p class="label">Waitlist</p>
+        <h2>Tell us which side you&rsquo;re on.</h2>
+        <p style="margin-top:1.1rem;max-width:40ch">We open district by district, after the pilot season closes. Leave your details and we will come back to you with what is actually available near you &mdash; not a launch announcement.</p>
+      </div>
+
+      <div>
+        <form id="waitlist" novalidate>
+          <div class="field">
+            <label for="wl-name">Name</label>
+            <input type="text" id="wl-name" name="name" autocomplete="name" placeholder="Your full name" required>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="wl-company">Company</label>
+            <input type="text" id="wl-company" name="company" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label for="wl-phone">Phone</label>
+              <input type="tel" id="wl-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" required>
+            </div>
+            <div class="field">
+              <label for="wl-role">I&rsquo;m here as <span class="hint">&mdash; pick one</span></label>
+              <div class="sel">
+                <select id="wl-role" name="role" required>
+                  <option value="" selected>Select one</option>
+                  <option value="Investor">Investor &mdash; I want to fund a season</option>
+                  <option value="Grower">Grower &mdash; I want a season funded</option>
+                  <option value="Landowner">Landowner &mdash; I have land to list</option>
+                  <option value="Farmer">Farmer &mdash; I need more land</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="wl-place">District and state</label>
+            <input type="text" id="wl-place" name="place" placeholder="e.g. Belagavi, Karnataka" required>
+          </div>
+
+          <button class="btn btn--solid" type="submit">Join the waitlist</button>
+          <p class="form__fine" id="wl-status" role="status">Nothing on this page is an offer to invest. We will call or message you once &mdash; no lists, no forwarding your number.</p>
+        </form>
+
+        <div class="thanks" id="wl-thanks" hidden tabindex="-1">
+          <h3>Noted &mdash; thank you.</h3>
+          <p id="wl-thanks-line">We have your details.</p>
+          <p>We will get in touch when the pilot season closes and we know what is available near you. If the structure isn&rsquo;t cleared by then, we will tell you that instead of going quiet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

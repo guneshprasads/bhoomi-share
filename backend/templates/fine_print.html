@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}The fine print &mdash; {{ site_name }}{% endblock %}
+{% block description %}The Indian law that shapes how this is built: collective investment scheme rules, tenancy rights, and what the pilot does about both.{% endblock %}
+
+{% block content %}
+<div class="page__head">
+  <div>
+    <h1>The fine print</h1>
+    <p>Two pieces of Indian law sit directly across this idea. Neither makes it impossible; both decide how it has to be built. We would rather put them on a page of their own than in a footnote.</p>
+  </div>
+</div>
+
+<div class="prose">
+  <h2>Money: pooling it is regulated, and we are not going to pretend otherwise</h2>
+  <p>Collecting money from the public, pooling it, and managing it so that contributors get a share of the profits is close to the statutory definition of a <strong>Collective Investment Scheme</strong> under the SEBI Act. Running one unregistered is not a risk worth taking with someone else's savings, and it is not a risk we will take with ours.</p>
+  <p>So, before any money moves:</p>
+  <ul>
+    <li><strong>The pool stays capped and small.</strong> A season is funded by a handful of people we can name, not by a public raise.</li>
+    <li><strong>Each season is its own vehicle</strong> &mdash; an LLP or a partnership deed for that crop on that parcel, signed by the people in it.</li>
+    <li><strong>Counsel reviews the structure</strong> before the first rupee, and we follow what they say even when it makes the product smaller.</li>
+    <li><strong>Nothing on this site is an offer</strong>, a solicitation, or an invitation to invest. Registering interest in a season plan is a message to a grower, not a subscription.</li>
+  </ul>
+  <p>If that means fewer investors per season, fine. We would rather grow slowly than fall foul of SEBI.</p>
+
+  <h2>Land: why the agreement is a licence and not a lease</h2>
+  <p>In several Indian states, a tenant who cultivates the same land continuously can build up occupancy, protected-tenancy or even purchase rights over it. Maharashtra, Karnataka and Gujarat all have tenancy statutes of this shape. This is not a loophole or a technicality &mdash; it is the reason landowners across the country refuse to write anything down, and why so much leasing happens on a handshake that protects nobody.</p>
+  <p>Our answer is not to skip the paperwork. It is to write the right paperwork:</p>
+  <ul>
+    <li><strong>Fixed-term licences to cultivate</strong>, not open-ended leases. The term ends on its date.</li>
+    <li><strong>Drafted against the law of the state the land sits in</strong>, because these statutes differ, and a template from one state is not safe in another.</li>
+    <li><strong>Renewal is a decision</strong>, taken again by both sides, rather than a default that quietly accrues rights.</li>
+    <li><strong>Written protection for the farmer</strong> &mdash; what they may grow, what they may keep, what notice they get &mdash; that does not cost the owner the land.</li>
+  </ul>
+  <p>We are not your lawyers, and this page is not legal advice. Have your own person read the licence before you sign it. If your state's position is different from what we have drafted for, we would rather hear it from you than find out later.</p>
+
+  <h2>Proof: our own land goes first</h2>
+  <p>Our 15 acres is the pilot. Our capital in the investor seat, our family in the grower seat, one parcel leased out on the licence we drafted. We want a full season of real numbers &mdash; including the parts that went badly &mdash; before we ask an outsider to fund a crop or hand over a field.</p>
+
+  <h2>What this site holds about you</h2>
+  <ul>
+    <li>If you join the waitlist: your name, phone number, the side you are on, and your district. Nothing else, and it is not sold or forwarded.</li>
+    <li>If you make an account: the same, plus an email address and a password stored as a scrypt hash, never in the clear.</li>
+    <li>When you write to a landowner or register interest in a plan, that person sees your name, district and phone number. That is the point of writing.</li>
+    <li>We keep a salted hash of the IP address a waitlist form was submitted from, to stop it being flooded. We do not store the address itself.</li>
+    <li>Ask us to delete any of it and we will, without asking why.</li>
+  </ul>
+
+  <h2>Status</h2>
+  <p>{{ site_name }} is pre-launch. No investment is being offered or accepted, no money moves through this site, and no land agreement is executed here. When any of that changes, it changes on this page first.</p>
+</div>
+{% endblock %}

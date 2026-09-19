@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit parcel' if editing else 'List your land' }} &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<p class="crumb"><a href="/dashboard">Dashboard</a> <span>/</span> <span>{{ 'Edit parcel' if editing else 'List your land' }}</span></p>
+
+<div class="page__head">
+  <div>
+    <h1>{{ 'Edit this parcel' if editing else 'List your land' }}</h1>
+    <p>Farmers decide on water and soil before anything else, so fill those in properly. What you write here is what they search.</p>
+  </div>
+</div>
+
+<form class="form-wide" method="post" action="{{ action }}">
+  {% if error %}<p class="flash flash--bad" role="alert">{{ error }}</p>{% endif %}
+
+  <fieldset>
+    <legend>The parcel</legend>
+    <div class="field">
+      <label for="title">How you would describe it</label>
+      <input type="text" id="title" name="title" value="{{ f.title }}" required placeholder="3 acres with a borewell, off the Nipani road">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="acres">Size (acres)</label>
+        <input type="number" id="acres" name="acres" value="{{ f.acres }}" step="0.1" min="0.1" required>
+      </div>
+      <div class="field">
+        <label for="survey_no">Survey number <span class="hint">&mdash; optional</span></label>
+        <input type="text" id="survey_no" name="survey_no" value="{{ f.survey_no }}" placeholder="212/3">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="district">District</label>
+        <input type="text" id="district" name="district" value="{{ f.district }}" required>
+      </div>
+      <div class="field">
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" value="{{ f.state }}" required>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>What a farmer needs to know</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="water_source">Water</label>
+        <input type="text" id="water_source" name="water_source" value="{{ f.water_source }}" placeholder="Borewell, canal, rain-fed">
+      </div>
+      <div class="field">
+        <label for="water_hours">Hours available</label>
+        <input type="text" id="water_hours" name="water_hours" value="{{ f.water_hours }}" placeholder="6 hours a week, shared">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="soil">Soil</label>
+        <input type="text" id="soil" name="soil" value="{{ f.soil }}" placeholder="Black cotton, medium deep">
+      </div>
+      <div class="field">
+        <label for="road_access">Road access</label>
+        <input type="text" id="road_access" name="road_access" value="{{ f.road_access }}" placeholder="Cart track, 400 m from the tar road">
+      </div>
+    </div>
+    <div class="field">
+      <label for="last_crop">Last grown on it</label>
+      <input type="text" id="last_crop" name="last_crop" value="{{ f.last_crop }}" placeholder="Tur, two seasons ago">
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Terms you want</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="term_months">Term (months)</label>
+        <input type="number" id="term_months" name="term_months" value="{{ f.term_months }}" min="1" max="60" required>
+        <span class="help">Short and fixed. Eleven months is the usual choice, and there is <a href="/fine-print">a reason for that</a>.</span>
+      </div>
+      <div class="field">
+        <label for="rent_per_acre">Rent per acre per season (&#8377;) <span class="hint">&mdash; leave blank for a crop share</span></label>
+        <input type="number" id="rent_per_acre" name="rent_per_acre" value="{{ f.rent_per_acre }}" min="0" step="500">
+      </div>
+    </div>
+    <div class="field">
+      <label for="share_terms">If it is a share, or anything conditional</label>
+      <input type="text" id="share_terms" name="share_terms" value="{{ f.share_terms }}" placeholder="One third of the crop, owner pays borewell power">
+    </div>
+    <div class="field">
+      <label for="notes">Anything else</label>
+      <textarea id="notes" name="notes" placeholder="Bunds need work. Residue stays on the field. No sugarcane.">{{ f.notes }}</textarea>
+    </div>
+    <div class="field">
+      <label for="status">Show it as</label>
+      <div class="sel">
+        <select id="status" name="status">
+          {% for value, label in statuses %}
+            <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button class="btn btn--solid" type="submit">{{ 'Save changes' if editing else 'Put it up' }}</button>
+    <a class="btn btn--line" href="/dashboard">Cancel</a>
+  </div>
+  <p class="help" style="margin-top:1rem;max-width:58ch">Listing land here does not commit you to anything and does not create a tenancy. Nothing is signed through this site; you sign a licence on paper, with your own witnesses.</p>
+</form>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ listing['title'] }} &mdash; {{ site_name }}{% endblock %}
+{% block description %}{{ listing['acres'] }} acres in {{ listing['district'] }}, {{ listing['state'] }} offered on a fixed-term licence.{% endblock %}
+
+{% block content %}
+<p class="crumb"><a href="/land">Land on offer</a> <span>/</span> <span>{{ listing['district'] }}</span></p>
+
+<div class="page__head">
+  <div>
+    <h1>{{ listing['title'] }}</h1>
+    <p class="pair" style="margin-top:.75rem">
+      <span>{{ listing['district'] }}, {{ listing['state'] }}</span>
+      {% if listing['survey_no'] %}<span>Survey {{ listing['survey_no'] }}</span>{% endif %}
+      <span>Listed by {{ listing['owner_name'] }}</span>
+      <span>Updated {{ short_date(listing['updated_at']) }}</span>
+    </p>
+  </div>
+  <span class="badge badge--{{ listing['status'] }}">{{ listing['status'] }}</span>
+</div>
+
+<div class="detail">
+  <div>
+    <dl class="spec spec--wide">
+      <dt>Size</dt><dd>{{ acres(listing['acres']) }}</dd>
+      <dt>Water</dt><dd>{{ listing['water_source'] or 'Rain-fed' }}{% if listing['water_hours'] %} &middot; {{ listing['water_hours'] }}{% endif %}</dd>
+      <dt>Soil</dt><dd>{{ listing['soil'] or 'Not stated' }}</dd>
+      <dt>Road access</dt><dd>{{ listing['road_access'] or 'Not stated' }}</dd>
+      <dt>Last grown</dt><dd>{{ listing['last_crop'] or 'Not stated' }}</dd>
+      <dt>Term offered</dt><dd>{{ listing['term_months'] }} months, fixed</dd>
+      <dt>Rent</dt><dd>{% if listing['rent_per_acre'] %}&#8377;{{ inr(listing['rent_per_acre']) }} per acre per season{% else %}Crop share &mdash; see terms{% endif %}</dd>
+      {% if listing['share_terms'] %}<dt>Terms</dt><dd>{{ listing['share_terms'] }}</dd>{% endif %}
+    </dl>
+
+    {% if listing['notes'] %}
+      <h2 style="margin-top:2.25rem;font-size:1.25rem">From the owner</h2>
+      <p style="margin-top:.85rem;max-width:62ch">{{ listing['notes'] }}</p>
+    {% endif %}
+
+    <h2 style="margin-top:2.25rem;font-size:1.25rem">What happens if you both agree</h2>
+    <ol class="steps" style="margin-top:1.25rem;grid-template-columns:1fr 1fr">
+      <li class="step" style="list-style:none"><span class="step__n">01</span><h3>You talk</h3><p>Send the owner a note here. We pass on your phone number with it; nothing else.</p></li>
+      <li class="step" style="list-style:none"><span class="step__n">02</span><h3>You sign a licence</h3><p>A fixed-term licence to cultivate, drafted against {{ listing['state'] }} tenancy law, signed and witnessed. It ends on its date.</p></li>
+    </ol>
+  </div>
+
+  <aside class="detail__aside">
+    {% if user and user['id'] == listing['owner_id'] %}
+      <h2>This is your listing</h2>
+      <p class="panel-note">{{ inquiry_count }} {{ 'farmer has' if inquiry_count == 1 else 'farmers have' }} written about it. Replies are in your dashboard.</p>
+      <p style="margin-top:1rem"><a class="btn btn--line" href="/dashboard/listings/{{ listing['id'] }}/edit">Edit this listing</a></p>
+    {% elif user %}
+      <h2>Ask about this parcel</h2>
+      <form method="post" action="/land/{{ listing['id'] }}/inquire">
+        <div class="field">
+          <label for="msg">Your message</label>
+          <textarea id="msg" name="message" required placeholder="What you would grow, what you can irrigate, when you want to start."></textarea>
+        </div>
+        <button class="btn btn--solid" type="submit">Send to the owner</button>
+      </form>
+      <p class="panel-note">The owner sees your name, district and phone number. Nothing is agreed by sending this, and nothing is signed through this site.</p>
+    {% else %}
+      <h2>Ask about this parcel</h2>
+      <p class="panel-note">You need an account so the owner knows who is asking. It takes a minute.</p>
+      <p style="margin-top:1rem"><a class="btn btn--solid" href="/signup?next=/land/{{ listing['id'] }}">Create an account</a></p>
+      <p style="margin-top:.5rem"><a class="btn btn--line" href="/login?next=/land/{{ listing['id'] }}">I already have one</a></p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

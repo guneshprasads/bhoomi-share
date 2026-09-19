@@ -1,0 +1,23 @@
+<article class="record">
+  <div class="record__top">
+    <div>
+      <h3><a href="/land/{{ l['id'] }}">{{ l['title'] }}</a></h3>
+      <p class="record__where">{{ l['district'] }}, {{ l['state'] }}{% if l['survey_no'] %} &middot; Sy. {{ l['survey_no'] }}{% endif %}</p>
+    </div>
+    <span class="badge badge--{{ l['status'] }}">{{ l['status'] }}</span>
+  </div>
+
+  <dl class="spec">
+    <dt>Size</dt><dd>{{ acres(l['acres']) }}</dd>
+    <dt>Water</dt><dd>{{ l['water_source'] or 'Rain-fed' }}{% if l['water_hours'] %}, {{ l['water_hours'] }}{% endif %}</dd>
+    <dt>Term</dt><dd>{{ l['term_months'] }} months</dd>
+    <dt>Rent</dt><dd>{% if l['rent_per_acre'] %}&#8377;{{ inr(l['rent_per_acre']) }}/acre{% else %}Crop share{% endif %}</dd>
+  </dl>
+
+  {% if l['notes'] %}<p class="record__note">{{ l['notes'][:130] }}{% if l['notes']|length > 130 %}&hellip;{% endif %}</p>{% endif %}
+
+  <div class="record__foot">
+    <span class="help">Listed by {{ l['owner_name'].split(' ')[0] }}</span>
+    <a class="btn btn--line btn--small" href="/land/{{ l['id'] }}">See the parcel</a>
+  </div>
+</article>

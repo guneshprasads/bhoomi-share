@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit season plan' if editing else 'List a season plan' }} &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<p class="crumb"><a href="/dashboard">Dashboard</a> <span>/</span> <span>{{ 'Edit plan' if editing else 'New season plan' }}</span></p>
+
+<div class="page__head">
+  <div>
+    <h1>{{ 'Edit this season plan' if editing else 'List a season plan' }}</h1>
+    <p>One crop, one parcel, one season, costed. Put in numbers you would defend to someone who has farmed &mdash; a plan nobody believes is worse than no plan.</p>
+  </div>
+</div>
+
+<form class="form-wide" method="post" action="{{ action }}">
+  {% if error %}<p class="flash flash--bad" role="alert">{{ error }}</p>{% endif %}
+
+  <fieldset>
+    <legend>The parcel and the crop</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="parcel_label">Parcel name</label>
+        <input type="text" id="parcel_label" name="parcel_label" value="{{ f.parcel_label }}" required placeholder="BS-04, the lower field">
+      </div>
+      <div class="field">
+        <label for="survey_no">Survey number <span class="hint">&mdash; optional</span></label>
+        <input type="text" id="survey_no" name="survey_no" value="{{ f.survey_no }}" placeholder="212/3">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="acres">Size (acres)</label>
+        <input type="number" id="acres" name="acres" value="{{ f.acres }}" step="0.1" min="0.1" required>
+      </div>
+      <div class="field">
+        <label for="crop">Crop</label>
+        <input type="text" id="crop" name="crop" value="{{ f.crop }}" required placeholder="Chana (gram)">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="district">District</label>
+        <input type="text" id="district" name="district" value="{{ f.district }}" required>
+      </div>
+      <div class="field">
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" value="{{ f.state }}" required>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="season_label">Season</label>
+        <input type="text" id="season_label" name="season_label" value="{{ f.season_label }}" required placeholder="Rabi 2026">
+      </div>
+      <div class="field">
+        <label for="sowing_window">Sowing window</label>
+        <input type="text" id="sowing_window" name="sowing_window" value="{{ f.sowing_window }}" placeholder="Mid-October to early November">
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>The numbers</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="input_budget">Input budget (&#8377;)</label>
+        <input type="number" id="input_budget" name="input_budget" value="{{ f.input_budget }}" min="1000" step="1000" required>
+        <span class="help">Seed, inputs, irrigation, labour &mdash; everything the season needs.</span>
+      </div>
+      <div class="field">
+        <label for="expected_quintals">Expected yield (quintals)</label>
+        <input type="number" id="expected_quintals" name="expected_quintals" value="{{ f.expected_quintals }}" min="0" step="0.5">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="expected_price">Expected price (&#8377; a quintal)</label>
+        <input type="number" id="expected_price" name="expected_price" value="{{ f.expected_price }}" min="0" step="50">
+      </div>
+      <div class="field">
+        <label for="investor_pct">Investor share (%)</label>
+        <input type="number" id="investor_pct" name="investor_pct" value="{{ f.investor_pct }}" min="1" max="99" required>
+        <span class="help">The grower's share is the rest. 70/30 is what we run on our own land; it is not a rule.</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="plan_note">The plan, in your words</label>
+      <textarea id="plan_note" name="plan_note" placeholder="What you have grown here before, what went wrong last time, what the water situation is.">{{ f.plan_note }}</textarea>
+    </div>
+    <div class="field">
+      <label for="status">Stage</label>
+      <div class="sel">
+        <select id="status" name="status">
+          {% for value, label in statuses %}
+            <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button class="btn btn--solid" type="submit">{{ 'Save changes' if editing else 'Post the plan' }}</button>
+    <a class="btn btn--line" href="/dashboard">Cancel</a>
+  </div>
+  <p class="help" style="margin-top:1rem;max-width:58ch">Posting a plan is not a fundraise. People can register interest against it; money only moves after a signed deed and counsel's sign-off on the structure.</p>
+</form>
+{% endblock %}

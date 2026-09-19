@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="page__head">
+  <div>
+    <h1>{{ headline }}</h1>
+    <p>{{ message }}</p>
+  </div>
+  <div class="page__actions">
+    <a class="btn btn--solid" href="/">Back to the front page</a>
+  </div>
+</div>
+<p class="pair">
+  <a href="/seasons">Season plans</a>
+  <a href="/land">Land on offer</a>
+  <a href="/how-it-works">How it works</a>
+  <a href="/fine-print">The fine print</a>
+</p>
+{% endblock %}

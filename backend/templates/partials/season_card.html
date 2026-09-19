@@ -1,0 +1,31 @@
+<article class="record record--season">
+  <div class="record__top">
+    <div>
+      <h3><a href="/seasons/{{ s['id'] }}">{{ s['crop'] }} on {{ s['parcel_label'] }}</a></h3>
+      <p class="record__where">{{ s['season_label'] }} &middot; {{ s['district'] }}, {{ s['state'] }} &middot; grown by {{ s['grower_name'].split(' ')[0] }}</p>
+    </div>
+    <span class="badge badge--{{ s['status'] }}">{{ s['status'] }}</span>
+  </div>
+
+  <dl class="spec">
+    <dt>Parcel</dt><dd>{{ acres(s['acres']) }}</dd>
+    <dt>Input budget</dt><dd>&#8377;{{ inr(s['input_budget']) }}</dd>
+    <dt>Split</dt><dd>{{ s['investor_pct'] }} / {{ s['grower_pct'] }}</dd>
+  </dl>
+
+  {% set pct = (s['pledged'] * 100 // s['input_budget']) if s['input_budget'] else 0 %}
+  <div class="meter">
+    <div class="meter__bar" role="img" aria-label="{{ pct }} percent of the input budget spoken for">
+      {% if pct %}<div class="meter__fill" style="width:{{ [pct, 100] | min }}%"></div>{% endif %}
+    </div>
+    <p class="meter__line">
+      <span><strong>&#8377;{{ inr(s['pledged']) }}</strong> spoken for</span>
+      <span>{{ s['backers'] }} interested</span>
+    </p>
+  </div>
+
+  <div class="record__foot">
+    <span class="help">{{ s['sowing_window'] or 'Sowing window to be set' }}</span>
+    <a class="btn btn--line btn--small" href="/seasons/{{ s['id'] }}">Read the plan</a>
+  </div>
+</article>

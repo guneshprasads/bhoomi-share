@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Create an account &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="page__head">
+  <div>
+    <h1>Create an account</h1>
+    <p>Enough to let a grower or a landowner know who is asking. We call or message once; we do not forward your number.</p>
+  </div>
+</div>
+
+<form class="form-wide" method="post" action="/signup">
+  <input type="hidden" name="next" value="{{ next or '' }}">
+  {% if error %}<p class="flash flash--bad" role="alert">{{ error }}</p>{% endif %}
+
+  <fieldset>
+    <legend>Who you are</legend>
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" value="{{ form.name or '' }}" autocomplete="name" required>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="{{ form.email or '' }}" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" value="{{ form.phone or '' }}" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" required>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="district">District</label>
+        <input type="text" id="district" name="district" value="{{ form.district or '' }}" placeholder="Belagavi" required>
+      </div>
+      <div class="field">
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" value="{{ form.state or '' }}" placeholder="Karnataka" required>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Which side you are on</legend>
+    <div class="checks">
+      {% for value, label in roles %}
+        <label class="check" for="role-{{ value }}">
+          <input type="checkbox" id="role-{{ value }}" name="roles" value="{{ value }}" {% if value in form.roles %}checked{% endif %}>
+          {{ label }}
+        </label>
+      {% endfor %}
+    </div>
+    <p class="help">Pick as many as apply &mdash; plenty of people both farm and own land. You can change this later.</p>
+  </fieldset>
+
+  <fieldset>
+    <legend>A password</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="new-password" required minlength="8">
+        <span class="help">At least 8 characters.</span>
+      </div>
+      <div class="field">
+        <label for="password2">Again</label>
+        <input type="password" id="password2" name="password2" autocomplete="new-password" required minlength="8">
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button class="btn btn--solid" type="submit">Create the account</button>
+    <span class="help">Already have one? <a href="/login{% if next %}?next={{ next }}{% endif %}">Log in</a>.</span>
+  </div>
+  <p class="help" style="margin-top:1rem;max-width:56ch">Making an account does not commit you to anything, and nothing on this site takes money. <a href="/fine-print">What we hold about you</a>.</p>
+</form>
+{% endblock %}

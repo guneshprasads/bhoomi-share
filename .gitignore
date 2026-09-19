@@ -1,0 +1,14 @@
+# secrets and data
+backend/.env
+backend/*.sqlite3
+backend/*.sqlite3-wal
+backend/*.sqlite3-shm
+
+# python
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# macos
+.DS_Store

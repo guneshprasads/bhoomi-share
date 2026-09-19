@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Season plans &mdash; {{ site_name }}{% endblock %}
+{% block description %}One crop, one parcel, one season: the plan, the input budget, the split, and how much of it is spoken for.{% endblock %}
+
+{% block content %}
+<div class="page__head">
+  <div>
+    <h1>Season plans</h1>
+    <p>Each plan is one crop on one named parcel for one season. You are not buying land or a share of a company &mdash; you are funding the inputs and labour of that cycle for an agreed slice of what the parcel sells for.</p>
+  </div>
+  <div class="page__actions">
+    <a class="btn btn--solid" href="/dashboard/seasons/new">List a season plan</a>
+  </div>
+</div>
+
+<p class="flash">Nothing on this page takes money. Interest recorded here is not binding on you or on us, and no pool opens until counsel has signed off the structure &mdash; <a href="/fine-print">the reasoning is here</a>.</p>
+
+<form class="filters" method="get" action="/seasons">
+  <div class="field">
+    <label for="f-district">District or state</label>
+    <input type="text" id="f-district" name="district" value="{{ q.district }}" placeholder="Satara, Karnataka&hellip;">
+  </div>
+  <div class="field">
+    <label for="f-crop">Crop</label>
+    <input type="text" id="f-crop" name="crop" value="{{ q.crop }}" placeholder="chana, tur, jowar&hellip;">
+  </div>
+  <div class="field">
+    <label for="f-status">Stage</label>
+    <div class="sel">
+      <select id="f-status" name="status">
+        {% for value, label in stages %}
+          <option value="{{ value }}" {% if q.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <button class="btn btn--solid" type="submit">Search</button>
+  {% if q.any %}<a class="btn btn--line" href="/seasons">Clear</a>{% endif %}
+  <span class="filters__count">{{ seasons|length }} plan{{ '' if seasons|length == 1 else 's' }}</span>
+</form>
+
+{% if seasons %}
+  <div class="records">
+    {% for s in seasons %}{% include "partials/season_card.html" %}{% endfor %}
+  </div>
+{% else %}
+  <p class="empty">No plans at this stage yet. The pilot season on our own 15 acres is the first one &mdash; <a href="/#join">join the waitlist</a> and we will write when plans open near you.</p>
+{% endif %}
+{% endblock %}

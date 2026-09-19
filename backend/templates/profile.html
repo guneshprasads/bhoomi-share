@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Your profile &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<p class="crumb"><a href="/dashboard">Dashboard</a> <span>/</span> <span>Profile</span></p>
+<div class="page__head"><div><h1>Your profile</h1><p>Growers and landowners see your name, district and phone number when you write to them.</p></div></div>
+
+<form class="form-wide" method="post" action="/dashboard/profile">
+  <div class="field">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" value="{{ user['name'] }}" required>
+  </div>
+  <div class="row2">
+    <div class="field">
+      <label for="district">District</label>
+      <input type="text" id="district" name="district" value="{{ user['district'] }}" required>
+    </div>
+    <div class="field">
+      <label for="state">State</label>
+      <input type="text" id="state" name="state" value="{{ user['state'] }}" required>
+    </div>
+  </div>
+  <fieldset>
+    <legend>Which side you are on</legend>
+    <div class="checks">
+      {% for value, label in roles %}
+        <label class="check" for="role-{{ value }}">
+          <input type="checkbox" id="role-{{ value }}" name="roles" value="{{ value }}" {% if value in role_list(user) %}checked{% endif %}>
+          {{ label }}
+        </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+  <div class="form-actions">
+    <button class="btn btn--solid" type="submit">Save</button>
+    <a class="btn btn--line" href="/dashboard">Back</a>
+  </div>
+  <p class="help" style="margin-top:1rem">Email ({{ user['email'] }}) and phone ({{ user['phone'] }}) are how we reach you; write to us to change either.</p>
+</form>
+{% endblock %}
