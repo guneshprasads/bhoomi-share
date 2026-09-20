@@ -3,11 +3,11 @@
 {% block heading %}{{ t('nav.invest') }}{% endblock %}
 {% block lede %}
   {% if lang == 'kn' %}
-    <p>ಮೂರು ರೀತಿಯಲ್ಲಿ ನೀವು ಹೂಡಿಕೆ ಮಾಡಬಹುದು: ಒಂದು ಬೆಳೆಯ ಋತುವಿಗೆ, ಒಂದು ಜಾನುವಾರು ಘಟಕಕ್ಕೆ, ಅಥವಾ ದೊಡ್ಡ ಜಮೀನಿನ ಪಾಲುಗಳಿಗೆ. ಎಲ್ಲದರಲ್ಲೂ ಭೂಮಿ ಮಾಲೀಕರದ್ದೇ; ನೀವು ಒಂದು ಚಕ್ರದ ಖರ್ಚನ್ನು ಭರಿಸುತ್ತೀರಿ ಮತ್ತು ಒಪ್ಪಿದ ಪಾಲು ಪಡೆಯುತ್ತೀರಿ.</p>
+    <p>ನಾಲ್ಕು ರೀತಿಯಲ್ಲಿ ನೀವು ಹೂಡಿಕೆ ಮಾಡಬಹುದು: ಒಂದು ಬೆಳೆಯ ಋತುವಿಗೆ, ಒಂದು ಜಾನುವಾರು ಘಟಕಕ್ಕೆ, ಅಣಬೆಯಂತಹ ಸಣ್ಣ ಜಾಗಕ್ಕೆ, ಅಥವಾ ದೊಡ್ಡ ಜಮೀನಿನ ಪಾಲುಗಳಿಗೆ. ಎಲ್ಲದರಲ್ಲೂ ಭೂಮಿ ಅಥವಾ ಜಾಗ ಮಾಲೀಕರದ್ದೇ; ನೀವು ಒಂದು ಚಕ್ರದ ಖರ್ಚನ್ನು ಭರಿಸುತ್ತೀರಿ ಮತ್ತು ಒಪ್ಪಿದ ಪಾಲು ಪಡೆಯುತ್ತೀರಿ.</p>
   {% else %}
-    <p>Three ways to put money behind land: one crop season, one livestock unit, or a share of a big parcel. In all three the land stays the owner&rsquo;s — you fund one cycle of work and take an agreed slice of what it earns.</p>
+    <p>Four ways to put money behind land or space: one crop season, one livestock unit, a small space for something like mushrooms, or a share of a big parcel. In all four the land or the space stays the owner&rsquo;s &mdash; you fund one cycle of work and take an agreed slice of what it earns.</p>
   {% endif %}
 {% endblock %}
 {% block query_label %}{{ t('field.crop_or_animal') }}{% endblock %}
-{% block query_hint %}ragi, tur, sheep, dairy&hellip;{% endblock %}
+{% block query_hint %}ragi, sheep, mushroom&hellip;{% endblock %}
 {% block empty %}Nothing open at this stage yet. The pilot on our own fifteen acres is the first one &mdash; <a href="/#join">join the waitlist</a> and we will write when something opens near you.{% endblock %}

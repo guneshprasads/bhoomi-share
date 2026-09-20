@@ -1,6 +1,6 @@
 """Funded projects: a crop season, a livestock unit, or a big parcel in shares.
 
-All three share an owner, a parcel, a budget, a split and a set of photographs,
+All four share an owner, a parcel, a budget, a split and a set of photographs,
 so they share a table, a card, a form and a detail page. What differs is a
 handful of fields and, for shares, the arithmetic of units.
 """
@@ -28,10 +28,12 @@ router = APIRouter()
 KIND_LABELS = {
     "crop": "Crop plan",
     "livestock": "Livestock unit",
+    "space": "Small space",
     "shares": "Land shares",
 }
 
-KIND_PATHS = {"crop": "/seasons", "livestock": "/livestock", "shares": "/shares"}
+KIND_PATHS = {"crop": "/seasons", "livestock": "/livestock", "space": "/spaces",
+              "shares": "/shares"}
 
 STATUSES = [
     ("open", "Open — looking for capital"),
@@ -53,6 +55,7 @@ EMPTY: dict[str, Any] = {
     "crop": "", "season_label": "", "sowing_window": "", "expected_quintals": "",
     "expected_price": "",
     "animal": "", "herd_size": "", "cycle_months": "", "shed": "", "water": "", "fodder": "",
+    "activity": "", "area_sqft": "",
     "unit_price": "", "total_units": "", "max_investors": db.DEFAULT_MAX_INVESTORS,
 }
 
@@ -97,6 +100,7 @@ def project_form(data: dict[str, Any]) -> dict[str, Any]:
         "crop": "", "season_label": "", "sowing_window": "",
         "expected_quintals": 0.0, "expected_price": 0,
         "animal": "", "herd_size": 0, "cycle_months": 0, "shed": "", "water": "", "fodder": "",
+        "activity": "", "area_sqft": 0,
         "unit_price": 0, "total_units": 0, "max_investors": db.DEFAULT_MAX_INVESTORS,
     }
 
@@ -116,6 +120,19 @@ def project_form(data: dict[str, Any]) -> dict[str, Any]:
         out["water"] = (data.get("water") or "").strip()
         out["fodder"] = (data.get("fodder") or "").strip()
         out["expected_revenue"] = _int(data.get("expected_revenue"))
+    elif kind == "space":
+        # The space fields have their own names (space_*) because `shed`, `water`
+        # and `cycle_months` already belong to the livestock fieldset on the same
+        # form, and two inputs with one name would overwrite each other.
+        out["activity"] = (data.get("activity") or "").strip()
+        out["area_sqft"] = _int(data.get("area_sqft"))
+        out["shed"] = (data.get("space_structure") or "").strip()
+        out["water"] = (data.get("space_water") or "").strip()
+        out["cycle_months"] = _int(data.get("space_months"))
+        out["expected_revenue"] = _int(data.get("expected_revenue"))
+        # Everything else on the site measures land in acres, so keep that column
+        # honest rather than special-casing square feet in every query.
+        out["acres"] = round(out["area_sqft"] / db.SQFT_PER_ACRE, 4)
     else:  # shares
         out["unit_price"] = _int(data.get("unit_price"))
         out["max_investors"] = max(2, min(200, _int(data.get("max_investors"),
@@ -132,13 +149,21 @@ def validate(data: dict[str, Any]) -> str | None:
         return "Give the plan a name people will recognise."
     if not data["district"]:
         return "Pick the district the land is in."
-    if data["acres"] <= 0:
+    if data["kind"] == "space":
+        if data["area_sqft"] <= 0:
+            return "How big is the space, in square feet? A 30 by 40 site is 1,200."
+        if data["area_sqft"] > db.SMALL_SPACE_MAX_SQFT:
+            return ("Small spaces are up to one acre (43,560 sq ft). Anything bigger "
+                    "is a farm — post it as a crop plan or as shares.")
+    elif data["acres"] <= 0:
         return "How many acres is it?"
     if data["budget"] <= 0:
         return "A plan needs a budget — what the cycle costs to run."
 
     if data["kind"] == "crop" and not data["crop"]:
         return "Which crop?"
+    if data["kind"] == "space" and not data["activity"]:
+        return "What will it be used for — mushrooms, vermicompost, microgreens?"
     if data["kind"] == "livestock":
         if not data["animal"]:
             return "Which animal — sheep, goat, dairy cattle or poultry?"
@@ -228,6 +253,14 @@ def livestock_index(
     return _browse(request, conn, user, "livestock", district, query, status, "livestock.html")
 
 
+@router.get("/spaces")
+def spaces_index(
+    request: Request, district: str = "", query: str = "", status: str = "open",
+    conn: sqlite3.Connection = Depends(conn_dep), user=Depends(current_user),
+):
+    return _browse(request, conn, user, "space", district, query, status, "spaces.html")
+
+
 @router.get("/shares")
 def shares_index(
     request: Request, district: str = "", query: str = "", status: str = "open",
@@ -282,7 +315,7 @@ def project_detail(
         updates=db.updates_for_project(conn, project_id),
         pledges=db.pledges_for_project(conn, project_id) if is_owner else [],
         my_pledge=db.pledge_for(conn, project_id, int(user["id"])) if user and not is_owner else None,
-        is_owner=is_owner, kind_labels=KIND_LABELS,
+        is_owner=is_owner, kind_labels=KIND_LABELS, kind_paths=KIND_PATHS,
     )
 
 
@@ -390,6 +423,7 @@ def _form_page(request: Request, user: Any, f: dict, *, editing: bool, action: s
     return render(request, "project_form.html", user=user, f=f, editing=editing,
                   error=error, action=action, statuses=STATUSES, animals=db.ANIMALS,
                   kind_labels=KIND_LABELS, photos=photos or [],
+                  activities=db.SPACE_ACTIVITIES,
                   max_photos=MAX_PHOTOS, big_land=db.BIG_LAND_ACRES)
 
 

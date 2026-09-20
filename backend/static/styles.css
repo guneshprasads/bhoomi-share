@@ -1054,3 +1054,40 @@ input[type="file"]{
 @media (prefers-reduced-motion:reduce){
   .tour__hole{transition:none}
 }
+
+
+/* ---------- small spaces, and a fifth way on the home page ---------- */
+.record--space{border-top-color:var(--ink-faint)}
+
+/* Five ways: three across, then two wider ones. A six-column grid does that
+   without leaving an orphan or an empty cell at any width. */
+.ways{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:1rem;
+  background:transparent;
+  border:0;
+}
+.way{
+  grid-column:span 2;
+  border:1px solid var(--line);
+  border-top:3px solid var(--field);
+}
+.way:nth-child(n+4){grid-column:span 3}
+.way--livestock{border-top-color:var(--clay)}
+.way--space{border-top-color:var(--ink-faint)}
+.way--shares{border-top-color:var(--gold)}
+.way--lease{border-top-color:var(--ink)}
+@media (max-width:880px){
+  .ways{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .way,.way:nth-child(n+4){grid-column:span 1}
+  .way:last-child{grid-column:span 2}
+}
+@media (max-width:620px){
+  .ways{grid-template-columns:1fr}
+  .way:last-child{grid-column:span 1}
+}
+
+/* Footers line up along the bottom of a row however long the paragraph above is. */
+.way{display:flex;flex-direction:column}
+.way p:not(.way__foot){margin-bottom:1rem}
+.way__foot{margin-top:auto}

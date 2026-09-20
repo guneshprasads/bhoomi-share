@@ -13,7 +13,7 @@
         <h3><a href="/projects/{{ p['id'] }}">{{ p['title'] }}</a></h3>
         <p class="record__where">
           {{ p['district'] }}{% if p['taluk'] %} &middot; {{ p['taluk'] }}{% endif %}
-          &middot; {{ t('misc.grown_by' if p['kind'] == 'crop' else ('misc.kept_by' if p['kind'] == 'livestock' else 'misc.posted_by')) }} {{ p['owner_name'].split(' ')[0] }}
+          &middot; {{ t('misc.grown_by' if p['kind'] in ('crop', 'space') else ('misc.kept_by' if p['kind'] == 'livestock' else 'misc.posted_by')) }} {{ p['owner_name'].split(' ')[0] }}
         </p>
       </div>
       <span class="badge badge--{{ p['status'] }}">{{ t('status.' ~ p['status']) }}</span>
@@ -24,10 +24,16 @@
         <dt>{{ t('field.crop') }}</dt><dd>{{ p['crop'] }}{% if p['season_label'] %}, {{ p['season_label'] }}{% endif %}</dd>
       {% elif p['kind'] == 'livestock' %}
         <dt>{{ t('field.animal') }}</dt><dd>{{ p['animal'] }} &times; {{ p['herd_size'] }}</dd>
+      {% elif p['kind'] == 'space' %}
+        <dt>{{ t('field.activity') }}</dt><dd>{{ p['activity'] }}</dd>
       {% else %}
         <dt>{{ t('units.one')|capitalize }}</dt><dd>&#8377;{{ inr(p['unit_price']) }} &times; {{ p['total_units'] }}</dd>
       {% endif %}
-      <dt>{{ t('field.acres_short')|capitalize }}</dt><dd>{{ acres(p['acres']) }}</dd>
+      {% if p['kind'] == 'space' %}
+        <dt>{{ t('field.area') }}</dt><dd>{{ inr(p['area_sqft']) }} {{ t('field.sqft') }}</dd>
+      {% else %}
+        <dt>{{ t('field.acres_short')|capitalize }}</dt><dd>{{ acres(p['acres']) }}</dd>
+      {% endif %}
       <dt>{{ t('field.budget') }}</dt><dd>&#8377;{{ inr(p['budget']) }}</dd>
     </dl>
 
@@ -53,7 +59,7 @@
     <div class="record__foot">
       <span class="help">
         {% if p['kind'] == 'crop' %}{{ p['sowing_window'] or p['season_label'] }}
-        {% elif p['kind'] == 'livestock' %}{{ p['cycle_months'] }} {{ t('field.months') }}
+        {% elif p['kind'] in ('livestock', 'space') %}{{ p['cycle_months'] }} {{ t('field.months') }}
         {% else %}{{ t('units.price_each', price=inr(p['unit_price'])) }}{% endif %}
       </span>
       <a class="btn btn--line btn--small" href="/projects/{{ p['id'] }}">{{ t('action.read_plan') }}</a>

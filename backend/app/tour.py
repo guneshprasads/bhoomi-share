@@ -33,13 +33,14 @@ def steps(lang: str = "en") -> list[dict[str, str]]:
         },
         {
             "target": "[data-tour='invest']",
-            "title": "ನಾಲ್ಕು ದಾರಿ." if kn else "Four ways to take part.",
+            "title": "ಐದು ದಾರಿ." if kn else "Five ways to take part.",
             "body": (
-                "ಬೆಳೆ ಯೋಜನೆ, ಜಾನುವಾರು ಘಟಕ, ದೊಡ್ಡ ಜಮೀನಿನ ಪಾಲುಗಳು, ಮತ್ತು ಗುತ್ತಿಗೆ. "
+                "ಬೆಳೆ ಯೋಜನೆ, ಜಾನುವಾರು ಘಟಕ, ಅಣಬೆಯಂತಹ ಸಣ್ಣ ಜಾಗ, ದೊಡ್ಡ ಜಮೀನಿನ ಪಾಲುಗಳು, ಮತ್ತು ಗುತ್ತಿಗೆ. "
                 "ಹೂಡಿಕೆ ಮಾಡುವವರು ಇಲ್ಲಿಂದ ಶುರು ಮಾಡಿ."
                 if kn else
-                "A crop season, a livestock unit, shares in a big parcel, or a straight lease. "
-                "If you have money to put in rather than land, start here."
+                "A crop season, a livestock unit, a small space for something like mushrooms, "
+                "shares in a big parcel, or a straight lease. If you have money to put in "
+                "rather than land, start here."
             ),
         },
         {
@@ -58,12 +59,12 @@ def steps(lang: str = "en") -> list[dict[str, str]]:
             "target": "[data-tour='plans']",
             "title": "ನಿಮ್ಮ ಯೋಜನೆಗಳು." if kn else "Your plans.",
             "body": (
-                "ಒಂದು ಚಕ್ರದ ಖರ್ಚು ಲೆಕ್ಕ ಹಾಕಿ ಯೋಜನೆ ಬರೆಯಿರಿ — ಬೆಳೆ, ಜಾನುವಾರು, ಅಥವಾ "
+                "ಒಂದು ಚಕ್ರದ ಖರ್ಚು ಲೆಕ್ಕ ಹಾಕಿ ಯೋಜನೆ ಬರೆಯಿರಿ — ಬೆಳೆ, ಜಾನುವಾರು, ಸಣ್ಣ ಜಾಗ (ಉದಾ. ಅಣಬೆ), ಅಥವಾ "
                 "ಐದು ಎಕರೆಗಿಂತ ದೊಡ್ಡ ಜಮೀನಾದರೆ ಪಾಲುಗಳಾಗಿ."
                 if kn else
-                "Write a plan for one cycle, costed: a crop season, a livestock unit, or — if the "
-                "parcel is five acres or more — the same thing divided into shares several people "
-                "can take a piece of."
+                "Write a plan for one cycle, costed: a crop season, a livestock unit, a small "
+                "space such as a 30 by 40 site for mushrooms, or — if the parcel is five acres "
+                "or more — the same thing divided into shares several people can take a piece of."
             ),
         },
         {

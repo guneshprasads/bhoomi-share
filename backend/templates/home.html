@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Bhoomi Share &mdash; four ways to work land in Karnataka{% endblock %}
-{% block description %}Fund a crop season or a livestock unit, take a share of a big parcel, or lease land you aren't farming. Karnataka, district by district.{% endblock %}
+{% block title %}Bhoomi Share &mdash; five ways to work land and space in Karnataka{% endblock %}
+{% block description %}Fund a crop season, a livestock unit or a small space for mushrooms, take a share of a big parcel, or lease land you aren't farming. Karnataka, district by district.{% endblock %}
 
 {% block body %}
 {% if flashes %}<div class="wrap" style="padding-top:1.5rem">{% include "partials/flash.html" %}</div>{% endif %}
@@ -11,10 +11,10 @@
       <div>
         {% if lang == 'kn' %}
           <h1>ಬೆಳೆಗೆ ಭೂಮಿ, ಹಣ ಮತ್ತು ದುಡಿಯುವ ಕೈ ಬೇಕು.</h1>
-          <p class="hero__sub">ಈ ಮೂರೂ ಒಬ್ಬರ ಬಳಿಯೇ ಇರುವುದು ಅಪರೂಪ. ಭೂಮಿ ಶೇರ್ ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಇವನ್ನು ಜೋಡಿಸುತ್ತದೆ — ಬೆಳೆ, ಜಾನುವಾರು, ದೊಡ್ಡ ಜಮೀನಿನ ಪಾಲುಗಳು, ಅಥವಾ ಗುತ್ತಿಗೆ. ಎಲ್ಲವೂ ಬರೆದ ಒಪ್ಪಂದದ ಮೇಲೆ.</p>
+          <p class="hero__sub">ಈ ಮೂರೂ ಒಬ್ಬರ ಬಳಿಯೇ ಇರುವುದು ಅಪರೂಪ. ಭೂಮಿ ಶೇರ್ ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಇವನ್ನು ಜೋಡಿಸುತ್ತದೆ — ಬೆಳೆ, ಜಾನುವಾರು, ಅಣಬೆಯಂತಹ ಸಣ್ಣ ಜಾಗ, ದೊಡ್ಡ ಜಮೀನಿನ ಪಾಲುಗಳು, ಅಥವಾ ಗುತ್ತಿಗೆ. ಎಲ್ಲವೂ ಬರೆದ ಒಪ್ಪಂದದ ಮೇಲೆ.</p>
         {% else %}
           <h1>A crop needs land, money, and someone to farm it.</h1>
-          <p class="hero__sub">Those three rarely sit with the same person. Bhoomi Share puts them together across Karnataka&rsquo;s districts, four different ways &mdash; a crop season, a livestock unit, a share of a big parcel, or a straight lease. All of it on paper, for a fixed term.</p>
+          <p class="hero__sub">Those three rarely sit with the same person. Bhoomi Share puts them together across Karnataka&rsquo;s districts, five different ways &mdash; a crop season, a livestock unit, a small space for something like mushrooms, a share of a big parcel, or a straight lease. All of it on paper, for a fixed term.</p>
         {% endif %}
 
         <div class="hero__cta">
@@ -114,10 +114,10 @@
       <div class="sec__head">
         <p class="label">Karnataka, district by district</p>
         {% if lang == 'kn' %}
-          <h2>ಭೂಮಿಯೊಂದಿಗೆ ಕೆಲಸ ಮಾಡಲು ನಾಲ್ಕು ದಾರಿ.</h2>
+          <h2>ಭೂಮಿ ಮತ್ತು ಜಾಗದೊಂದಿಗೆ ಕೆಲಸ ಮಾಡಲು ಐದು ದಾರಿ.</h2>
           <p>ನಿಮ್ಮ ಬಳಿ ಭೂಮಿ ಇರಲಿ, ಹಣ ಇರಲಿ, ಅಥವಾ ದುಡಿಯುವ ಶಕ್ತಿ ಇರಲಿ — ಒಂದು ದಾರಿ ನಿಮಗಾಗಿ ಇದೆ.</p>
         {% else %}
-          <h2>Four ways to work land.</h2>
+          <h2>Five ways to work land and space.</h2>
           <p>Whether what you have is land, money, or the ability to farm, one of these is yours.</p>
         {% endif %}
       </div>
@@ -133,6 +133,12 @@
           <h3><a href="/livestock">{{ t('kind.livestock') }}</a></h3>
           <p>Sheep, goat, dairy or poultry, run by someone who keeps animals for a living. You fund the animals, the feed and the shed; the cycle is months rather than one harvest.</p>
           <p class="way__foot"><span class="way__n">{{ counts.livestock }}</span> open now</p>
+        </article>
+
+        <article class="way way--space">
+          <h3><a href="/spaces">{{ t('kind.space') }}</a></h3>
+          <p>You do not need a farm. A 30 by 40 site, a shed or a terrace is enough for mushrooms, vermicompost or microgreens. Whoever has the space runs it; you fund the setup and the first batches, and cycles are weeks, not seasons.</p>
+          <p class="way__foot"><span class="way__n">{{ counts.space }}</span> open now</p>
         </article>
 
         <article class="way way--shares">

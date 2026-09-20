@@ -1,4 +1,4 @@
-"""The website: pages, accounts, listings, the three funded kinds, and who may
+"""The website: pages, accounts, listings, the four funded kinds, and who may
 touch what."""
 
 import io
@@ -56,6 +56,22 @@ LIVESTOCK = {
     "status": "open",
 }
 
+SPACE = {
+    "kind": "space",
+    "title": "Mushrooms on a 30 by 40 site",
+    "district": "Mysuru",
+    "taluk": "Mysuru",
+    "activity": "Mushroom",
+    "area_sqft": "1200",
+    "space_structure": "Empty site with a tin shed",
+    "space_water": "Borewell and single-phase power",
+    "space_months": "12",
+    "budget": "180000",
+    "expected_revenue": "360000",
+    "investor_pct": "60",
+    "status": "open",
+}
+
 SHARES = {
     "kind": "shares",
     "title": "Twenty-two acres at Athani, in shares",
@@ -76,7 +92,7 @@ SHARES = {
 # --------------------------------------------------------------------------- #
 
 @pytest.mark.parametrize("path", [
-    "/", "/invest", "/seasons", "/livestock", "/shares", "/land",
+    "/", "/invest", "/seasons", "/livestock", "/spaces", "/shares", "/land",
     "/how-it-works", "/fine-print", "/login", "/signup",
 ])
 def test_public_pages_render(client, path):
@@ -609,3 +625,137 @@ def test_every_tour_step_points_at_something_that_exists(make_user):
     assert json.loads(re.search(
         r'<script id="tour-data" type="application/json">(.*?)</script>', html, re.S
     ).group(1))["steps"]
+
+
+
+# --------------------------------------------------------------------------- #
+# small spaces: a 30 by 40 site, a shed, a terrace
+# --------------------------------------------------------------------------- #
+
+def test_a_small_space_end_to_end(client, make_user):
+    grower = make_user(roles=["grower"], district="Mysuru")
+    investor = make_user(roles=["investor"])
+
+    url = grower.post("/dashboard/projects/new", data=SPACE).headers["location"]
+    page = client.get(url).text
+    assert "Mushroom" in page and "1,200 sq ft" in page
+    assert "Empty site with a tin shed" in page
+    assert "1,80,000" in page              # 3,60,000 revenue less the 1,80,000 budget
+    assert "1,08,000" in page              # investor side: 60% of that
+
+    # it lives under Small spaces and Invest, and under none of the others
+    assert SPACE["title"] in client.get("/spaces").text
+    assert SPACE["title"] in client.get("/invest").text
+    for elsewhere in ("/seasons", "/livestock", "/shares"):
+        assert SPACE["title"] not in client.get(elsewhere).text, elsewhere
+
+    assert "Interest recorded" in follow(
+        investor, investor.post(f"{url}/pledge", data={"amount": "30000"})).text
+
+
+def test_a_space_is_stored_in_acres_too(make_user):
+    """Everything else on the site measures land in acres; keep that column honest."""
+    grower = make_user(roles=["grower"])
+    url = grower.post("/dashboard/projects/new", data=SPACE).headers["location"]
+    with db.closing_conn(get_settings().db_path) as conn:
+        project = db.project_by_id(conn, int(url.rsplit("/", 1)[-1]))
+    assert project["area_sqft"] == 1200
+    assert project["acres"] == pytest.approx(1200 / 43560, abs=1e-4)
+    assert project["shed"] == "Empty site with a tin shed"
+    assert project["cycle_months"] == 12
+
+
+def test_a_space_needs_an_activity_and_a_sensible_area(make_user):
+    grower = make_user(roles=["grower"])
+    assert "What will it be used for" in grower.post(
+        "/dashboard/projects/new", data={**SPACE, "activity": ""}).text
+    assert "How big is the space" in grower.post(
+        "/dashboard/projects/new", data={**SPACE, "area_sqft": ""}).text
+    too_big = grower.post("/dashboard/projects/new", data={**SPACE, "area_sqft": "50000"})
+    assert "up to one acre" in too_big.text
+
+
+def test_a_space_can_be_edited_and_keeps_its_fields(client, make_user):
+    grower = make_user(roles=["grower"])
+    url = grower.post("/dashboard/projects/new", data=SPACE).headers["location"]
+    project_id = url.rsplit("/", 1)[-1]
+
+    form = grower.get(f"/dashboard/projects/{project_id}/edit").text
+    assert "Empty site with a tin shed" in form      # the structure came back
+    assert 'value="1200"' in form
+
+    grower.post(f"/dashboard/projects/{project_id}/edit",
+                data={**SPACE, "title": "Oyster mushrooms, second batch running"})
+    assert "second batch running" in client.get(url).text
+
+
+def test_search_finds_a_space_by_its_activity(client, make_user):
+    grower = make_user(roles=["grower"])
+    grower.post("/dashboard/projects/new", data=SPACE)
+    assert SPACE["title"] in client.get("/invest", params={"query": "mushroom"}).text
+    assert SPACE["title"] not in client.get("/invest", params={"query": "sheep"}).text
+    assert SPACE["title"] in client.get("/spaces", params={"district": "Mysuru"}).text
+    assert SPACE["title"] not in client.get("/spaces", params={"district": "Kodagu"}).text
+
+
+def test_the_other_kinds_are_unaffected_by_the_new_columns(make_user):
+    grower = make_user(roles=["grower"])
+    for payload in (CROP, LIVESTOCK, SHARES):
+        url = grower.post("/dashboard/projects/new", data=payload).headers["location"]
+        project_id = int(url.rsplit("/", 1)[-1])
+        with db.closing_conn(get_settings().db_path) as conn:
+            project = db.project_by_id(conn, project_id)
+        assert project["area_sqft"] == 0 and project["activity"] == ""
+
+
+def test_the_home_page_lists_five_ways(client):
+    page = client.get("/").text
+    assert "Five ways to work land and space" in page
+    assert 'href="/spaces"' in page
+
+
+def test_small_space_is_in_kannada(client):
+    client.get("/lang/kn", params={"next": "/spaces"})
+    page = client.get("/spaces").text
+    assert "ಸಣ್ಣ ಜಾಗ" in page
+    assert "ಅಣಬೆ" in page                            # mushroom
+
+
+# --------------------------------------------------------------------------- #
+# schema: columns added after release, and a database that has never seen them
+# --------------------------------------------------------------------------- #
+
+def test_migrate_adds_new_columns_to_an_existing_database(tmp_path):
+    """The live database holds real accounts, so a new column is added in place."""
+    path = tmp_path / "old.sqlite3"
+    with db.closing_conn(path) as conn:
+        conn.execute("CREATE TABLE user (id INTEGER PRIMARY KEY, name TEXT)")
+        conn.execute("CREATE TABLE project (id INTEGER PRIMARY KEY, title TEXT)")
+        conn.execute("INSERT INTO user (name) VALUES ('someone real')")
+        conn.execute("INSERT INTO project (title) VALUES ('an old plan')")
+
+        applied = db.migrate(conn)
+        assert {"project.activity", "project.area_sqft", "user.tour_done"} <= set(applied)
+
+        row = db.one(conn, "SELECT * FROM project")
+        assert row["title"] == "an old plan"          # nothing was lost
+        assert row["activity"] == "" and row["area_sqft"] == 0
+        assert db.one(conn, "SELECT name FROM user")["name"] == "someone real"
+
+        assert db.migrate(conn) == []                 # and a second run is a no-op
+
+
+def test_the_seed_builds_a_fresh_database(tmp_path):
+    """Nothing else exercises seed.py, and a new column once broke it silently."""
+    from app import seed
+
+    path = tmp_path / "fresh.sqlite3"
+    db.init_db(path)
+    assert seed.seed_if_empty(path) is True
+    assert seed.seed_if_empty(path) is False          # only ever into an empty database
+
+    with db.closing_conn(path) as conn:
+        kinds = {r["kind"] for r in db.all_rows(conn, "SELECT kind FROM project")}
+        assert kinds == {"crop", "livestock", "space", "shares"}
+        space = db.one(conn, "SELECT * FROM project WHERE kind = 'space'")
+        assert space["activity"] == "Mushroom" and space["area_sqft"] == 1200

@@ -22,6 +22,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "nav.crop": {"en": "Crop plans", "kn": "ಬೆಳೆ ಯೋಜನೆಗಳು"},
     "nav.livestock": {"en": "Livestock", "kn": "ಜಾನುವಾರು"},
     "nav.shares": {"en": "Land shares", "kn": "ಭೂಮಿ ಪಾಲುಗಳು"},
+    "nav.space": {"en": "Small spaces", "kn": "ಸಣ್ಣ ಜಾಗಗಳು"},
     "nav.land": {"en": "Land on offer", "kn": "ಲಭ್ಯವಿರುವ ಭೂಮಿ"},
     "nav.how": {"en": "How it works", "kn": "ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ"},
     "nav.fineprint": {"en": "The fine print", "kn": "ಕಾನೂನು ವಿವರ"},
@@ -55,6 +56,9 @@ STRINGS: dict[str, dict[str, str]] = {
     "field.photos": {"en": "Photographs", "kn": "ಫೋಟೋಗಳು"},
     "field.months": {"en": "months", "kn": "ತಿಂಗಳು"},
     "field.acres_short": {"en": "acres", "kn": "ಎಕರೆ"},
+    "field.sqft": {"en": "sq ft", "kn": "ಚದರ ಅಡಿ"},
+    "field.area": {"en": "Area", "kn": "ವಿಸ್ತೀರ್ಣ"},
+    "field.activity": {"en": "Used for", "kn": "ಬಳಕೆ"},
     "field.acre_one": {"en": "acre", "kn": "ಎಕರೆ"},
     "field.per_acre": {"en": "per acre", "kn": "ಪ್ರತಿ ಎಕರೆಗೆ"},
 
@@ -79,6 +83,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "kind.crop": {"en": "Crop plan", "kn": "ಬೆಳೆ ಯೋಜನೆ"},
     "kind.livestock": {"en": "Livestock unit", "kn": "ಜಾನುವಾರು ಘಟಕ"},
     "kind.shares": {"en": "Land shares", "kn": "ಭೂಮಿ ಪಾಲುಗಳು"},
+    "kind.space": {"en": "Small space", "kn": "ಸಣ್ಣ ಜಾಗ"},
     "kind.lease": {"en": "Lease", "kn": "ಗುತ್ತಿಗೆ"},
 
     # --- status -------------------------------------------------------------

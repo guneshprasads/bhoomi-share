@@ -28,7 +28,7 @@
     {% if editing %}<input type="hidden" name="kind" value="{{ f.kind }}">
       <p class="help">The kind cannot change after posting — people have already read it as a {{ t('kind.' ~ f.kind)|lower }}.</p>
     {% else %}
-      <p class="help">A crop plan funds one season. A livestock unit funds animals and their feed. Shares split a parcel of {{ '%g'|format(big_land) }} acres or more between several people.</p>
+      <p class="help">A crop plan funds one season. A livestock unit funds animals and their feed. A small space — a 30 by 40 site, a shed, a terrace — funds something like mushrooms. Shares split a parcel of {{ '%g'|format(big_land) }} acres or more between several people.</p>
     {% endif %}
   </fieldset>
 
@@ -61,9 +61,11 @@
         <input type="text" id="taluk" name="taluk" value="{{ f.taluk }}" placeholder="Chikkodi">
       </div>
     </div>
-    <div class="field" style="max-width:16rem">
+    <div class="field only only--crop only--livestock only--shares" style="max-width:16rem">
       <label for="acres">{{ t('field.acres') }}</label>
-      <input type="number" id="acres" name="acres" value="{{ f.acres }}" step="0.1" min="0.1" required>
+      {# Not `required`: it is hidden for a small space, and a hidden required
+         input would stop the form submitting. The server checks it instead. #}
+      <input type="number" id="acres" name="acres" value="{{ f.acres }}" step="0.1" min="0.1">
     </div>
   </fieldset>
 
@@ -135,6 +137,41 @@
     </div>
   </fieldset>
 
+  <fieldset class="only only--space">
+    <legend>The space</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="activity">{{ t('field.activity') }}</label>
+        <div class="sel">
+          <select id="activity" name="activity">
+            <option value="">Pick one</option>
+            {% for a in activities %}<option value="{{ a }}" {% if f.activity == a %}selected{% endif %}>{{ a }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="area_sqft">Area ({{ t('field.sqft') }})</label>
+        <input type="number" id="area_sqft" name="area_sqft" value="{{ f.area_sqft }}" min="1" max="43560" step="1" placeholder="1200">
+        <span class="help">A 30 by 40 site is 1,200. Up to one acre &mdash; bigger than that is a farm, and belongs under a crop plan or shares.</span>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="space_structure">What the space is</label>
+        <input type="text" id="space_structure" name="space_structure" value="{{ f.space_structure or f.shed }}" placeholder="Empty site with a tin shed, 30 by 40 ft">
+      </div>
+      <div class="field">
+        <label for="space_water">Water and power</label>
+        <input type="text" id="space_water" name="space_water" value="{{ f.space_water or f.water }}" placeholder="Borewell, three-phase power">
+      </div>
+    </div>
+    <div class="field" style="max-width:16rem">
+      <label for="space_months">Plan runs for (months)</label>
+      <input type="number" id="space_months" name="space_months" value="{{ f.space_months or f.cycle_months }}" min="1" max="60">
+      <span class="help">A batch of mushrooms is ready in weeks, so a plan usually covers several &mdash; say twelve months of batches.</span>
+    </div>
+  </fieldset>
+
   <fieldset class="only only--shares">
     <legend>The shares</legend>
     <div class="row2">
@@ -159,7 +196,7 @@
         <input type="number" id="budget" name="budget" value="{{ f.budget }}" min="1000" step="1000" required>
         <span class="help">Everything the cycle needs: inputs, labour, animals, feed, water.</span>
       </div>
-      <div class="field only only--livestock only--shares">
+      <div class="field only only--livestock only--space only--shares">
         <label for="expected_revenue">Expected revenue (&#8377;)</label>
         <input type="number" id="expected_revenue" name="expected_revenue" value="{{ f.expected_revenue }}" min="0" step="1000">
         <span class="help">What you think the whole cycle sells for.</span>

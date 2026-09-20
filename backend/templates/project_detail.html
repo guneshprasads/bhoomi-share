@@ -5,7 +5,7 @@
 {% block content %}
 <p class="crumb">
   <a href="/invest">{{ t('nav.invest') }}</a> <span>/</span>
-  <a href="{% if project['kind'] == 'crop' %}/seasons{% elif project['kind'] == 'livestock' %}/livestock{% else %}/shares{% endif %}">{{ t('kind.' ~ project['kind']) }}</a>
+  <a href="{{ kind_paths[project['kind']] }}">{{ t('kind.' ~ project['kind']) }}</a>
   <span>/</span> <span>{{ project['district'] }}</span>
 </p>
 
@@ -17,7 +17,7 @@
       <span>{{ project['district'] }}{% if project['taluk'] %}, {{ project['taluk'] }}{% endif %}, {{ state }}</span>
       {% if project['parcel_label'] %}<span>{{ project['parcel_label'] }}</span>{% endif %}
       {% if project['survey_no'] %}<span>Sy. {{ project['survey_no'] }}</span>{% endif %}
-      <span>{{ t('misc.grown_by' if project['kind'] == 'crop' else ('misc.kept_by' if project['kind'] == 'livestock' else 'misc.posted_by')) }} {{ project['owner_name'] }}</span>
+      <span>{{ t('misc.grown_by' if project['kind'] in ('crop', 'space') else ('misc.kept_by' if project['kind'] == 'livestock' else 'misc.posted_by')) }} {{ project['owner_name'] }}</span>
     </p>
   </div>
   <span class="badge badge--{{ project['status'] }}">{{ t('status.' ~ project['status']) }}</span>
@@ -28,7 +28,11 @@
 <div class="detail">
   <div>
     <dl class="spec spec--wide">
-      <dt>{{ t('field.acres_short')|capitalize }}</dt><dd>{{ acres(project['acres']) }}</dd>
+      {% if project['kind'] == 'space' %}
+        <dt>{{ t('field.area') }}</dt><dd>{{ inr(project['area_sqft']) }} {{ t('field.sqft') }}</dd>
+      {% else %}
+        <dt>{{ t('field.acres_short')|capitalize }}</dt><dd>{{ acres(project['acres']) }}</dd>
+      {% endif %}
 
       {% if project['kind'] == 'crop' %}
         <dt>{{ t('field.crop') }}</dt><dd>{{ project['crop'] }}</dd>
@@ -41,6 +45,11 @@
         <dt>Shed</dt><dd>{{ project['shed'] or 'Not stated' }}</dd>
         <dt>{{ t('field.water') }}</dt><dd>{{ project['water'] or 'Not stated' }}</dd>
         <dt>Fodder</dt><dd>{{ project['fodder'] or 'Not stated' }}</dd>
+      {% elif project['kind'] == 'space' %}
+        <dt>{{ t('field.activity') }}</dt><dd>{{ project['activity'] }}</dd>
+        <dt>The space</dt><dd>{{ project['shed'] or 'Not stated' }}</dd>
+        <dt>Water and power</dt><dd>{{ project['water'] or 'Not stated' }}</dd>
+        <dt>Plan runs for</dt><dd>{{ project['cycle_months'] }} {{ t('field.months') }}</dd>
       {% else %}
         <dt>One {{ t('units.one') }}</dt><dd>&#8377;{{ inr(project['unit_price']) }}</dd>
         <dt>{{ t('units.many')|capitalize }}</dt><dd>{{ project['total_units'] }} in all, {{ maths.units_left }} left</dd>

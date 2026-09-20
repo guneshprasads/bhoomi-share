@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block title %}How it works &mdash; {{ site_name }}{% endblock %}
-{% block description %}Four ways to work land in Karnataka: fund a crop season, fund a livestock unit, take shares in a big parcel, or lease land out.{% endblock %}
+{% block description %}Five ways to work land and space in Karnataka: fund a crop season, a livestock unit or a small space, take shares in a big parcel, or lease land out.{% endblock %}
 
 {% block content %}
 <div class="page__head">
   <div>
     <h1>{{ t('nav.how') }}</h1>
     {% if lang == 'kn' %}
-      <p>ನಾಲ್ಕು ಬೇರೆ ಬೇರೆ ಕೆಲಸಗಳು ಇಲ್ಲಿ ನಡೆಯುತ್ತವೆ. ಯಾವುದು ನಿಮ್ಮನ್ನು ಇಲ್ಲಿಗೆ ಕರೆತಂದಿದೆಯೋ ಅದನ್ನು ಓದಿ.</p>
+      <p>ಐದು ಬೇರೆ ಬೇರೆ ಕೆಲಸಗಳು ಇಲ್ಲಿ ನಡೆಯುತ್ತವೆ. ಯಾವುದು ನಿಮ್ಮನ್ನು ಇಲ್ಲಿಗೆ ಕರೆತಂದಿದೆಯೋ ಅದನ್ನು ಓದಿ.</p>
     {% else %}
-      <p>Four separate things happen here and they do not depend on each other. Read whichever one brought you.</p>
+      <p>Five separate things happen here and they do not depend on each other. Read whichever one brought you.</p>
     {% endif %}
   </div>
 </div>
@@ -33,7 +33,16 @@
     <li>Vaccination and vet cover should be written into the budget. Ask if it isn&rsquo;t.</li>
   </ul>
 
-  <h2>3. Shares in a big parcel</h2>
+  <h2>3. Funding a small space</h2>
+  <p class="lede">A 30 by 40 site, a shed, a terrace or a spare room &mdash; used for something small and intensive, like mushrooms.</p>
+  <p>You do not need a farm for this. Whoever has the space runs the activity; you fund the setup and the first batches. Because a batch of oyster mushrooms is ready in weeks rather than months, a plan covers several of them and says how many.</p>
+  <ul>
+    <li><strong>Space is measured in square feet</strong>, up to one acre. A 30 by 40 site is 1,200 sq ft. Anything bigger is a farm and belongs under a crop plan or shares.</li>
+    <li><strong>The budget should separate the setup from each batch</strong> &mdash; racks, spawn, substrate, water, power, labour. Ask if it does not.</li>
+    <li><strong>Yield is the least certain number.</strong> Mushrooms are sensitive to temperature and humidity, and the first batches are usually the worst. Be careful with a plan that promises the same yield every time.</li>
+  </ul>
+
+  <h2>4. Shares in a big parcel</h2>
   <p class="lede">Five acres or more, divided into equal shares so several people can take a piece.</p>
   <p>The owner states what a year of work on the block costs &mdash; say twenty lakh for twenty-two acres &mdash; and what one share is worth, say twenty-five thousand. That makes eighty shares. Take one or take ten; your claim on the split is your shares divided by all the shares.</p>
   <ul>
@@ -42,7 +51,7 @@
     <li>Shares are only offered on parcels of five acres and up. Below that, a crop plan does the same job with less complication.</li>
   </ul>
 
-  <h2>4. Leasing land out</h2>
+  <h2>5. Leasing land out</h2>
   <p class="lede">An owner who is not farming this year, a farmer who wants more land, and a fixed-term licence between them.</p>
   <ol class="steps" style="grid-template-columns:1fr 1fr;margin-top:1.5rem">
     <li class="step" style="list-style:none"><span class="step__n">01</span><h3>List or search</h3><p>Acreage, survey number, water source and hours, soil, road access, what it will grow, photographs. Farmers search by district and by what they can irrigate.</p></li>

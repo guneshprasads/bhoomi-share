@@ -3,8 +3,9 @@
 Still stdlib sqlite3: this is a pilot whose entire dataset fits in a file we can
 copy off the box. Every query lives here so the routers stay readable.
 
-One table holds all three funded things — a crop season, a livestock unit, and a
-big parcel split into units — separated by `project.kind`. They share an owner, a
+One table holds all four funded things — a crop season, a livestock unit, a small
+space (a shed, terrace or plot used for something like mushrooms), and a big parcel
+split into units — separated by `project.kind`. They share an owner, a
 parcel, a budget, a split and a set of photographs; only a handful of columns
 differ, and keeping them together means one set of queries, one meter, one card.
 """
@@ -22,7 +23,17 @@ from typing import Any, Iterator, Sequence
 BIG_LAND_ACRES = 5.0
 DEFAULT_MAX_INVESTORS = 20
 
-KINDS = ("crop", "livestock", "shares")
+KINDS = ("crop", "livestock", "space", "shares")
+
+# A "small space" is measured in square feet, the way people describe a site
+# ("a 30 by 40"). Above one acre it is a farm, not a space, and belongs under a
+# crop plan or shares instead.
+SQFT_PER_ACRE = 43560
+SMALL_SPACE_MAX_SQFT = SQFT_PER_ACRE
+SPACE_ACTIVITIES = (
+    "Mushroom", "Vermicompost", "Microgreens", "Hydroponics", "Azolla",
+    "Nursery / saplings", "Other",
+)
 ANIMALS = ("Sheep", "Goat", "Dairy cattle", "Poultry", "Other")
 
 SCHEMA = """
@@ -105,6 +116,10 @@ CREATE TABLE IF NOT EXISTS project (
     shed              TEXT NOT NULL DEFAULT '',
     water             TEXT NOT NULL DEFAULT '',
     fodder            TEXT NOT NULL DEFAULT '',
+
+    -- small space (its structure and water reuse `shed` and `water`)
+    activity          TEXT NOT NULL DEFAULT '',
+    area_sqft         INTEGER NOT NULL DEFAULT 0,
 
     -- shares
     unit_price        INTEGER NOT NULL DEFAULT 0,
@@ -210,6 +225,8 @@ def closing_conn(db_path: Path) -> Iterator[sqlite3.Connection]:
 # database holds real accounts and is never to be rebuilt from scratch.
 ADDED_COLUMNS: tuple[tuple[str, str, str], ...] = (
     ("user", "tour_done", "INTEGER NOT NULL DEFAULT 0"),
+    ("project", "activity", "TEXT NOT NULL DEFAULT ''"),
+    ("project", "area_sqft", "INTEGER NOT NULL DEFAULT 0"),
 )
 
 
@@ -497,17 +514,22 @@ PROJECT_COLUMNS = (
     "budget", "expected_revenue", "investor_pct", "grower_pct", "plan_note", "status",
     "crop", "season_label", "sowing_window", "expected_quintals", "expected_price",
     "animal", "herd_size", "cycle_months", "shed", "water", "fodder",
+    "activity", "area_sqft",
     "unit_price", "total_units", "max_investors",
 )
 
 
 def create_project(conn: sqlite3.Connection, owner_id: int, data: dict[str, Any]) -> int:
-    cols = ", ".join(PROJECT_COLUMNS)
-    marks = ", ".join("?" for _ in PROJECT_COLUMNS)
+    # Columns not supplied are left to their own DEFAULT rather than inserted as
+    # NULL, which the NOT NULL columns would refuse. That way a column added in a
+    # later release does not break every caller that predates it.
+    given = [c for c in PROJECT_COLUMNS if c in data]
+    cols = ", ".join(given)
+    marks = ", ".join("?" for _ in given)
     cur = conn.execute(
         f"INSERT INTO project (owner_id, {cols}, created_at, updated_at) "
         f"VALUES (?, {marks}, ?, ?)",
-        (owner_id, *(data.get(c) for c in PROJECT_COLUMNS), now_iso(), now_iso()),
+        (owner_id, *(data[c] for c in given), now_iso(), now_iso()),
     )
     return int(cur.lastrowid)
 
@@ -557,9 +579,10 @@ def search_projects(
         sql.append("AND p.district = ?")
         params.append(district)
     if query:
-        sql.append("AND (LOWER(p.crop) LIKE ? OR LOWER(p.animal) LIKE ? OR LOWER(p.title) LIKE ?)")
+        sql.append("AND (LOWER(p.crop) LIKE ? OR LOWER(p.animal) LIKE ? "
+                   "OR LOWER(p.activity) LIKE ? OR LOWER(p.title) LIKE ?)")
         like = f"%{query.lower()}%"
-        params.extend([like, like, like])
+        params.extend([like, like, like, like])
     sql.append("ORDER BY p.updated_at DESC LIMIT ?")
     params.append(limit)
     return all_rows(conn, " ".join(sql), params)

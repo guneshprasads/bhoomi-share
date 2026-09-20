@@ -1,7 +1,7 @@
 # Bhoomi Share
 
 An agricultural site for **Karnataka**, built as one FastAPI app that serves
-both the pages and the JSON behind them. Four ways to work land:
+both the pages and the JSON behind them. Five ways to work land and space:
 
 1. **Crop plan.** A farmer posts one crop on one named parcel for one season,
    costed, with photographs. People read the plan and register interest against
@@ -9,11 +9,16 @@ both the pages and the JSON behind them. Four ways to work land:
 2. **Livestock unit.** Sheep, goat, dairy or poultry, run by someone who keeps
    animals. The investor funds the animals, feed and shed; the cycle is months
    rather than one harvest.
-3. **Land shares.** A parcel of five acres or more divided into equal shares of
+3. **Small space.** A 30 by 40 site, a shed, a terrace or a spare room —
+   measured in square feet, up to one acre — used for something small and
+   intensive like mushrooms, vermicompost or microgreens. Whoever has the space
+   runs it; the investor funds the setup and the first batches. Cycles are weeks
+   rather than seasons, so a plan says how many batches it covers.
+4. **Land shares.** A parcel of five acres or more divided into equal shares of
    a fixed rupee value. Your slice of the return matches the slice of the cost
    you covered. **The number of people per parcel is capped** — that cap is what
    keeps it out of collective-investment territory until counsel says otherwise.
-4. **Lease.** Owners who are not farming their land list it; farmers who want
+5. **Lease.** Owners who are not farming their land list it; farmers who want
    more land find it and write to the owner. The agreement is a fixed-term
    licence to cultivate, drafted for Karnataka.
 
@@ -62,7 +67,7 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # BHOOMI_ADMIN_T
 |---|---|
 | `/` | The landing page: the pitch, the split, the fine print, the waitlist form |
 | `/invest` | All three funded kinds in one list, filterable by kind and district |
-| `/seasons`, `/livestock`, `/shares` | One kind each, same filters |
+| `/seasons`, `/livestock`, `/spaces`, `/shares` | One kind each, same filters |
 | `/projects/{id}` | The plan, the photographs, the budget maths, the log |
 | `/land`, `/land/{id}` | Parcels on offer, filterable by district, size and irrigation |
 | `/lang/kn`, `/lang/en` | Switch language; remembered in a cookie for a year |
@@ -71,7 +76,7 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # BHOOMI_ADMIN_T
 | `/dashboard` | Your parcels, the farmers asking about them, your plans, what you back |
 | `/dashboard?tour=1` | Replays the first-run guided tour on demand |
 | `/dashboard/listings/new` | List a parcel, with `/edit`, `/delete` and photo removal under the same path |
-| `/dashboard/projects/new?kind=crop\|livestock\|shares` | Post a plan; the form shows only the fields that kind needs |
+| `/dashboard/projects/new?kind=crop\|livestock\|space\|shares` | Post a plan; the form shows only the fields that kind needs |
 | `/admin` | Waitlist, accounts, plans and listings. Admin accounts only |
 | `/api/docs` | Generated API reference |
 
@@ -119,7 +124,7 @@ backend/
                      four listing pages
   static/            styles.css (the whole design system), app.js, tour.js, icon
   uploads/           photographs (gitignored)
-  tests/             65 tests
+  tests/             82 tests
 ```
 
 Server-rendered HTML with POST-then-redirect, and about 120 lines of JavaScript
@@ -144,6 +149,12 @@ to an in-page thank-you.
   EXIF metadata — including the GPS coordinates a phone writes into every photo.
   Six per listing, 10 MB each, JPEG/PNG/WebP; HEIC is refused with an
   explanation rather than failing silently.
+- **A small space is stored in acres as well as square feet**, so every query
+  and filter that already understands acres keeps working. Its structure, water
+  and plan length reuse the `shed`, `water` and `cycle_months` columns, and its
+  form fields are named `space_*` so they cannot collide with the livestock
+  fieldset on the same page. Anything over one acre is refused and pointed at a
+  crop plan or shares.
 - **A share is a share of one cycle's work, not of the land.** Units follow from
   the budget (₹20,00,000 at ₹25,000 a share is 80 shares), only parcels of five
   acres and up may be offered this way, and both the share count and the
@@ -201,7 +212,7 @@ Anything you change in a copy stays in the copy. To change the live data, edit
 
 SQLite at `BHOOMI_DB` (default `backend/bhoomi.sqlite3`): `user`, `listing`,
 `inquiry`, `project`, `pledge`, `project_update`, `photo`, `waitlist`,
-`submission`. One `project` table holds all three funded kinds, separated by
+`submission`. One `project` table holds all four funded kinds, separated by
 `project.kind`. Back it up by copying the file — and the `uploads/` directory
 with it, since the photographs live there rather than in the database.
 
@@ -219,7 +230,9 @@ message, honeypot, rate limit, token auth) and the site: every public page,
 signup and login rules, district normalisation including the two 2025 renames,
 listing and plan lifecycles, search filters, draft privacy, inquiries, photo
 upload with EXIF stripping and HEIC refusal, all three project kinds, share
-arithmetic, the five-acre gate, the per-parcel people cap, log permissions,
+arithmetic, the five-acre gate, the per-parcel people cap, small spaces
+(square feet, the one-acre ceiling, editing, search by activity), in-place
+schema migration, a from-scratch seed run, log permissions,
 the language switch, the first-run tour (including that every step points at an
 element the dashboard actually renders), and admin access.
 

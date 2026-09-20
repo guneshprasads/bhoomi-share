@@ -19,12 +19,14 @@ router = APIRouter()
 
 @router.get("/")
 def home(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=Depends(current_user)):
-    crop = db.search_projects(conn, kind="crop", status="open", limit=2)
-    livestock = db.search_projects(conn, kind="livestock", status="open", limit=2)
-    shares = db.search_projects(conn, kind="shares", status="open", limit=2)
+    by_kind = {k: db.search_projects(conn, kind=k, status="open", limit=2) for k in db.KINDS}
     listings = db.search_listings(conn, status="open", limit=2)
 
-    projects = (crop + livestock + shares)[:3]
+    # One of each kind before a second of any, so a busy kind cannot crowd the
+    # others off the front page.
+    firsts = [rows[0] for rows in by_kind.values() if rows]
+    seconds = [rows[1] for rows in by_kind.values() if len(rows) > 1]
+    projects = (firsts + seconds)[:3]
     return render(
         request, "home.html", user=user,
         projects=projects,
@@ -32,9 +34,8 @@ def home(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=De
         listings=listings,
         covers=db.cover_photos(conn, "listing", [l["id"] for l in listings]),
         counts={
-            "crop": len(db.search_projects(conn, kind="crop", status="open", limit=99)),
-            "livestock": len(db.search_projects(conn, kind="livestock", status="open", limit=99)),
-            "shares": len(db.search_projects(conn, kind="shares", status="open", limit=99)),
+            **{k: len(db.search_projects(conn, kind=k, status="open", limit=99))
+               for k in db.KINDS},
             "land": len(db.search_listings(conn, status="open", limit=99)),
         },
     )

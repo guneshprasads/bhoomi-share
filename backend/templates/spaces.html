@@ -1,0 +1,14 @@
+{% extends "_browse.html" %}
+{% block title %}Small spaces &mdash; {{ site_name }}{% endblock %}
+{% block heading %}{{ t('nav.space') }}{% endblock %}
+{% block lede %}
+  {% if lang == 'kn' %}
+    <p>ಹೊಲ ಬೇಕಿಲ್ಲ. 30 ಗುಣಿಸು 40 ಸೈಟ್, ಶೆಡ್, ತಾರಸಿ ಅಥವಾ ಖಾಲಿ ಕೋಣೆ ಇದ್ದರೆ ಸಾಕು — ಅಣಬೆ, ಎರೆಹುಳು ಗೊಬ್ಬರ, ಮೈಕ್ರೋಗ್ರೀನ್ಸ್‌ನಂತಹ ಕೆಲಸ ಸಾಧ್ಯ. ಜಾಗ ಇರುವವರು ನಡೆಸುತ್ತಾರೆ; ನೀವು ಸಿದ್ಧತೆ ಮತ್ತು ಮೊದಲ ಬ್ಯಾಚ್‌ಗಳಿಗೆ ಹಣ ಹಾಕುತ್ತೀರಿ; ಬಂದದ್ದನ್ನು ಒಪ್ಪಿದಂತೆ ಹಂಚಿಕೊಳ್ಳುತ್ತೀರಿ.</p>
+  {% else %}
+    <p>You do not need a farm. A 30 by 40 site, a shed, a terrace or a spare room is enough for mushrooms, vermicompost, microgreens and the like. Whoever has the space runs it; you fund the setup and the first batches; what it earns is split the way the agreement says. Cycles are weeks rather than seasons, so each plan says how many batches it covers.</p>
+  {% endif %}
+{% endblock %}
+{% block actions %}<a class="btn btn--solid" href="/dashboard/projects/new?kind=space">{{ t('action.post_plan') }}</a>{% endblock %}
+{% block query_label %}{{ t('field.activity') }}{% endblock %}
+{% block query_hint %}mushroom, vermicompost&hellip;{% endblock %}
+{% block empty %}No small-space plans posted yet. If you have a site or a shed sitting empty, <a href="/dashboard/projects/new?kind=space">write the plan</a>.{% endblock %}

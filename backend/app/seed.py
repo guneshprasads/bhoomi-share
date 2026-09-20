@@ -43,6 +43,10 @@ def seed_if_empty(db_path: Path) -> bool:
             conn, name="Ravi Kulkarni", email="ravi@example.com", phone="9876500004",
             password_hash=pw, roles="investor", district="Bengaluru Urban", taluk="Anekal",
         )
+        lakshmi = db.create_user(
+            conn, name="Lakshmi Gowda", email="lakshmi@example.com", phone="9876500006",
+            password_hash=pw, roles="grower", district="Mysuru", taluk="Mysuru",
+        )
         mahadev = db.create_user(
             conn, name="Mahadev Hugar", email="mahadev@example.com", phone="9876500005",
             password_hash=pw, roles="grower,farmer", district="Vijayapura", taluk="Indi",
@@ -166,6 +170,26 @@ def seed_if_empty(db_path: Path) -> bool:
                          "Eighteen months covers the shed, the animals and the first lactation.",
         })
 
+        # ---- a small space ---------------------------------------------------
+        mushrooms = db.create_project(conn, lakshmi, {
+            "kind": "space", "title": "Oyster mushrooms on a 30 by 40 site",
+            "parcel_label": "Site 214, Vijayanagar 3rd stage", "survey_no": "",
+            "district": "Mysuru", "taluk": "Mysuru", "acres": round(1200 / 43560, 4),
+            "budget": 180000, "expected_revenue": 360000,
+            "investor_pct": 60, "grower_pct": 40, "status": "open",
+            "activity": "Mushroom", "area_sqft": 1200,
+            "shed": "Empty 30 by 40 site with a tin shed over the back half",
+            "water": "Corporation water and single-phase power",
+            "cycle_months": 12,
+            "plan_note": "I have grown oyster mushrooms in bags at home for two seasons, about "
+                         "two hundred bags at a time, and lost roughly a third of the first "
+                         "batch to contamination before I got the room right. The budget is "
+                         "the racks, shade net and a fogger, then spawn, paddy straw and labour "
+                         "for about five batches over the year. The revenue figure assumes I "
+                         "sell fresh to two hotels and a vegetable shop at a little under two "
+                         "hundred rupees a kilo, and that the first batch is a poor one.",
+        })
+
         # ---- shares in a big parcel ----------------------------------------
         big = db.create_project(conn, shalini, {
             "kind": "shares", "title": "Twenty-two acres at Athani, in shares",
@@ -190,6 +214,7 @@ def seed_if_empty(db_path: Path) -> bool:
         db.upsert_pledge(conn, chana, ravi, 40000, "Happy to go higher if the pool has room.")
         db.upsert_pledge(conn, chana, shalini, 25000, "")
         db.upsert_pledge(conn, sheep, ravi, 60000, "Interested if the vet cover is written in.")
+        db.upsert_pledge(conn, mushrooms, ravi, 30000, "Would like to see the first batch first.")
         db.upsert_pledge(conn, big, ravi, 6 * 25000, "Six shares.", units=6)
 
         db.add_project_update(conn, tur, "Sowed 2.4 acres on the 12th. Seed rate a little high "
