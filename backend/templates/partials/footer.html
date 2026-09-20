@@ -9,14 +9,16 @@
       </svg>
       <span class="mark__name">{{ site_name }}</span>
     </a>
-    <p class="ftr__tag">A family farm, two agreements, and fifteen acres to prove them on.</p>
+    <p class="ftr__tag">{% if lang == 'kn' %}ಒಂದು ಕುಟುಂಬದ ಹೊಲ, ಹದಿನೈದು ಎಕರೆ, ಮತ್ತು ಅದರ ಮೇಲೆ ಸಾಬೀತು ಮಾಡಬೇಕಾದ ಒಪ್ಪಂದಗಳು.{% else %}A family farm in Karnataka, four ways to work land, and fifteen acres to prove them on.{% endif %}</p>
     <p class="pair" style="width:100%;margin-top:1rem">
-      <a href="/seasons">Season plans</a>
-      <a href="/land">Land on offer</a>
-      <a href="/how-it-works">How it works</a>
-      <a href="/fine-print">The fine print</a>
+      <a href="/seasons">{{ t('nav.crop') }}</a>
+      <a href="/livestock">{{ t('nav.livestock') }}</a>
+      <a href="/shares">{{ t('nav.shares') }}</a>
+      <a href="/land">{{ t('nav.land') }}</a>
+      <a href="/how-it-works">{{ t('nav.how') }}</a>
+      <a href="/fine-print">{{ t('nav.fineprint') }}</a>
       <a href="/#join">Waitlist</a>
     </p>
-    <p class="ftr__note">{{ site_name }} is pre-launch. No investment is being offered or accepted, no money moves through this site, and no land agreement is executed here. Everything you see is the pilot on our own land.</p>
+    <p class="ftr__note">{{ t('notice.prelaunch') }}</p>
   </div>
 </footer>

@@ -1,0 +1,14 @@
+{% extends "_browse.html" %}
+{% block title %}Land shares &mdash; {{ site_name }}{% endblock %}
+{% block heading %}{{ t('nav.shares') }}{% endblock %}
+{% block lede %}
+  {% if lang == 'kn' %}
+    <p>ಐದು ಎಕರೆಗಿಂತ ದೊಡ್ಡ ಜಮೀನನ್ನು ಸಮಾನ ಪಾಲುಗಳಾಗಿ ವಿಂಗಡಿಸಲಾಗುತ್ತದೆ. ಒಂದು ಪಾಲಿಗೆ ನಿಗದಿತ ಮೊತ್ತ; ನೀವು ಎಷ್ಟು ಪಾಲು ತೆಗೆದುಕೊಳ್ಳುತ್ತೀರೋ ಅಷ್ಟೇ ಪಾಲು ಆದಾಯದಲ್ಲಿ. ಪ್ರತಿ ಜಮೀನಿಗೆ ಎಷ್ಟು ಜನ ಸೇರಬಹುದು ಎಂಬುದಕ್ಕೆ ಮಿತಿ ಇದೆ.</p>
+  {% else %}
+    <p>A parcel of five acres or more, divided into equal shares. One share is a fixed number of rupees; take as many as you want and your slice of the return matches the slice of the cost you covered. <strong>The number of people per parcel is capped on purpose</strong> — <a href="/fine-print">the reason is in the fine print</a>.</p>
+  {% endif %}
+{% endblock %}
+{% block actions %}<a class="btn btn--solid" href="/dashboard/projects/new?kind=shares">{{ t('action.post_plan') }}</a>{% endblock %}
+{% block query_label %}{{ t('field.parcel') }}{% endblock %}
+{% block query_hint %}name or crop&hellip;{% endblock %}
+{% block empty %}No parcels offered in shares yet. A parcel needs to be five acres or more to be posted this way.{% endblock %}

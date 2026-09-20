@@ -1,22 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Land on offer &mdash; {{ site_name }}{% endblock %}
-{% block description %}Farmland listed for a fixed-term licence: acreage, water, soil and terms, district by district.{% endblock %}
+{% block description %}Farmland across Karnataka listed for a fixed-term licence: acreage, water, soil, photographs and terms, district by district.{% endblock %}
 
 {% block content %}
 <div class="page__head">
   <div>
-    <h1>Land on offer</h1>
-    <p>Parcels whose owners are not farming them this year. Every one is offered on a fixed-term licence to cultivate, not an open-ended tenancy &mdash; <a href="/fine-print">here is why that matters</a>.</p>
+    <h1>{{ t('nav.land') }}</h1>
+    {% if lang == 'kn' %}
+      <p>ಈ ವರ್ಷ ಮಾಲೀಕರು ಸಾಗುವಳಿ ಮಾಡದ ಜಮೀನುಗಳು. ಪ್ರತಿಯೊಂದೂ ನಿಗದಿತ ಅವಧಿಯ ಸಾಗುವಳಿ ಪರವಾನಗಿ ಮೇಲೆ ಕೊಡಲಾಗುತ್ತದೆ, ಶಾಶ್ವತ ಗೇಣಿ ಅಲ್ಲ &mdash; <a href="/fine-print">ಏಕೆ ಎಂಬುದು ಇಲ್ಲಿದೆ</a>.</p>
+    {% else %}
+      <p>Parcels whose owners are not farming them this year. Every one is offered on a fixed-term licence to cultivate, not an open-ended tenancy &mdash; <a href="/fine-print">here is why that matters</a>.</p>
+    {% endif %}
   </div>
   <div class="page__actions">
-    <a class="btn btn--solid" href="/dashboard/listings/new">List your land</a>
+    <a class="btn btn--solid" href="/dashboard/listings/new">{{ t('action.list_land') }}</a>
   </div>
 </div>
 
 <form class="filters" method="get" action="/land">
   <div class="field">
-    <label for="f-district">District or state</label>
-    <input type="text" id="f-district" name="district" value="{{ q.district }}" placeholder="Belagavi, Satara&hellip;">
+    <label for="district">{{ t('field.district') }}</label>
+    {% with name='district', value=q.district, blank=t('misc.all_districts') %}
+      {% include "partials/district_select.html" %}
+    {% endwith %}
   </div>
   <div class="field">
     <label for="f-min">Smallest (acres)</label>
@@ -30,10 +36,15 @@
     <input type="checkbox" id="f-water" name="water" value="1" {% if q.water %}checked{% endif %}>
     Irrigated only
   </label>
-  <button class="btn btn--solid" type="submit">Search</button>
-  {% if q.any %}<a class="btn btn--line" href="/land">Clear</a>{% endif %}
-  <span class="filters__count">{{ listings|length }} parcel{{ '' if listings|length == 1 else 's' }}</span>
+  <button class="btn btn--solid" type="submit">{{ t('action.search') }}</button>
+  {% if q.any %}<a class="btn btn--line" href="/land">{{ t('action.clear') }}</a>{% endif %}
+  <span class="filters__count">{{ listings|length }}</span>
 </form>
+
+<p class="crosslink">
+  {{ t('cross.to_invest') }}
+  <a href="/invest">{{ t('nav.invest') }}</a>.
+</p>
 
 {% if listings %}
   <div class="records">

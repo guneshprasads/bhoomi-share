@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page__head">
+  <div>
+    <h1>{% block heading %}{% endblock %}</h1>
+    {% block lede %}{% endblock %}
+  </div>
+  <div class="page__actions">{% block actions %}{% endblock %}</div>
+</div>
+
+<p class="flash">
+  {{ t('notice.no_money') }}
+  <a href="/fine-print">{{ t('notice.reasoning_here') }}</a>.
+</p>
+
+<form class="filters" method="get" action="{{ action }}">
+  <div class="field">
+    <label for="district">{{ t('field.district') }}</label>
+    {% with name='district', value=q.district, blank=t('misc.all_districts') %}
+      {% include "partials/district_select.html" %}
+    {% endwith %}
+  </div>
+
+  {% if action == '/invest' %}
+  <div class="field">
+    <label for="kind">{{ t('nav.invest') }}</label>
+    <div class="sel">
+      <select id="kind" name="kind">
+        <option value="">{{ t('field.all_kinds') }}</option>
+        {% for value, label in kind_labels.items() %}
+          <option value="{{ value }}" {% if q.kind == value %}selected{% endif %}>{{ t('kind.' ~ value) }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="field">
+    <label for="query">{% block query_label %}{{ t('field.crop') }}{% endblock %}</label>
+    <input type="text" id="query" name="query" value="{{ q.query }}" placeholder="{% block query_hint %}{% endblock %}">
+  </div>
+
+  <div class="field">
+    <label for="status">{{ t('field.stage') }}</label>
+    <div class="sel">
+      <select id="status" name="status">
+        {% for value, label in stages %}
+          <option value="{{ value }}" {% if q.status == value %}selected{% endif %}>{{ t(label) }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn--solid" type="submit">{{ t('action.search') }}</button>
+  {% if q.any %}<a class="btn btn--line" href="{{ action }}">{{ t('action.clear') }}</a>{% endif %}
+  <span class="filters__count">{{ projects|length }}</span>
+</form>
+
+<p class="crosslink">
+  {{ t('cross.to_land') }}
+  <a href="/land">{{ t('nav.land') }}</a>.
+</p>
+
+{% if projects %}
+  <div class="records">
+    {% for p in projects %}{% include "partials/project_card.html" %}{% endfor %}
+  </div>
+{% else %}
+  <p class="empty">{% block empty %}{{ t('misc.nothing_here') }}{% endblock %}</p>
+{% endif %}
+{% endblock %}

@@ -5,7 +5,7 @@
 <div class="page__head">
   <div>
     <h1>Create an account</h1>
-    <p>Enough to let a grower or a landowner know who is asking. We call or message once; we do not forward your number.</p>
+    <p>Enough to let a grower or a landowner know who is asking. Bhoomi Share covers Karnataka, district by district. We call or message once; we do not forward your number.</p>
   </div>
 </div>
 
@@ -31,12 +31,14 @@
     </div>
     <div class="row2">
       <div class="field">
-        <label for="district">District</label>
-        <input type="text" id="district" name="district" value="{{ form.district or '' }}" placeholder="Belagavi" required>
+        <label for="district">{{ t('field.district') }}</label>
+        {% with name='district', value=form.district, blank=t('misc.select_district') %}
+          {% include "partials/district_select.html" %}
+        {% endwith %}
       </div>
       <div class="field">
-        <label for="state">State</label>
-        <input type="text" id="state" name="state" value="{{ form.state or '' }}" placeholder="Karnataka" required>
+        <label for="taluk">{{ t('field.taluk') }} <span class="hint">&mdash; {{ t('field.optional') }}</span></label>
+        <input type="text" id="taluk" name="taluk" value="{{ form.taluk or '' }}" placeholder="Chikkodi">
       </div>
     </div>
   </fieldset>

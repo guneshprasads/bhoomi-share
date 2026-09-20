@@ -10,6 +10,7 @@ from fastapi.responses import RedirectResponse
 
 from .. import db
 from ..deps import conn_dep, require_user
+from ..karnataka import is_district, normalise as normalise_district
 from ..schemas import normalise_phone
 from ..security import (
     ROLE_LABELS,
@@ -71,7 +72,7 @@ def logout(request: Request):
 def signup_form(request: Request, next: str = "", user=Depends(current_user)):
     if user:
         return RedirectResponse(_safe_next(next), status_code=303)
-    empty = {"name": "", "email": "", "phone": "", "district": "", "state": "", "roles": []}
+    empty = {"name": "", "email": "", "phone": "", "district": "", "taluk": "", "roles": []}
     return render(request, "signup.html", user=None, next=next, error=None,
                   form=empty, roles=ROLE_CHOICES)
 
@@ -83,7 +84,7 @@ def signup(
     email: str = Form(...),
     phone: str = Form(...),
     district: str = Form(""),
-    state: str = Form(""),
+    taluk: str = Form(""),
     password: str = Form(...),
     password2: str = Form(...),
     roles: list[str] = Form(default=[]),
@@ -92,7 +93,7 @@ def signup(
 ):
     form = {
         "name": name.strip(), "email": email.strip(), "phone": phone.strip(),
-        "district": district.strip(), "state": state.strip(),
+        "district": district.strip(), "taluk": taluk.strip(),
         "roles": [r for r in roles if r in ROLES],
     }
 
@@ -114,6 +115,9 @@ def signup(
         return fail("The two passwords are different.")
     if not form["roles"]:
         return fail("Pick at least one side — you can change it later.")
+    district_clean = normalise_district(form["district"])
+    if district_clean is None:
+        return fail("Pick your district from the list. Bhoomi Share covers Karnataka.")
     if db.user_by_email(conn, form["email"]):
         return fail("There is already an account on that email. Log in instead.")
     if db.user_by_phone(conn, phone_clean):
@@ -123,7 +127,7 @@ def signup(
         conn,
         name=form["name"], email=form["email"], phone=phone_clean,
         password_hash=hash_password(password), roles=",".join(form["roles"]),
-        district=form["district"], state=form["state"],
+        district=district_clean, taluk=form["taluk"],
     )
     conn.commit()
     login_session(request, user_id)
@@ -141,16 +145,21 @@ def profile_save(
     request: Request,
     name: str = Form(...),
     district: str = Form(""),
-    state: str = Form(""),
+    taluk: str = Form(""),
     roles: list[str] = Form(default=[]),
     user=Depends(require_user),
     conn: sqlite3.Connection = Depends(conn_dep),
 ):
+    district_clean = normalise_district(district)
+    if district_clean is None:
+        flash(request, "Pick your district from the list.", "bad")
+        return RedirectResponse("/dashboard/profile", status_code=303)
+
     db.update_profile(
         conn, int(user["id"]),
         name=name.strip() or user["name"],
         roles=",".join(r for r in roles if r in ROLES),
-        district=district.strip(), state=state.strip(),
+        district=district_clean, taluk=taluk.strip(),
     )
     conn.commit()
     flash(request, "Profile saved.")

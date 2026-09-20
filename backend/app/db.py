@@ -1,8 +1,12 @@
 """SQLite storage for the whole site.
 
-Still stdlib sqlite3: this is a pre-launch pilot whose entire dataset fits in a
-file we can copy off the box and hand to an accountant. Every query lives here
-so the routers stay readable.
+Still stdlib sqlite3: this is a pilot whose entire dataset fits in a file we can
+copy off the box. Every query lives here so the routers stay readable.
+
+One table holds all three funded things — a crop season, a livestock unit, and a
+big parcel split into units — separated by `project.kind`. They share an owner, a
+parcel, a budget, a split and a set of photographs; only a handful of columns
+differ, and keeping them together means one set of queries, one meter, one card.
 """
 
 from __future__ import annotations
@@ -13,6 +17,13 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterator, Sequence
+
+# A parcel this size or larger may be offered as units.
+BIG_LAND_ACRES = 5.0
+DEFAULT_MAX_INVESTORS = 20
+
+KINDS = ("crop", "livestock", "shares")
+ANIMALS = ("Sheep", "Goat", "Dairy cattle", "Poultry", "Other")
 
 SCHEMA = """
 PRAGMA foreign_keys = ON;
@@ -25,31 +36,33 @@ CREATE TABLE IF NOT EXISTS user (
     password_hash TEXT NOT NULL,
     roles         TEXT NOT NULL DEFAULT '',
     district      TEXT NOT NULL DEFAULT '',
-    state         TEXT NOT NULL DEFAULT '',
+    taluk         TEXT NOT NULL DEFAULT '',
     is_admin      INTEGER NOT NULL DEFAULT 0,
+    tour_done     INTEGER NOT NULL DEFAULT 0,
     created_at    TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS listing (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id      INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
-    title         TEXT NOT NULL,
-    survey_no     TEXT NOT NULL DEFAULT '',
-    district      TEXT NOT NULL,
-    state         TEXT NOT NULL,
-    acres         REAL NOT NULL,
-    water_source  TEXT NOT NULL DEFAULT '',
-    water_hours   TEXT NOT NULL DEFAULT '',
-    soil          TEXT NOT NULL DEFAULT '',
-    road_access   TEXT NOT NULL DEFAULT '',
-    last_crop     TEXT NOT NULL DEFAULT '',
-    term_months   INTEGER NOT NULL DEFAULT 11,
-    rent_per_acre INTEGER,
-    share_terms   TEXT NOT NULL DEFAULT '',
-    notes         TEXT NOT NULL DEFAULT '',
-    status        TEXT NOT NULL DEFAULT 'open',
-    created_at    TEXT NOT NULL,
-    updated_at    TEXT NOT NULL
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_id       INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    title          TEXT NOT NULL,
+    survey_no      TEXT NOT NULL DEFAULT '',
+    district       TEXT NOT NULL,
+    taluk          TEXT NOT NULL DEFAULT '',
+    acres          REAL NOT NULL,
+    water_source   TEXT NOT NULL DEFAULT '',
+    water_hours    TEXT NOT NULL DEFAULT '',
+    soil           TEXT NOT NULL DEFAULT '',
+    road_access    TEXT NOT NULL DEFAULT '',
+    last_crop      TEXT NOT NULL DEFAULT '',
+    suitable_crops TEXT NOT NULL DEFAULT '',
+    term_months    INTEGER NOT NULL DEFAULT 11,
+    rent_per_acre  INTEGER,
+    share_terms    TEXT NOT NULL DEFAULT '',
+    notes          TEXT NOT NULL DEFAULT '',
+    status         TEXT NOT NULL DEFAULT 'open',
+    created_at     TEXT NOT NULL,
+    updated_at     TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS inquiry (
@@ -61,44 +74,74 @@ CREATE TABLE IF NOT EXISTS inquiry (
     created_at  TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS season (
+CREATE TABLE IF NOT EXISTS project (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
-    grower_id         INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
-    parcel_label      TEXT NOT NULL,
+    owner_id          INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    kind              TEXT NOT NULL,
+    title             TEXT NOT NULL,
+    parcel_label      TEXT NOT NULL DEFAULT '',
     survey_no         TEXT NOT NULL DEFAULT '',
     district          TEXT NOT NULL,
-    state             TEXT NOT NULL,
+    taluk             TEXT NOT NULL DEFAULT '',
     acres             REAL NOT NULL,
-    crop              TEXT NOT NULL,
-    season_label      TEXT NOT NULL,
-    sowing_window     TEXT NOT NULL DEFAULT '',
-    input_budget      INTEGER NOT NULL,
-    expected_quintals REAL NOT NULL DEFAULT 0,
-    expected_price    INTEGER NOT NULL DEFAULT 0,
+    budget            INTEGER NOT NULL,
+    expected_revenue  INTEGER NOT NULL DEFAULT 0,
     investor_pct      INTEGER NOT NULL DEFAULT 70,
     grower_pct        INTEGER NOT NULL DEFAULT 30,
     plan_note         TEXT NOT NULL DEFAULT '',
     status            TEXT NOT NULL DEFAULT 'open',
+
+    -- crop
+    crop              TEXT NOT NULL DEFAULT '',
+    season_label      TEXT NOT NULL DEFAULT '',
+    sowing_window     TEXT NOT NULL DEFAULT '',
+    expected_quintals REAL NOT NULL DEFAULT 0,
+    expected_price    INTEGER NOT NULL DEFAULT 0,
+
+    -- livestock
+    animal            TEXT NOT NULL DEFAULT '',
+    herd_size         INTEGER NOT NULL DEFAULT 0,
+    cycle_months      INTEGER NOT NULL DEFAULT 0,
+    shed              TEXT NOT NULL DEFAULT '',
+    water             TEXT NOT NULL DEFAULT '',
+    fodder            TEXT NOT NULL DEFAULT '',
+
+    -- shares
+    unit_price        INTEGER NOT NULL DEFAULT 0,
+    total_units       INTEGER NOT NULL DEFAULT 0,
+    max_investors     INTEGER NOT NULL DEFAULT 20,
+
     created_at        TEXT NOT NULL,
     updated_at        TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS pledge (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    season_id   INTEGER NOT NULL REFERENCES season(id) ON DELETE CASCADE,
+    project_id  INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
     investor_id INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
     amount      INTEGER NOT NULL,
+    units       INTEGER NOT NULL DEFAULT 0,
     note        TEXT NOT NULL DEFAULT '',
     status      TEXT NOT NULL DEFAULT 'interest',
     created_at  TEXT NOT NULL,
-    UNIQUE (season_id, investor_id)
+    UNIQUE (project_id, investor_id)
 );
 
-CREATE TABLE IF NOT EXISTS season_update (
+CREATE TABLE IF NOT EXISTS project_update (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    season_id  INTEGER NOT NULL REFERENCES season(id) ON DELETE CASCADE,
+    project_id INTEGER NOT NULL REFERENCES project(id) ON DELETE CASCADE,
     body       TEXT NOT NULL,
     spend      INTEGER,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS photo (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_kind TEXT NOT NULL,            -- 'listing' or 'project'
+    owner_id   INTEGER NOT NULL,
+    path       TEXT NOT NULL,
+    caption    TEXT NOT NULL DEFAULT '',
+    sort       INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL
 );
 
@@ -120,9 +163,10 @@ CREATE TABLE IF NOT EXISTS submission (
 
 CREATE INDEX IF NOT EXISTS submission_ip_time ON submission (ip_hash, created_at);
 CREATE INDEX IF NOT EXISTS listing_status ON listing (status, district);
-CREATE INDEX IF NOT EXISTS season_status ON season (status, district);
-CREATE INDEX IF NOT EXISTS pledge_season ON pledge (season_id);
+CREATE INDEX IF NOT EXISTS project_kind_status ON project (kind, status, district);
+CREATE INDEX IF NOT EXISTS pledge_project ON pledge (project_id);
 CREATE INDEX IF NOT EXISTS inquiry_listing ON inquiry (listing_id);
+CREATE INDEX IF NOT EXISTS photo_owner ON photo (owner_kind, owner_id, sort);
 """
 
 
@@ -161,9 +205,28 @@ def closing_conn(db_path: Path) -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
+# Columns added after the first release. CREATE TABLE IF NOT EXISTS will not add
+# them to a database that already exists, so they are applied in place — this
+# database holds real accounts and is never to be rebuilt from scratch.
+ADDED_COLUMNS: tuple[tuple[str, str, str], ...] = (
+    ("user", "tour_done", "INTEGER NOT NULL DEFAULT 0"),
+)
+
+
+def migrate(conn: sqlite3.Connection) -> list[str]:
+    applied = []
+    for table, column, spec in ADDED_COLUMNS:
+        existing = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+        if column not in existing:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {spec}")
+            applied.append(f"{table}.{column}")
+    return applied
+
+
 def init_db(db_path: Path) -> None:
     with closing_conn(db_path) as conn:
         conn.executescript(SCHEMA)
+        migrate(conn)
         conn.commit()
 
 
@@ -188,14 +251,14 @@ def create_user(
     password_hash: str,
     roles: str,
     district: str,
-    state: str,
+    taluk: str = "",
     is_admin: bool = False,
 ) -> int:
     cur = conn.execute(
-        """INSERT INTO user (name, email, phone, password_hash, roles, district, state,
+        """INSERT INTO user (name, email, phone, password_hash, roles, district, taluk,
                              is_admin, created_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (name, email.lower(), phone, password_hash, roles, district, state,
+        (name, email.lower(), phone, password_hash, roles, district, taluk,
          1 if is_admin else 0, now_iso()),
     )
     return int(cur.lastrowid)
@@ -213,23 +276,97 @@ def user_by_phone(conn: sqlite3.Connection, phone: str) -> sqlite3.Row | None:
     return one(conn, "SELECT * FROM user WHERE phone = ?", (phone,))
 
 
+def mark_tour_done(conn: sqlite3.Connection, user_id: int, done: bool = True) -> None:
+    conn.execute("UPDATE user SET tour_done = ? WHERE id = ?", (1 if done else 0, user_id))
+
+
 def update_profile(
-    conn: sqlite3.Connection, user_id: int, *, name: str, roles: str, district: str, state: str
+    conn: sqlite3.Connection, user_id: int, *, name: str, roles: str, district: str, taluk: str
 ) -> None:
     conn.execute(
-        "UPDATE user SET name = ?, roles = ?, district = ?, state = ? WHERE id = ?",
-        (name, roles, district, state, user_id),
+        "UPDATE user SET name = ?, roles = ?, district = ?, taluk = ? WHERE id = ?",
+        (name, roles, district, taluk, user_id),
     )
 
 
 # --------------------------------------------------------------------------- #
-# listings
+# photos
+# --------------------------------------------------------------------------- #
+
+def add_photo(
+    conn: sqlite3.Connection, owner_kind: str, owner_id: int, path: str, caption: str = ""
+) -> int:
+    row = one(
+        conn,
+        "SELECT COALESCE(MAX(sort), -1) + 1 AS next FROM photo WHERE owner_kind = ? AND owner_id = ?",
+        (owner_kind, owner_id),
+    )
+    cur = conn.execute(
+        """INSERT INTO photo (owner_kind, owner_id, path, caption, sort, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (owner_kind, owner_id, path, caption, int(row["next"]) if row else 0, now_iso()),
+    )
+    return int(cur.lastrowid)
+
+
+def photos_for(conn: sqlite3.Connection, owner_kind: str, owner_id: int) -> list[sqlite3.Row]:
+    return all_rows(
+        conn,
+        "SELECT * FROM photo WHERE owner_kind = ? AND owner_id = ? ORDER BY sort, id",
+        (owner_kind, owner_id),
+    )
+
+
+def photo_count(conn: sqlite3.Connection, owner_kind: str, owner_id: int) -> int:
+    row = one(
+        conn,
+        "SELECT COUNT(*) AS n FROM photo WHERE owner_kind = ? AND owner_id = ?",
+        (owner_kind, owner_id),
+    )
+    return int(row["n"]) if row else 0
+
+
+def photo_by_id(conn: sqlite3.Connection, photo_id: int) -> sqlite3.Row | None:
+    return one(conn, "SELECT * FROM photo WHERE id = ?", (photo_id,))
+
+
+def delete_photo(conn: sqlite3.Connection, photo_id: int) -> bool:
+    return conn.execute("DELETE FROM photo WHERE id = ?", (photo_id,)).rowcount > 0
+
+
+def delete_photos_for(conn: sqlite3.Connection, owner_kind: str, owner_id: int) -> list[str]:
+    """Delete the rows and hand back the paths so the caller can unlink files."""
+    paths = [r["path"] for r in photos_for(conn, owner_kind, owner_id)]
+    conn.execute("DELETE FROM photo WHERE owner_kind = ? AND owner_id = ?", (owner_kind, owner_id))
+    return paths
+
+
+def cover_photos(conn: sqlite3.Connection, owner_kind: str, ids: Sequence[int]) -> dict[int, str]:
+    """First photo per owner, for cards. One query instead of N."""
+    if not ids:
+        return {}
+    marks = ",".join("?" for _ in ids)
+    rows = all_rows(
+        conn,
+        f"""SELECT owner_id, path FROM photo
+            WHERE owner_kind = ? AND owner_id IN ({marks})
+            ORDER BY owner_id, sort, id""",
+        (owner_kind, *ids),
+    )
+    cover: dict[int, str] = {}
+    for r in rows:
+        cover.setdefault(int(r["owner_id"]), r["path"])
+    return cover
+
+
+# --------------------------------------------------------------------------- #
+# listings (land offered on a fixed-term licence)
 # --------------------------------------------------------------------------- #
 
 LISTING_COLUMNS = (
-    "title", "survey_no", "district", "state", "acres", "water_source", "water_hours",
-    "soil", "road_access", "last_crop", "term_months", "rent_per_acre", "share_terms",
-    "notes", "status",
+    "title", "survey_no", "district", "taluk", "acres", "water_source", "water_hours",
+    "soil", "road_access", "last_crop", "suitable_crops", "term_months",
+    "rent_per_acre", "share_terms", "notes", "status",
 )
 
 
@@ -280,9 +417,8 @@ def search_listings(
         sql.append("AND l.status = ?")
         params.append(status)
     if district:
-        sql.append("AND (LOWER(l.district) LIKE ? OR LOWER(l.state) LIKE ?)")
-        like = f"%{district.lower()}%"
-        params.extend([like, like])
+        sql.append("AND l.district = ?")
+        params.append(district)
     if min_acres is not None:
         sql.append("AND l.acres >= ?")
         params.append(min_acres)
@@ -337,7 +473,7 @@ def inquiries_for_owner(conn: sqlite3.Connection, owner_id: int) -> list[sqlite3
 def inquiries_by_sender(conn: sqlite3.Connection, sender_id: int) -> list[sqlite3.Row]:
     return all_rows(
         conn,
-        """SELECT i.*, l.title AS listing_title, l.district, l.state
+        """SELECT i.*, l.title AS listing_title, l.district
            FROM inquiry i JOIN listing l ON l.id = i.listing_id
            WHERE i.sender_id = ? ORDER BY i.created_at DESC""",
         (sender_id,),
@@ -353,155 +489,173 @@ def set_inquiry_status(conn: sqlite3.Connection, inquiry_id: int, owner_id: int,
 
 
 # --------------------------------------------------------------------------- #
-# seasons
+# projects (crop / livestock / shares)
 # --------------------------------------------------------------------------- #
 
-SEASON_COLUMNS = (
-    "parcel_label", "survey_no", "district", "state", "acres", "crop", "season_label",
-    "sowing_window", "input_budget", "expected_quintals", "expected_price",
-    "investor_pct", "grower_pct", "plan_note", "status",
+PROJECT_COLUMNS = (
+    "kind", "title", "parcel_label", "survey_no", "district", "taluk", "acres",
+    "budget", "expected_revenue", "investor_pct", "grower_pct", "plan_note", "status",
+    "crop", "season_label", "sowing_window", "expected_quintals", "expected_price",
+    "animal", "herd_size", "cycle_months", "shed", "water", "fodder",
+    "unit_price", "total_units", "max_investors",
 )
 
 
-def create_season(conn: sqlite3.Connection, grower_id: int, data: dict[str, Any]) -> int:
-    cols = ", ".join(SEASON_COLUMNS)
-    marks = ", ".join("?" for _ in SEASON_COLUMNS)
+def create_project(conn: sqlite3.Connection, owner_id: int, data: dict[str, Any]) -> int:
+    cols = ", ".join(PROJECT_COLUMNS)
+    marks = ", ".join("?" for _ in PROJECT_COLUMNS)
     cur = conn.execute(
-        f"INSERT INTO season (grower_id, {cols}, created_at, updated_at) "
+        f"INSERT INTO project (owner_id, {cols}, created_at, updated_at) "
         f"VALUES (?, {marks}, ?, ?)",
-        (grower_id, *(data.get(c) for c in SEASON_COLUMNS), now_iso(), now_iso()),
+        (owner_id, *(data.get(c) for c in PROJECT_COLUMNS), now_iso(), now_iso()),
     )
     return int(cur.lastrowid)
 
 
-def update_season(conn: sqlite3.Connection, season_id: int, data: dict[str, Any]) -> None:
-    sets = ", ".join(f"{c} = ?" for c in SEASON_COLUMNS)
+def update_project(conn: sqlite3.Connection, project_id: int, data: dict[str, Any]) -> None:
+    sets = ", ".join(f"{c} = ?" for c in PROJECT_COLUMNS)
     conn.execute(
-        f"UPDATE season SET {sets}, updated_at = ? WHERE id = ?",
-        (*(data.get(c) for c in SEASON_COLUMNS), now_iso(), season_id),
+        f"UPDATE project SET {sets}, updated_at = ? WHERE id = ?",
+        (*(data.get(c) for c in PROJECT_COLUMNS), now_iso(), project_id),
     )
 
 
-SEASON_SELECT = """
-SELECT s.*, u.name AS grower_name, u.district AS grower_district,
-       COALESCE((SELECT SUM(amount) FROM pledge p
-                 WHERE p.season_id = s.id AND p.status != 'withdrawn'), 0) AS pledged,
-       (SELECT COUNT(*) FROM pledge p
-        WHERE p.season_id = s.id AND p.status != 'withdrawn') AS backers
-FROM season s JOIN user u ON u.id = s.grower_id
+PROJECT_SELECT = """
+SELECT p.*, u.name AS owner_name, u.district AS owner_home_district,
+       COALESCE((SELECT SUM(amount) FROM pledge pl
+                 WHERE pl.project_id = p.id AND pl.status != 'withdrawn'), 0) AS pledged,
+       COALESCE((SELECT SUM(units) FROM pledge pl
+                 WHERE pl.project_id = p.id AND pl.status != 'withdrawn'), 0) AS units_taken,
+       (SELECT COUNT(*) FROM pledge pl
+        WHERE pl.project_id = p.id AND pl.status != 'withdrawn') AS backers
+FROM project p JOIN user u ON u.id = p.owner_id
 """
 
 
-def season_by_id(conn: sqlite3.Connection, season_id: int) -> sqlite3.Row | None:
-    return one(conn, SEASON_SELECT + " WHERE s.id = ?", (season_id,))
+def project_by_id(conn: sqlite3.Connection, project_id: int) -> sqlite3.Row | None:
+    return one(conn, PROJECT_SELECT + " WHERE p.id = ?", (project_id,))
 
 
-def search_seasons(
+def search_projects(
     conn: sqlite3.Connection,
     *,
+    kind: str = "",
     district: str = "",
-    crop: str = "",
+    query: str = "",
     status: str = "open",
     limit: int = 60,
 ) -> list[sqlite3.Row]:
-    sql = [SEASON_SELECT, "WHERE 1 = 1"]
+    sql = [PROJECT_SELECT, "WHERE 1 = 1"]
     params: list[Any] = []
+    if kind:
+        sql.append("AND p.kind = ?")
+        params.append(kind)
     if status:
-        sql.append("AND s.status = ?")
+        sql.append("AND p.status = ?")
         params.append(status)
     if district:
-        sql.append("AND (LOWER(s.district) LIKE ? OR LOWER(s.state) LIKE ?)")
-        like = f"%{district.lower()}%"
-        params.extend([like, like])
-    if crop:
-        sql.append("AND LOWER(s.crop) LIKE ?")
-        params.append(f"%{crop.lower()}%")
-    sql.append("ORDER BY s.updated_at DESC LIMIT ?")
+        sql.append("AND p.district = ?")
+        params.append(district)
+    if query:
+        sql.append("AND (LOWER(p.crop) LIKE ? OR LOWER(p.animal) LIKE ? OR LOWER(p.title) LIKE ?)")
+        like = f"%{query.lower()}%"
+        params.extend([like, like, like])
+    sql.append("ORDER BY p.updated_at DESC LIMIT ?")
     params.append(limit)
     return all_rows(conn, " ".join(sql), params)
 
 
-def seasons_for_grower(conn: sqlite3.Connection, grower_id: int) -> list[sqlite3.Row]:
-    return all_rows(conn, SEASON_SELECT + " WHERE s.grower_id = ? ORDER BY s.updated_at DESC",
-                    (grower_id,))
+def projects_for_owner(conn: sqlite3.Connection, owner_id: int) -> list[sqlite3.Row]:
+    return all_rows(conn, PROJECT_SELECT + " WHERE p.owner_id = ? ORDER BY p.updated_at DESC",
+                    (owner_id,))
 
 
-def delete_season(conn: sqlite3.Connection, season_id: int) -> bool:
-    return conn.execute("DELETE FROM season WHERE id = ?", (season_id,)).rowcount > 0
+def delete_project(conn: sqlite3.Connection, project_id: int) -> bool:
+    return conn.execute("DELETE FROM project WHERE id = ?", (project_id,)).rowcount > 0
 
 
 # --------------------------------------------------------------------------- #
-# pledges and season updates
+# pledges and project updates
 # --------------------------------------------------------------------------- #
 
 def upsert_pledge(
-    conn: sqlite3.Connection, season_id: int, investor_id: int, amount: int, note: str
+    conn: sqlite3.Connection,
+    project_id: int,
+    investor_id: int,
+    amount: int,
+    note: str,
+    units: int = 0,
 ) -> str:
     existing = one(
-        conn, "SELECT id FROM pledge WHERE season_id = ? AND investor_id = ?",
-        (season_id, investor_id),
+        conn, "SELECT id FROM pledge WHERE project_id = ? AND investor_id = ?",
+        (project_id, investor_id),
     )
     if existing:
         conn.execute(
-            "UPDATE pledge SET amount = ?, note = ?, status = 'interest', created_at = ? WHERE id = ?",
-            (amount, note, now_iso(), existing["id"]),
+            """UPDATE pledge SET amount = ?, units = ?, note = ?, status = 'interest',
+                                 created_at = ? WHERE id = ?""",
+            (amount, units, note, now_iso(), existing["id"]),
         )
         return "updated"
     conn.execute(
-        "INSERT INTO pledge (season_id, investor_id, amount, note, created_at) VALUES (?, ?, ?, ?, ?)",
-        (season_id, investor_id, amount, note, now_iso()),
+        """INSERT INTO pledge (project_id, investor_id, amount, units, note, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)""",
+        (project_id, investor_id, amount, units, note, now_iso()),
     )
     return "created"
 
 
-def withdraw_pledge(conn: sqlite3.Connection, season_id: int, investor_id: int) -> bool:
+def withdraw_pledge(conn: sqlite3.Connection, project_id: int, investor_id: int) -> bool:
     return conn.execute(
-        "UPDATE pledge SET status = 'withdrawn' WHERE season_id = ? AND investor_id = ?",
-        (season_id, investor_id),
+        "UPDATE pledge SET status = 'withdrawn' WHERE project_id = ? AND investor_id = ?",
+        (project_id, investor_id),
     ).rowcount > 0
 
 
-def pledge_for(conn: sqlite3.Connection, season_id: int, investor_id: int) -> sqlite3.Row | None:
+def pledge_for(conn: sqlite3.Connection, project_id: int, investor_id: int) -> sqlite3.Row | None:
     return one(
-        conn, "SELECT * FROM pledge WHERE season_id = ? AND investor_id = ?",
-        (season_id, investor_id),
+        conn,
+        """SELECT * FROM pledge WHERE project_id = ? AND investor_id = ?
+           AND status != 'withdrawn'""",
+        (project_id, investor_id),
     )
 
 
-def pledges_for_season(conn: sqlite3.Connection, season_id: int) -> list[sqlite3.Row]:
+def pledges_for_project(conn: sqlite3.Connection, project_id: int) -> list[sqlite3.Row]:
     return all_rows(
         conn,
         """SELECT p.*, u.name AS investor_name, u.phone AS investor_phone
            FROM pledge p JOIN user u ON u.id = p.investor_id
-           WHERE p.season_id = ? AND p.status != 'withdrawn' ORDER BY p.created_at DESC""",
-        (season_id,),
+           WHERE p.project_id = ? AND p.status != 'withdrawn' ORDER BY p.created_at DESC""",
+        (project_id,),
     )
 
 
 def pledges_by_investor(conn: sqlite3.Connection, investor_id: int) -> list[sqlite3.Row]:
     return all_rows(
         conn,
-        """SELECT p.*, s.parcel_label, s.crop, s.season_label, s.district, s.state,
-                  s.status AS season_status, s.investor_pct, s.input_budget, s.id AS season_id
-           FROM pledge p JOIN season s ON s.id = p.season_id
+        """SELECT p.*, pr.title, pr.kind, pr.crop, pr.animal, pr.parcel_label, pr.district,
+                  pr.status AS project_status, pr.investor_pct, pr.budget,
+                  pr.unit_price, pr.total_units, pr.id AS project_id
+           FROM pledge p JOIN project pr ON pr.id = p.project_id
            WHERE p.investor_id = ? AND p.status != 'withdrawn' ORDER BY p.created_at DESC""",
         (investor_id,),
     )
 
 
-def add_season_update(conn: sqlite3.Connection, season_id: int, body: str, spend: int | None) -> int:
+def add_project_update(conn: sqlite3.Connection, project_id: int, body: str, spend: int | None) -> int:
     cur = conn.execute(
-        "INSERT INTO season_update (season_id, body, spend, created_at) VALUES (?, ?, ?, ?)",
-        (season_id, body, spend, now_iso()),
+        "INSERT INTO project_update (project_id, body, spend, created_at) VALUES (?, ?, ?, ?)",
+        (project_id, body, spend, now_iso()),
     )
     return int(cur.lastrowid)
 
 
-def updates_for_season(conn: sqlite3.Connection, season_id: int) -> list[sqlite3.Row]:
+def updates_for_project(conn: sqlite3.Connection, project_id: int) -> list[sqlite3.Row]:
     return all_rows(
         conn,
-        "SELECT * FROM season_update WHERE season_id = ? ORDER BY created_at DESC",
-        (season_id,),
+        "SELECT * FROM project_update WHERE project_id = ? ORDER BY created_at DESC",
+        (project_id,),
     )
 
 
@@ -580,5 +734,5 @@ def delete_waitlist_entry(conn: sqlite3.Connection, entry_id: int) -> bool:
 # --------------------------------------------------------------------------- #
 
 def site_counts(conn: sqlite3.Connection) -> dict[str, int]:
-    tables = ("user", "listing", "season", "pledge", "inquiry", "waitlist")
+    tables = ("user", "listing", "project", "pledge", "inquiry", "waitlist")
     return {t: int(one(conn, f"SELECT COUNT(*) AS n FROM {t}")["n"]) for t in tables}

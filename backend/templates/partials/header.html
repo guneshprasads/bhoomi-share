@@ -18,33 +18,34 @@
           <line x1="0.75" y1="10.5" x2="14.25" y2="10.5"></line>
         </g>
       </svg>
-      <span>Menu</span>
+      <span>{{ t('nav.invest') if lang == 'kn' else 'Menu' }}</span>
     </button>
 
     <nav class="nav" id="siteNav" aria-label="Sections">
-      <a href="/seasons">Fund a season</a>
-      <a href="/land">Land on offer</a>
-      <a href="/how-it-works">How it works</a>
-      <a href="/fine-print">The fine print</a>
+      <a href="/invest" data-tour="invest">{{ t('nav.invest') }}</a>
+      <a href="/land">{{ t('nav.land') }}</a>
+      <a href="/how-it-works">{{ t('nav.how') }}</a>
+      <a href="/fine-print">{{ t('nav.fineprint') }}</a>
       {% if user %}
-        <a class="nav__auth" href="/dashboard">Dashboard</a>
-        {% if user["is_admin"] %}<a class="nav__auth" href="/admin">Admin</a>{% endif %}
+        <a class="nav__auth" href="/dashboard">{{ t('nav.dashboard') }}</a>
+        {% if user["is_admin"] %}<a class="nav__auth" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
       {% else %}
-        <a class="nav__auth" href="/login">Log in</a>
-        <a class="nav__auth" href="/signup">Create an account</a>
+        <a class="nav__auth" href="/login">{{ t('auth.login') }}</a>
+        <a class="nav__auth" href="/signup">{{ t('auth.signup') }}</a>
       {% endif %}
+      <span class="nav__auth nav__lang">{% include "partials/lang_switch.html" %}</span>
     </nav>
 
     <div class="hdr__cta">
+      {% include "partials/lang_switch.html" %}
       {% if user %}
-        <span class="who">Signed in as <strong>{{ user["name"].split(" ")[0] }}</strong></span>
-        <a class="btn btn--line btn--small" href="/dashboard">Dashboard</a>
+        <a class="btn btn--line btn--small" href="/dashboard">{{ t('nav.dashboard') }}</a>
         <form method="post" action="/logout" class="inline-form">
-          <button class="btn btn--ghost btn--small" type="submit">Log out</button>
+          <button class="btn btn--ghost btn--small" type="submit">{{ t('auth.logout') }}</button>
         </form>
       {% else %}
-        <a class="btn btn--line" href="/login">Log in</a>
-        <a class="btn btn--solid" href="/signup">Create an account</a>
+        <a class="btn btn--line" href="/login">{{ t('auth.login') }}</a>
+        <a class="btn btn--solid" href="/signup">{{ t('auth.signup') }}</a>
       {% endif %}
     </div>
   </div>

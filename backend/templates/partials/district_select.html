@@ -1,0 +1,13 @@
+{# Usage: {% with name='district', value=f.district, blank=t('misc.all_districts') %}{% include %}{% endwith %} #}
+<div class="sel">
+  <select id="{{ name }}" name="{{ name }}">
+    {% if blank %}<option value="">{{ blank }}</option>{% endif %}
+    {% for division, names in divisions.items() %}
+      <optgroup label="{{ division }} division">
+        {% for d in names|sort %}
+          <option value="{{ d }}" {% if value == d %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+      </optgroup>
+    {% endfor %}
+  </select>
+</div>

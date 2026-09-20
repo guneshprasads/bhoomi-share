@@ -513,6 +513,7 @@
     }
     .hdr.is-open .nav{display:flex}
     .nav .nav__auth{display:block}
+    .nav .nav__lang{display:block}
     .nav a{
       padding-block:.7rem;
       font-size:.9375rem;
@@ -640,6 +641,16 @@
   color:var(--ink-faint);
   padding-bottom:.55rem;
 }
+
+/* A visitor who lands in the wrong section should never have to guess that the
+   other one exists. */
+.crosslink{
+  font-size:.875rem;
+  color:var(--ink-faint);
+  margin:-.75rem 0 1.5rem;
+}
+.crosslink a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--gold)}
+.crosslink a:hover{border-bottom-width:2px}
 
 /* ---------- record lists (land parcels, season plans) ---------- */
 .records{display:grid;gap:1.15rem;grid-template-columns:repeat(auto-fill,minmax(min(19rem,100%),1fr))}
@@ -881,4 +892,165 @@ textarea:focus{border-color:var(--gold-deep);outline:1px solid var(--gold-deep);
   .filters__count{margin-left:0}
   .spec--wide{grid-template-columns:1fr}
   .spec--wide dd{padding-top:0;border-top:0;padding-bottom:.6rem}
+}
+
+/* =========================================================================
+   Karnataka build: four ways, photographs, shares, two languages
+   ========================================================================= */
+
+/* ---------- language switch ---------- */
+.lang{display:inline-flex;align-items:baseline;gap:.35rem;font-size:.8125rem;white-space:nowrap}
+.lang__on{font-weight:700;color:var(--ink)}
+.lang__off{color:var(--ink-faint);text-decoration:none;border-bottom:1px solid var(--line)}
+.lang__off:hover{color:var(--ink);border-bottom-color:var(--gold)}
+.nav__lang{padding-block:.7rem}
+
+/* ---------- four ways ---------- */
+.ways{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(15rem,100%),1fr));
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+.way{background:var(--off);padding:1.35rem 1.35rem 1.15rem;border-top:3px solid var(--field)}
+.way--livestock{border-top-color:var(--clay)}
+.way--shares{border-top-color:var(--gold)}
+.way--lease{border-top-color:var(--ink)}
+.way h3{font-size:1.125rem;margin-bottom:.5rem}
+.way h3 a{text-decoration:none;border-bottom:1px solid transparent}
+.way h3 a:hover{border-bottom-color:var(--gold)}
+.way p{font-size:.9062rem;line-height:1.5}
+.way__foot{
+  margin-top:1rem;
+  padding-top:.75rem;
+  border-top:1px solid var(--line);
+  font-size:.8125rem;
+  color:var(--ink-faint);
+}
+.way__n{
+  font-family:var(--display);
+  font-variation-settings:"opsz" 40;
+  font-size:1.0625rem;
+  font-weight:700;
+  color:var(--ink);
+  margin-right:.3rem;
+}
+.split--home{max-width:44rem;margin-top:clamp(2rem,3.5vw,2.75rem)}
+.split--home .split__note{color:var(--ink-soft)}
+
+/* ---------- photographs ---------- */
+.record__shot{display:block;aspect-ratio:3/2;overflow:hidden;background:var(--parchment-2)}
+.record__shot img{width:100%;height:100%;object-fit:cover;display:block}
+.record{padding:0}
+.record__body{display:flex;flex-direction:column;flex:1;padding:1.15rem 1.25rem 1.25rem}
+.record__kind{
+  font-size:.75rem;
+  font-weight:600;
+  color:var(--gold-deep);
+  margin-bottom:.3rem;
+}
+.record--livestock{border-top-color:var(--clay)}
+.record--shares{border-top-color:var(--gold-deep)}
+
+.shots{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(14rem,100%),1fr));
+  gap:.6rem;
+  margin-bottom:clamp(1.5rem,3vw,2.25rem);
+}
+.shots--many{grid-template-columns:repeat(auto-fit,minmax(min(11rem,100%),1fr))}
+.shot{
+  display:block;
+  position:relative;
+  aspect-ratio:3/2;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:var(--parchment-2);
+}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+.shots--edit .shot{display:flex;flex-direction:column;aspect-ratio:auto}
+.shots--edit .shot img{aspect-ratio:3/2}
+.shots--edit .btn{border-radius:0;border-top:1px solid var(--line)}
+input[type="file"]{
+  font-family:var(--body);
+  font-size:.875rem;
+  background:var(--parchment);
+  border:1px dashed var(--line);
+  border-radius:2px;
+  padding:.7rem;
+  width:100%;
+}
+
+/* ---------- crop chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.85rem}
+.chip{
+  font-size:.75rem;
+  padding:.18rem .45rem;
+  border:1px solid var(--line);
+  background:var(--parchment-2);
+  color:var(--ink-soft);
+}
+
+/* ---------- project form: only the fields for the chosen kind ---------- */
+.kinds .check{padding:.6rem .9rem}
+.only[hidden]{display:none}
+
+@media (max-width:880px){
+  .hdr__cta .lang{display:none}
+}
+@media (max-width:620px){
+  .ways{grid-template-columns:1fr}
+}
+
+/* ---------- first-run guided tour ---------- */
+.tour{position:fixed;inset:0;z-index:60}
+.tour__veil{position:absolute;inset:0;background:rgba(33,26,18,.72)}
+.tour__hole{
+  position:absolute;
+  border-radius:3px;
+  box-shadow:0 0 0 9999px rgba(33,26,18,.72);
+  outline:2px solid var(--gold);
+  outline-offset:0;
+  pointer-events:none;
+  z-index:1;
+}
+/* With a cut-out, the veil would double the dimming over everything else. */
+.tour__hole:not([hidden]) ~ .tour__veil{background:transparent}
+
+.tour__card{
+  position:absolute;
+  top:50%;
+  left:50%;
+  z-index:2;
+  width:min(26rem,calc(100vw - 2rem));
+  background:var(--off);
+  border:1px solid var(--line);
+  border-top:3px solid var(--gold);
+  padding:1.15rem 1.25rem 1.1rem;
+  box-shadow:0 10px 30px rgba(33,26,18,.28);
+}
+.tour__card--mid{transform:translate(-50%,-50%)}
+.tour__card:focus{outline:none}
+.tour__count{font-size:.75rem;color:var(--ink-faint);margin-bottom:.35rem;font-variant-numeric:tabular-nums}
+.tour__title{font-size:1.1875rem;margin-bottom:.5rem}
+.tour__body{font-size:.9375rem;line-height:1.55;color:var(--ink-soft)}
+.tour__row{display:flex;align-items:center;gap:.45rem;margin-top:1.15rem}
+/* .btn sets display:inline-flex, which beats the UA rule for [hidden]. */
+.tour__row .btn[hidden]{display:none}
+.tour__spacer{flex:1}
+.tour__skip{padding-inline:.35rem;color:var(--ink-faint)}
+
+@media (max-width:620px){
+  .tour__card{
+    top:auto !important;
+    bottom:1rem;
+    left:1rem !important;
+    right:1rem;
+    width:auto;
+    transform:none !important;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .tour__hole{transition:none}
 }

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}{{ project['title'] }} &mdash; {{ site_name }}{% endblock %}
+{% block description %}{{ kind_labels[project['kind']] }} on {{ acres(project['acres']) }} in {{ project['district'] }}, Karnataka.{% endblock %}
+
+{% block content %}
+<p class="crumb">
+  <a href="/invest">{{ t('nav.invest') }}</a> <span>/</span>
+  <a href="{% if project['kind'] == 'crop' %}/seasons{% elif project['kind'] == 'livestock' %}/livestock{% else %}/shares{% endif %}">{{ t('kind.' ~ project['kind']) }}</a>
+  <span>/</span> <span>{{ project['district'] }}</span>
+</p>
+
+<div class="page__head">
+  <div>
+    <p class="record__kind">{{ t('kind.' ~ project['kind']) }}</p>
+    <h1>{{ project['title'] }}</h1>
+    <p class="pair" style="margin-top:.75rem">
+      <span>{{ project['district'] }}{% if project['taluk'] %}, {{ project['taluk'] }}{% endif %}, {{ state }}</span>
+      {% if project['parcel_label'] %}<span>{{ project['parcel_label'] }}</span>{% endif %}
+      {% if project['survey_no'] %}<span>Sy. {{ project['survey_no'] }}</span>{% endif %}
+      <span>{{ t('misc.grown_by' if project['kind'] == 'crop' else ('misc.kept_by' if project['kind'] == 'livestock' else 'misc.posted_by')) }} {{ project['owner_name'] }}</span>
+    </p>
+  </div>
+  <span class="badge badge--{{ project['status'] }}">{{ t('status.' ~ project['status']) }}</span>
+</div>
+
+{% include "partials/photo_grid.html" %}
+
+<div class="detail">
+  <div>
+    <dl class="spec spec--wide">
+      <dt>{{ t('field.acres_short')|capitalize }}</dt><dd>{{ acres(project['acres']) }}</dd>
+
+      {% if project['kind'] == 'crop' %}
+        <dt>{{ t('field.crop') }}</dt><dd>{{ project['crop'] }}</dd>
+        <dt>Season</dt><dd>{{ project['season_label'] or '—' }}</dd>
+        <dt>Sowing window</dt><dd>{{ project['sowing_window'] or 'To be set' }}</dd>
+        <dt>Expected yield</dt><dd>{{ project['expected_quintals'] }} quintals at &#8377;{{ inr(project['expected_price']) }} a quintal</dd>
+      {% elif project['kind'] == 'livestock' %}
+        <dt>{{ t('field.animal') }}</dt><dd>{{ project['animal'] }}, {{ project['herd_size'] }} head</dd>
+        <dt>Cycle</dt><dd>{{ project['cycle_months'] }} {{ t('field.months') }}</dd>
+        <dt>Shed</dt><dd>{{ project['shed'] or 'Not stated' }}</dd>
+        <dt>{{ t('field.water') }}</dt><dd>{{ project['water'] or 'Not stated' }}</dd>
+        <dt>Fodder</dt><dd>{{ project['fodder'] or 'Not stated' }}</dd>
+      {% else %}
+        <dt>One {{ t('units.one') }}</dt><dd>&#8377;{{ inr(project['unit_price']) }}</dd>
+        <dt>{{ t('units.many')|capitalize }}</dt><dd>{{ project['total_units'] }} in all, {{ maths.units_left }} left</dd>
+        <dt>People allowed</dt><dd>{{ project['max_investors'] }} at most, {{ maths.seats_left }} places left</dd>
+      {% endif %}
+
+      <dt>{{ t('field.budget') }}</dt><dd>&#8377;{{ inr(project['budget']) }} — what the cycle costs to run</dd>
+      <dt>Split of proceeds</dt><dd>{{ project['investor_pct'] }} investor / {{ project['grower_pct'] }} {{ 'keeper' if project['kind'] == 'livestock' else 'grower' }}, agreed before work starts</dd>
+    </dl>
+
+    <h2 style="margin-top:2.25rem;font-size:1.25rem">If it goes to plan</h2>
+    <div class="table-wrap" style="margin-top:1rem">
+      <table class="data">
+        <tr><th>Expected revenue</th><td class="num">&#8377;{{ inr(maths.revenue) }}</td></tr>
+        <tr><th>Less the budget</th><td class="num">&#8722; &#8377;{{ inr(project['budget']) }}</td></tr>
+        <tr><th>Left to split</th><td class="num">&#8377;{{ inr(maths.net) }}</td></tr>
+        <tr><th>Investor side ({{ project['investor_pct'] }}%)</th><td class="num">&#8377;{{ inr(maths.investor_cut) }}</td></tr>
+        <tr><th>{{ 'Keeper' if project['kind'] == 'livestock' else 'Grower' }} side ({{ project['grower_pct'] }}%)</th><td class="num">&#8377;{{ inr(maths.grower_cut) }}</td></tr>
+        {% if project['kind'] == 'shares' and project['total_units'] %}
+          <tr><th>Per {{ t('units.one') }} of &#8377;{{ inr(project['unit_price']) }}</th><td class="num">&#8377;{{ inr(maths.per_unit) }}</td></tr>
+        {% endif %}
+      </table>
+    </div>
+    <p class="help" style="margin-top:.75rem;max-width:62ch">
+      {% if lang == 'kn' %}
+        ಇವು ಯೋಜನೆ ಹಾಕಿದವರ ಅಂದಾಜುಗಳು, ಯಾರೂ ಖಾತ್ರಿ ನೀಡುವ ಲೆಕ್ಕವಲ್ಲ. ಮಳೆ, ರೋಗ ಮತ್ತು ಮಾರುಕಟ್ಟೆ ದರ ಇವನ್ನು ಬದಲಿಸುತ್ತವೆ. ಕೆಟ್ಟ ಋತು ಕೂಡ ಇದೇ ರೀತಿ ಹಂಚಿಕೆಯಾಗುತ್ತದೆ: ಖಾತ್ರಿ ಲಾಭ ಇಲ್ಲ, ನಾವು ಅದನ್ನು ಕೊಡುವುದೂ ಇಲ್ಲ.
+      {% else %}
+        These are the estimates of the person running it, not a forecast anyone stands behind. Rain, disease and the market price all move them. A bad cycle splits the same way a good one does: there is no guaranteed return and we will not offer one.
+      {% endif %}
+    </p>
+
+    {% if project['plan_note'] %}
+      <h2 style="margin-top:2.25rem;font-size:1.25rem">In their words</h2>
+      <p style="margin-top:.85rem;max-width:62ch">{{ project['plan_note'] }}</p>
+    {% endif %}
+
+    <h2 style="margin-top:2.25rem;font-size:1.25rem">Log</h2>
+    {% if updates %}
+      <ul class="timeline">
+        {% for u in updates %}
+          <li>
+            <time datetime="{{ u['created_at'] }}">{{ short_date(u['created_at']) }}</time>
+            <p>{{ u['body'] }}</p>
+            {% if u['spend'] %}<p class="spend">Spent so far: &#8377;{{ inr(u['spend']) }}</p>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty" style="margin-top:1rem">Nothing logged yet. Once work starts, whoever is running it posts what was spent and what was done.</p>
+    {% endif %}
+
+    {% if is_owner %}
+      <h2 style="margin-top:2.25rem;font-size:1.25rem">Post an update</h2>
+      <form method="post" action="/projects/{{ project['id'] }}/updates" style="margin-top:1rem;max-width:40rem">
+        <div class="field">
+          <label for="body">What happened</label>
+          <textarea id="body" name="body" required placeholder="Sowed 3.2 acres on the 14th. Two irrigations done."></textarea>
+        </div>
+        <div class="field">
+          <label for="spend">Spent so far (&#8377;, {{ t('field.optional') }})</label>
+          <input type="number" id="spend" name="spend" min="0" step="100">
+        </div>
+        <button class="btn btn--solid" type="submit">Post to the log</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <aside class="detail__aside">
+    {% if project['kind'] == 'shares' %}
+      <h2>{{ t('units.taken', taken=project['units_taken'], total=project['total_units']) }}</h2>
+    {% else %}
+      <h2>&#8377;{{ inr(project['pledged']) }} {{ t('money.of') }} &#8377;{{ inr(project['budget']) }} {{ t('money.spoken_for') }}</h2>
+    {% endif %}
+
+    <div class="meter">
+      <div class="meter__bar" role="img" aria-label="{{ maths.pct }}%">
+        {% if maths.pct %}<div class="meter__fill" style="width:{{ maths.pct }}%"></div>{% endif %}
+      </div>
+      <p class="meter__line">
+        <span><strong>{{ maths.pct }}%</strong></span>
+        <span>{{ project['backers'] }} {{ t('money.interested') }}</span>
+      </p>
+    </div>
+
+    {% if is_owner %}
+      <p class="panel-note">This is yours. Everyone who has registered interest is listed below; their numbers are yours to call.</p>
+      {% if pledges %}
+        <div class="table-wrap" style="margin-top:1rem;border:0">
+          <table class="data" style="min-width:0">
+            {% for p in pledges %}
+              <tr>
+                <td>{{ p['investor_name'] }}<br><span class="help">{{ p['investor_phone'] }}</span></td>
+                <td class="num">
+                  {% if project['kind'] == 'shares' %}{{ p['units'] }} &times; &#8377;{{ inr(project['unit_price']) }}<br>{% endif %}
+                  &#8377;{{ inr(p['amount']) }}
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      {% endif %}
+      <p style="margin-top:1rem"><a class="btn btn--line" href="/dashboard/projects/{{ project['id'] }}/edit">{{ t('action.edit') }}</a></p>
+
+    {% elif user %}
+      <h2 style="margin-top:1.25rem">{{ t('action.register_interest') }}</h2>
+      <form method="post" action="/projects/{{ project['id'] }}/pledge">
+        {% if project['kind'] == 'shares' %}
+          <div class="field">
+            <label for="units">How many {{ t('units.many') }}?</label>
+            <input type="number" id="units" name="units" min="1" max="{{ maths.units_left + (my_pledge['units'] if my_pledge else 0) }}"
+                   value="{{ my_pledge['units'] if my_pledge else 1 }}" required>
+            <span class="help">{{ t('units.price_each', price=inr(project['unit_price'])) }} &middot; {{ maths.units_left }} left</span>
+          </div>
+        {% else %}
+          <div class="field">
+            <label for="amount">Amount you would put in (&#8377;)</label>
+            <input type="number" id="amount" name="amount" min="1000" step="1000"
+                   value="{{ my_pledge['amount'] if my_pledge else '' }}" required>
+          </div>
+        {% endif %}
+        <div class="field">
+          <label for="note">Anything to say <span class="hint">&mdash; {{ t('field.optional') }}</span></label>
+          <textarea id="note" name="note" style="min-height:4.5rem">{{ my_pledge['note'] if my_pledge else '' }}</textarea>
+        </div>
+        <button class="btn btn--gold" type="submit">{{ t('action.update_interest') if my_pledge else t('action.register_interest') }}</button>
+      </form>
+      {% if my_pledge %}
+        <form method="post" action="/projects/{{ project['id'] }}/pledge/withdraw" style="margin-top:.6rem">
+          <button class="btn btn--danger btn--small" type="submit">{{ t('action.withdraw') }}</button>
+        </form>
+      {% endif %}
+      <p class="panel-note">{{ t('notice.no_money') }}</p>
+
+    {% else %}
+      <h2 style="margin-top:1.25rem">{{ t('action.register_interest') }}</h2>
+      <p class="panel-note">Make an account first, so the person running it knows who is asking.</p>
+      <p style="margin-top:1rem"><a class="btn btn--gold" href="/signup?next=/projects/{{ project['id'] }}">{{ t('auth.signup') }}</a></p>
+      <p style="margin-top:.5rem"><a class="btn btn--line" href="/login?next=/projects/{{ project['id'] }}">{{ t('auth.have_account') }}</a></p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

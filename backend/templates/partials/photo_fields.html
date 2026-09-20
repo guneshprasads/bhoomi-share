@@ -1,0 +1,30 @@
+<fieldset>
+  <legend>{{ t('field.photos') }}</legend>
+
+  {% if photos %}
+    <div class="shots shots--edit">
+      {% for p in photos %}
+        <div class="shot">
+          <img src="{{ photo_url(p['path']) }}" alt="" loading="lazy">
+          <button class="btn btn--danger btn--small" type="submit"
+                  formmethod="post" formnovalidate
+                  formaction="{{ action.replace('/edit', '') }}/photos/{{ p['id'] }}/delete">
+            {{ t('action.remove') }}
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="field">
+    <label for="photos">Add photographs <span class="hint">&mdash; up to {{ max_photos }}</span></label>
+    <input type="file" id="photos" name="photos" accept="image/jpeg,image/png,image/webp" multiple>
+    <span class="help">
+      {% if lang == 'kn' %}
+        ಜಮೀನಿನ ಫೋಟೋಗಳು ಎಲ್ಲಕ್ಕಿಂತ ಹೆಚ್ಚು ಮಾತನಾಡುತ್ತವೆ. ನಾವು ಪ್ರತಿ ಫೋಟೋವನ್ನು ಮತ್ತೆ ಉಳಿಸುವಾಗ ಅದರಲ್ಲಿರುವ GPS ಸ್ಥಳ ಮಾಹಿತಿಯನ್ನು ತೆಗೆದುಹಾಕುತ್ತೇವೆ.
+      {% else %}
+        JPEG, PNG or WebP, 10 MB each. We re-save every photo and strip its metadata — including the GPS location your phone writes into it — before it goes on the site.
+      {% endif %}
+    </span>
+  </div>
+</fieldset>

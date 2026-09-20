@@ -1,0 +1,9 @@
+<span class="lang" role="group" aria-label="{{ t('misc.language') }}">
+  {% for code in langs %}
+    {% if code == lang %}
+      <span class="lang__on" aria-current="true">{{ lang_names[code] }}</span>
+    {% else %}
+      <a class="lang__off" href="/lang/{{ code }}?next={{ request.url.path | urlencode }}" rel="nofollow">{{ lang_names[code] }}</a>
+    {% endif %}
+  {% endfor %}
+</span>

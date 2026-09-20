@@ -20,7 +20,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from . import db, seed
 from .deps import Forbidden, LoginRequired, NotFound
-from .routers import admin_pages, api, auth, dashboard, land, pages, seasons
+from .routers import admin_pages, api, auth, dashboard, land, pages, projects
 from .schemas import ErrorOut
 from .security import current_user
 from .settings import get_settings
@@ -84,7 +84,10 @@ if settings.allowed_origins:
 
 app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
 
-for router in (pages.router, auth.router, land.router, seasons.router,
+settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(settings.uploads_dir)), name="uploads")
+
+for router in (pages.router, auth.router, land.router, projects.router,
                dashboard.router, admin_pages.router, api.router):
     app.include_router(router)
 

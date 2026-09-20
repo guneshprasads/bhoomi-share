@@ -1,0 +1,62 @@
+{% set cover = project_covers.get(p['id']) if project_covers is defined else covers.get(p['id']) %}
+<article class="record record--{{ p['kind'] }}">
+  {% if cover %}
+    <a class="record__shot" href="/projects/{{ p['id'] }}">
+      <img src="{{ photo_url(cover) }}" alt="" loading="lazy">
+    </a>
+  {% endif %}
+
+  <div class="record__body">
+    <div class="record__top">
+      <div>
+        <p class="record__kind">{{ t('kind.' ~ p['kind']) }}</p>
+        <h3><a href="/projects/{{ p['id'] }}">{{ p['title'] }}</a></h3>
+        <p class="record__where">
+          {{ p['district'] }}{% if p['taluk'] %} &middot; {{ p['taluk'] }}{% endif %}
+          &middot; {{ t('misc.grown_by' if p['kind'] == 'crop' else ('misc.kept_by' if p['kind'] == 'livestock' else 'misc.posted_by')) }} {{ p['owner_name'].split(' ')[0] }}
+        </p>
+      </div>
+      <span class="badge badge--{{ p['status'] }}">{{ t('status.' ~ p['status']) }}</span>
+    </div>
+
+    <dl class="spec">
+      {% if p['kind'] == 'crop' %}
+        <dt>{{ t('field.crop') }}</dt><dd>{{ p['crop'] }}{% if p['season_label'] %}, {{ p['season_label'] }}{% endif %}</dd>
+      {% elif p['kind'] == 'livestock' %}
+        <dt>{{ t('field.animal') }}</dt><dd>{{ p['animal'] }} &times; {{ p['herd_size'] }}</dd>
+      {% else %}
+        <dt>{{ t('units.one')|capitalize }}</dt><dd>&#8377;{{ inr(p['unit_price']) }} &times; {{ p['total_units'] }}</dd>
+      {% endif %}
+      <dt>{{ t('field.acres_short')|capitalize }}</dt><dd>{{ acres(p['acres']) }}</dd>
+      <dt>{{ t('field.budget') }}</dt><dd>&#8377;{{ inr(p['budget']) }}</dd>
+    </dl>
+
+    {% if p['kind'] == 'shares' and p['total_units'] %}
+      {% set pct = p['units_taken'] * 100 // p['total_units'] %}
+    {% else %}
+      {% set pct = (p['pledged'] * 100 // p['budget']) if p['budget'] else 0 %}
+    {% endif %}
+    <div class="meter">
+      <div class="meter__bar" role="img" aria-label="{{ pct }}%">
+        {% if pct %}<div class="meter__fill" style="width:{{ [pct, 100] | min }}%"></div>{% endif %}
+      </div>
+      <p class="meter__line">
+        {% if p['kind'] == 'shares' %}
+          <span>{{ t('units.taken', taken=p['units_taken'], total=p['total_units']) }}</span>
+        {% else %}
+          <span><strong>&#8377;{{ inr(p['pledged']) }}</strong> {{ t('money.spoken_for') }}</span>
+        {% endif %}
+        <span>{{ p['backers'] }} {{ t('money.interested') }}</span>
+      </p>
+    </div>
+
+    <div class="record__foot">
+      <span class="help">
+        {% if p['kind'] == 'crop' %}{{ p['sowing_window'] or p['season_label'] }}
+        {% elif p['kind'] == 'livestock' %}{{ p['cycle_months'] }} {{ t('field.months') }}
+        {% else %}{{ t('units.price_each', price=inr(p['unit_price'])) }}{% endif %}
+      </span>
+      <a class="btn btn--line btn--small" href="/projects/{{ p['id'] }}">{{ t('action.read_plan') }}</a>
+    </div>
+  </div>
+</article>

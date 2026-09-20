@@ -11,6 +11,7 @@ from pathlib import Path
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = BACKEND_DIR / "templates"
 STATIC_DIR = BACKEND_DIR / "static"
+UPLOADS_DIR = BACKEND_DIR / "uploads"
 PROJECT_DIR = BACKEND_DIR.parent
 
 
@@ -33,6 +34,7 @@ class Settings:
     cookie_secure: bool
     seed_demo: bool
 
+    uploads_dir: Path
     templates_dir: Path = TEMPLATES_DIR
     static_dir: Path = STATIC_DIR
 
@@ -42,6 +44,10 @@ def get_settings() -> Settings:
     db = Path(os.environ.get("BHOOMI_DB", "bhoomi.sqlite3"))
     if not db.is_absolute():
         db = BACKEND_DIR / db
+
+    uploads = Path(os.environ.get("BHOOMI_UPLOADS", UPLOADS_DIR))
+    if not uploads.is_absolute():
+        uploads = BACKEND_DIR / uploads
 
     secret = (os.environ.get("BHOOMI_SECRET_KEY") or "").strip()
     ephemeral = not secret
@@ -57,6 +63,7 @@ def get_settings() -> Settings:
 
     return Settings(
         db_path=db,
+        uploads_dir=uploads,
         admin_token=(os.environ.get("BHOOMI_ADMIN_TOKEN") or "").strip() or None,
         ip_salt=os.environ.get("BHOOMI_IP_SALT", "change-me"),
         secret_key=secret,

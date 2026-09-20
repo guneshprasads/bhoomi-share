@@ -12,12 +12,14 @@
   </div>
   <div class="row2">
     <div class="field">
-      <label for="district">District</label>
-      <input type="text" id="district" name="district" value="{{ user['district'] }}" required>
+      <label for="district">{{ t('field.district') }}</label>
+      {% with name='district', value=user['district'], blank=t('misc.select_district') %}
+        {% include "partials/district_select.html" %}
+      {% endwith %}
     </div>
     <div class="field">
-      <label for="state">State</label>
-      <input type="text" id="state" name="state" value="{{ user['state'] }}" required>
+      <label for="taluk">{{ t('field.taluk') }}</label>
+      <input type="text" id="taluk" name="taluk" value="{{ user['taluk'] }}">
     </div>
   </div>
   <fieldset>

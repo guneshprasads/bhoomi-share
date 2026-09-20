@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit plan' if editing else 'Post a plan' }} &mdash; {{ site_name }}{% endblock %}
+
+{% block content %}
+<p class="crumb"><a href="/dashboard">{{ t('nav.dashboard') }}</a> <span>/</span> <span>{{ 'Edit' if editing else 'New plan' }}</span></p>
+
+<div class="page__head">
+  <div>
+    <h1>{{ 'Edit this plan' if editing else 'Post a plan' }}</h1>
+    <p>Put in numbers you would defend to someone who has farmed. A plan nobody believes is worse than no plan.</p>
+  </div>
+</div>
+
+<form class="form-wide" method="post" action="{{ action }}" enctype="multipart/form-data">
+  {% if error %}<p class="flash flash--bad" role="alert">{{ error }}</p>{% endif %}
+
+  <fieldset>
+    <legend>What kind of plan</legend>
+    <div class="checks kinds">
+      {% for value, label in kind_labels.items() %}
+        <label class="check" for="kind-{{ value }}">
+          <input type="radio" id="kind-{{ value }}" name="kind" value="{{ value }}"
+                 {% if f.kind == value %}checked{% endif %} {% if editing %}disabled{% endif %}>
+          {{ t('kind.' ~ value) }}
+        </label>
+      {% endfor %}
+    </div>
+    {% if editing %}<input type="hidden" name="kind" value="{{ f.kind }}">
+      <p class="help">The kind cannot change after posting — people have already read it as a {{ t('kind.' ~ f.kind)|lower }}.</p>
+    {% else %}
+      <p class="help">A crop plan funds one season. A livestock unit funds animals and their feed. Shares split a parcel of {{ '%g'|format(big_land) }} acres or more between several people.</p>
+    {% endif %}
+  </fieldset>
+
+  <fieldset>
+    <legend>The land</legend>
+    <div class="field">
+      <label for="title">Name it the way you would describe it</label>
+      <input type="text" id="title" name="title" value="{{ f.title }}" required
+             placeholder="Chana on the lower field">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="parcel_label">Parcel <span class="hint">&mdash; {{ t('field.optional') }}</span></label>
+        <input type="text" id="parcel_label" name="parcel_label" value="{{ f.parcel_label }}" placeholder="BS-04, the lower field">
+      </div>
+      <div class="field">
+        <label for="survey_no">{{ t('field.survey_no') }} <span class="hint">&mdash; {{ t('field.optional') }}</span></label>
+        <input type="text" id="survey_no" name="survey_no" value="{{ f.survey_no }}" placeholder="212/3">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="district">{{ t('field.district') }}</label>
+        {% with name='district', value=f.district, blank=t('misc.select_district') %}
+          {% include "partials/district_select.html" %}
+        {% endwith %}
+      </div>
+      <div class="field">
+        <label for="taluk">{{ t('field.taluk') }}</label>
+        <input type="text" id="taluk" name="taluk" value="{{ f.taluk }}" placeholder="Chikkodi">
+      </div>
+    </div>
+    <div class="field" style="max-width:16rem">
+      <label for="acres">{{ t('field.acres') }}</label>
+      <input type="number" id="acres" name="acres" value="{{ f.acres }}" step="0.1" min="0.1" required>
+    </div>
+  </fieldset>
+
+  <fieldset class="only only--crop">
+    <legend>The crop</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="crop">{{ t('field.crop') }}</label>
+        <input type="text" id="crop" name="crop" value="{{ f.crop }}" placeholder="Chana (gram)">
+      </div>
+      <div class="field">
+        <label for="season_label">Season</label>
+        <input type="text" id="season_label" name="season_label" value="{{ f.season_label }}" placeholder="Rabi 2026">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="sowing_window">Sowing window</label>
+        <input type="text" id="sowing_window" name="sowing_window" value="{{ f.sowing_window }}" placeholder="Mid-October to early November">
+      </div>
+      <div class="field">
+        <label for="expected_quintals">Expected yield (quintals)</label>
+        <input type="number" id="expected_quintals" name="expected_quintals" value="{{ f.expected_quintals }}" min="0" step="0.5">
+      </div>
+    </div>
+    <div class="field" style="max-width:20rem">
+      <label for="expected_price">Expected price (&#8377; a quintal)</label>
+      <input type="number" id="expected_price" name="expected_price" value="{{ f.expected_price }}" min="0" step="50">
+      <span class="help">Yield &times; price is what we show as expected revenue.</span>
+    </div>
+  </fieldset>
+
+  <fieldset class="only only--livestock">
+    <legend>The animals</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="animal">{{ t('field.animal') }}</label>
+        <div class="sel">
+          <select id="animal" name="animal">
+            <option value="">Pick one</option>
+            {% for a in animals %}<option value="{{ a }}" {% if f.animal == a %}selected{% endif %}>{{ a }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="herd_size">How many</label>
+        <input type="number" id="herd_size" name="herd_size" value="{{ f.herd_size }}" min="1">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="cycle_months">Cycle ({{ t('field.months') }})</label>
+        <input type="number" id="cycle_months" name="cycle_months" value="{{ f.cycle_months }}" min="1" max="60">
+      </div>
+      <div class="field">
+        <label for="shed">Shed</label>
+        <input type="text" id="shed" name="shed" value="{{ f.shed }}" placeholder="Existing shed, 40 by 20 feet">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="water">{{ t('field.water') }}</label>
+        <input type="text" id="water" name="water" value="{{ f.water }}" placeholder="Borewell, year round">
+      </div>
+      <div class="field">
+        <label for="fodder">Fodder</label>
+        <input type="text" id="fodder" name="fodder" value="{{ f.fodder }}" placeholder="Two acres of napier, rest bought in">
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="only only--shares">
+    <legend>The shares</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="unit_price">What one {{ t('units.one') }} costs (&#8377;)</label>
+        <input type="number" id="unit_price" name="unit_price" value="{{ f.unit_price }}" min="1000" step="1000">
+        <span class="help">Budget divided by this is how many shares there are. ₹20,00,000 at ₹25,000 a share makes 80 shares.</span>
+      </div>
+      <div class="field">
+        <label for="max_investors">Most people allowed in</label>
+        <input type="number" id="max_investors" name="max_investors" value="{{ f.max_investors }}" min="2" max="200">
+        <span class="help">Keep this small. The cap is what keeps a parcel from becoming a public fundraise — <a href="/fine-print">why</a>.</span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>The money</legend>
+    <div class="row2">
+      <div class="field">
+        <label for="budget">{{ t('field.budget') }} (&#8377;)</label>
+        <input type="number" id="budget" name="budget" value="{{ f.budget }}" min="1000" step="1000" required>
+        <span class="help">Everything the cycle needs: inputs, labour, animals, feed, water.</span>
+      </div>
+      <div class="field only only--livestock only--shares">
+        <label for="expected_revenue">Expected revenue (&#8377;)</label>
+        <input type="number" id="expected_revenue" name="expected_revenue" value="{{ f.expected_revenue }}" min="0" step="1000">
+        <span class="help">What you think the whole cycle sells for.</span>
+      </div>
+    </div>
+    <div class="field" style="max-width:16rem">
+      <label for="investor_pct">Investor share (%)</label>
+      <input type="number" id="investor_pct" name="investor_pct" value="{{ f.investor_pct }}" min="1" max="99" required>
+      <span class="help">The rest goes to whoever does the work.</span>
+    </div>
+    <div class="field">
+      <label for="plan_note">The plan, in your words</label>
+      <textarea id="plan_note" name="plan_note" placeholder="What you have done here before, what went wrong last time, what the water situation is.">{{ f.plan_note }}</textarea>
+    </div>
+    <div class="field" style="max-width:22rem">
+      <label for="status">Stage</label>
+      <div class="sel">
+        <select id="status" name="status">
+          {% for value, label in statuses %}
+            <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  {% include "partials/photo_fields.html" %}
+
+  <div class="form-actions">
+    <button class="btn btn--solid" type="submit">{{ t('action.save') if editing else 'Post it' }}</button>
+    <a class="btn btn--line" href="/dashboard">{{ t('action.cancel') }}</a>
+  </div>
+  <p class="help" style="margin-top:1rem;max-width:58ch">Posting a plan is not a fundraise. People can register interest against it; money only moves after a signed deed and counsel&rsquo;s sign-off on the structure.</p>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* Show only the fields that belong to the chosen kind. */
+(function () {
+  var form = document.querySelector('.form-wide');
+  if (!form) { return; }
+
+  function apply() {
+    var checked = form.querySelector('input[name="kind"]:checked');
+    var hidden = form.querySelector('input[type="hidden"][name="kind"]');
+    var kind = checked ? checked.value : (hidden ? hidden.value : 'crop');
+    form.querySelectorAll('.only').forEach(function (el) {
+      el.hidden = !el.classList.contains('only--' + kind);
+    });
+  }
+
+  form.querySelectorAll('input[name="kind"]').forEach(function (radio) {
+    radio.addEventListener('change', apply);
+  });
+  apply();
+})();
+</script>
+{% endblock %}

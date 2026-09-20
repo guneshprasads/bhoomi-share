@@ -59,7 +59,7 @@
             <td>{{ u['email'] }}</td>
             <td>{{ u['phone'] }}</td>
             <td>{{ u['roles'] }}</td>
-            <td>{{ u['district'] }}, {{ u['state'] }}</td>
+            <td>{{ u['district'] }}{% if u['taluk'] %}, {{ u['taluk'] }}{% endif %}</td>
             <td>{{ short_date(u['created_at']) }}</td>
           </tr>
         {% endfor %}
@@ -69,16 +69,16 @@
 </section>
 
 <section class="block">
-  <div class="block__head"><h2>Season plans</h2></div>
+  <div class="block__head"><h2>Plans posted</h2></div>
   <div class="table-wrap">
     <table class="data">
       <thead><tr><th>Plan</th><th>Grower</th><th>Budget</th><th>Interest</th><th>Status</th></tr></thead>
       <tbody>
-        {% for s in seasons %}
+        {% for s in projects %}
           <tr>
-            <td><a href="/seasons/{{ s['id'] }}">{{ s['crop'] }} on {{ s['parcel_label'] }}</a></td>
-            <td>{{ s['grower_name'] }}</td>
-            <td class="num">&#8377;{{ inr(s['input_budget']) }}</td>
+            <td><a href="/projects/{{ s['id'] }}">{{ s['title'] }}</a> <span class="badge">{{ t('kind.' ~ s['kind']) }}</span></td>
+            <td>{{ s['owner_name'] }}</td>
+            <td class="num">&#8377;{{ inr(s['budget']) }}</td>
             <td class="num">&#8377;{{ inr(s['pledged']) }} <span class="help">({{ s['backers'] }})</span></td>
             <td><span class="badge badge--{{ s['status'] }}">{{ s['status'] }}</span></td>
           </tr>
@@ -100,7 +100,7 @@
           <tr>
             <td><a href="/land/{{ l['id'] }}">{{ l['title'] }}</a></td>
             <td>{{ l['owner_name'] }}</td>
-            <td>{{ l['district'] }}, {{ l['state'] }}</td>
+            <td>{{ l['district'] }}</td>
             <td class="num">{{ acres(l['acres']) }}</td>
             <td><span class="badge badge--{{ l['status'] }}">{{ l['status'] }}</span></td>
           </tr>

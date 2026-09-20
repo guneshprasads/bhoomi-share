@@ -1,0 +1,9 @@
+{% if photos %}
+<div class="shots shots--{{ photos|length if photos|length < 4 else 'many' }}">
+  {% for p in photos %}
+    <a class="shot" href="{{ photo_url(p['path']) }}" target="_blank" rel="noopener">
+      <img src="{{ photo_url(p['path']) }}" alt="{{ p['caption'] or 'Photograph of the land' }}" loading="lazy">
+    </a>
+  {% endfor %}
+</div>
+{% endif %}

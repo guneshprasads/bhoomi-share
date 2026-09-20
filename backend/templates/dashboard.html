@@ -1,34 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Your dashboard &mdash; {{ site_name }}{% endblock %}
 
+
 {% block content %}
-<div class="page__head">
+<div class="page__head" data-tour="head">
   <div>
     <h1>{{ user['name'].split(' ')[0] }}&rsquo;s dashboard</h1>
     <p class="pair" style="margin-top:.75rem">
-      <span>{{ user['district'] }}, {{ user['state'] }}</span>
+      <span>{{ user['district'] }}{% if user['taluk'] %}, {{ user['taluk'] }}{% endif %}, {{ state }}</span>
       <span>{{ user['phone'] }}</span>
       <span>{% for r in role_list(user) %}{{ role_labels[r] }}{% if not loop.last %}, {% endif %}{% else %}No side picked yet{% endfor %}</span>
-      <a href="/dashboard/profile">Edit profile</a>
+      <a href="/dashboard/profile" data-tour="profile">{{ t('dash.edit_profile') }}</a>
+      <a href="/dashboard?tour=1">{{ t('dash.tour_again') }}</a>
     </p>
   </div>
   <div class="page__actions">
-    <a class="btn btn--line" href="/dashboard/listings/new">List land</a>
-    <a class="btn btn--solid" href="/dashboard/seasons/new">List a season plan</a>
+    <a class="btn btn--line" href="/dashboard/listings/new">{{ t('action.list_land') }}</a>
+    <a class="btn btn--solid" href="/dashboard/projects/new?kind=crop">{{ t('action.post_plan') }}</a>
   </div>
 </div>
 
 <div class="stats">
-  <div class="stat"><span class="stat__n">{{ listings|length }}</span><span class="stat__label">parcels you list</span></div>
-  <div class="stat"><span class="stat__n">{{ inquiries|length }}</span><span class="stat__label">farmers asking</span></div>
-  <div class="stat"><span class="stat__n">{{ seasons|length }}</span><span class="stat__label">season plans</span></div>
-  <div class="stat"><span class="stat__n">{{ pledges|length }}</span><span class="stat__label">plans you back</span></div>
-  <div class="stat"><span class="stat__n">&#8377;{{ inr(pledged_total) }}</span><span class="stat__label">interest registered</span></div>
+  <div class="stat"><span class="stat__n">{{ listings|length }}</span><span class="stat__label">{{ t('dash.stat_parcels') }}</span></div>
+  <div class="stat"><span class="stat__n">{{ inquiries|length }}</span><span class="stat__label">{{ t('dash.stat_asking') }}</span></div>
+  <div class="stat"><span class="stat__n">{{ projects|length }}</span><span class="stat__label">{{ t('dash.stat_plans') }}</span></div>
+  <div class="stat"><span class="stat__n">{{ pledges|length }}</span><span class="stat__label">{{ t('dash.stat_backing') }}</span></div>
+  <div class="stat"><span class="stat__n">&#8377;{{ inr(pledged_total) }}</span><span class="stat__label">{{ t('dash.stat_interest') }}</span></div>
 </div>
 
-<section class="block">
+<section class="block" data-tour="land">
   <div class="block__head">
-    <h2>Your land</h2>
+    <h2>{{ t('dash.your_land') }}</h2>
     <a class="btn btn--line btn--small" href="/dashboard/listings/new">Add a parcel</a>
   </div>
   {% if listings %}
@@ -39,7 +41,7 @@
           {% for l in listings %}
             <tr>
               <td><a href="/land/{{ l['id'] }}">{{ l['title'] }}</a></td>
-              <td>{{ l['district'] }}, {{ l['state'] }}</td>
+              <td>{{ l['district'] }}{% if l['taluk'] %}<br><span class="help">{{ l['taluk'] }}</span>{% endif %}</td>
               <td class="num">{{ acres(l['acres']) }}</td>
               <td class="num">{% if l['rent_per_acre'] %}&#8377;{{ inr(l['rent_per_acre']) }}{% else %}share{% endif %}</td>
               <td><span class="badge badge--{{ l['status'] }}">{{ l['status'] }}</span></td>
@@ -63,7 +65,7 @@
 </section>
 
 <section class="block">
-  <div class="block__head"><h2>Farmers asking about your land</h2></div>
+  <div class="block__head"><h2>{{ t('dash.asking') }}</h2></div>
   {% if inquiries %}
     <div class="table-wrap">
       <table class="data">
@@ -92,28 +94,35 @@
   {% endif %}
 </section>
 
-<section class="block">
+<section class="block" data-tour="plans">
   <div class="block__head">
-    <h2>Your season plans</h2>
-    <a class="btn btn--line btn--small" href="/dashboard/seasons/new">Add a plan</a>
+    <h2>{{ t('dash.your_plans') }}</h2>
+    <span class="pair">
+      <a href="/dashboard/projects/new?kind=crop">+ {{ t('kind.crop') }}</a>
+      <a href="/dashboard/projects/new?kind=livestock">+ {{ t('kind.livestock') }}</a>
+      <a href="/dashboard/projects/new?kind=shares">+ {{ t('kind.shares') }}</a>
+    </span>
   </div>
-  {% if seasons %}
+  {% if projects %}
     <div class="table-wrap">
       <table class="data">
-        <thead><tr><th>Plan</th><th>Season</th><th>Budget</th><th>Spoken for</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Plan</th><th>Kind</th><th>Budget</th><th>Spoken for</th><th>Status</th><th></th></tr></thead>
         <tbody>
-          {% for s in seasons %}
+          {% for s in projects %}
             <tr>
-              <td><a href="/seasons/{{ s['id'] }}">{{ s['crop'] }} on {{ s['parcel_label'] }}</a></td>
-              <td>{{ s['season_label'] }}</td>
-              <td class="num">&#8377;{{ inr(s['input_budget']) }}</td>
-              <td class="num">&#8377;{{ inr(s['pledged']) }} <span class="help">({{ s['backers'] }})</span></td>
-              <td><span class="badge badge--{{ s['status'] }}">{{ s['status'] }}</span></td>
+              <td><a href="/projects/{{ s['id'] }}">{{ s['title'] }}</a><br><span class="help">{{ s['district'] }}</span></td>
+              <td>{{ t('kind.' ~ s['kind']) }}</td>
+              <td class="num">&#8377;{{ inr(s['budget']) }}</td>
+              <td class="num">
+                {% if s['kind'] == 'shares' %}{{ s['units_taken'] }}/{{ s['total_units'] }} {{ t('units.many') }}<br>{% endif %}
+                &#8377;{{ inr(s['pledged']) }} <span class="help">({{ s['backers'] }})</span>
+              </td>
+              <td><span class="badge badge--{{ s['status'] }}">{{ t('status.' ~ s['status']) }}</span></td>
               <td>
                 <div class="row-actions">
-                  <a class="btn btn--line btn--small" href="/dashboard/seasons/{{ s['id'] }}/edit">Edit</a>
-                  <form method="post" action="/dashboard/seasons/{{ s['id'] }}/delete" class="inline-form" onsubmit="return confirm('Remove this plan?')">
-                    <button class="btn btn--danger btn--small" type="submit">Remove</button>
+                  <a class="btn btn--line btn--small" href="/dashboard/projects/{{ s['id'] }}/edit">{{ t('action.edit') }}</a>
+                  <form method="post" action="/dashboard/projects/{{ s['id'] }}/delete" class="inline-form" onsubmit="return confirm('Remove this plan?')">
+                    <button class="btn btn--danger btn--small" type="submit">{{ t('action.remove') }}</button>
                   </form>
                 </div>
               </td>
@@ -123,12 +132,12 @@
       </table>
     </div>
   {% else %}
-    <p class="empty">No plans yet. A plan is one crop on one parcel for one season, costed &mdash; <a href="/dashboard/seasons/new">write one</a>.</p>
+    <p class="empty">No plans yet. A plan is one cycle on one parcel, costed &mdash; write one for <a href="/dashboard/projects/new?kind=crop">a crop</a>, <a href="/dashboard/projects/new?kind=livestock">livestock</a>, or <a href="/dashboard/projects/new?kind=shares">a big parcel in shares</a>.</p>
   {% endif %}
 </section>
 
-<section class="block">
-  <div class="block__head"><h2>Plans you are backing</h2></div>
+<section class="block" data-tour="backing">
+  <div class="block__head"><h2>{{ t('dash.backing') }}</h2></div>
   {% if pledges %}
     <div class="table-wrap">
       <table class="data">
@@ -136,10 +145,13 @@
         <tbody>
           {% for p in pledges %}
             <tr>
-              <td><a href="/seasons/{{ p['season_id'] }}">{{ p['crop'] }} on {{ p['parcel_label'] }}</a><br><span class="help">{{ p['season_label'] }}</span></td>
-              <td>{{ p['district'] }}, {{ p['state'] }}</td>
-              <td class="num">&#8377;{{ inr(p['amount']) }}</td>
-              <td><span class="badge badge--{{ p['season_status'] }}">{{ p['season_status'] }}</span></td>
+              <td><a href="/projects/{{ p['project_id'] }}">{{ p['title'] }}</a><br><span class="help">{{ t('kind.' ~ p['kind']) }}</span></td>
+              <td>{{ p['district'] }}</td>
+              <td class="num">
+                {% if p['units'] %}{{ p['units'] }} {{ t('units.many') }}<br>{% endif %}
+                &#8377;{{ inr(p['amount']) }}
+              </td>
+              <td><span class="badge badge--{{ p['project_status'] }}">{{ t('status.' ~ p['project_status']) }}</span></td>
             </tr>
           {% endfor %}
         </tbody>
@@ -147,12 +159,12 @@
     </div>
     <p class="help" style="margin-top:.75rem">Registered interest, not payment. Nothing is owed by you and nothing is owed to you until there is a signed deed for that season.</p>
   {% else %}
-    <p class="empty">You are not backing any plan yet. <a href="/seasons">The open ones are here</a>.</p>
+    <p class="empty">You are not backing any plan yet. <a href="/invest">The open ones are here</a>.</p>
   {% endif %}
 </section>
 
 {% if sent_inquiries %}
-<section class="block">
+
   <div class="block__head"><h2>Parcels you have asked about</h2></div>
   <div class="table-wrap">
     <table class="data">
@@ -161,7 +173,7 @@
         {% for i in sent_inquiries %}
           <tr>
             <td><a href="/land/{{ i['listing_id'] }}">{{ i['listing_title'] }}</a></td>
-            <td>{{ i['district'] }}, {{ i['state'] }}</td>
+            <td>{{ i['district'] }}</td>
             <td>{{ i['message'] }}</td>
             <td>{{ short_date(i['created_at']) }}</td>
           </tr>
@@ -171,4 +183,11 @@
   </div>
 </section>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {% if show_tour %}
+    <script id="tour-data" type="application/json">{{ tour | tojson }}</script>
+    <script src="/static/tour.js" defer></script>
+  {% endif %}
 {% endblock %}

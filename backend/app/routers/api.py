@@ -155,11 +155,19 @@ def api_listings(
     return {"count": len(rows), "listings": [dict(r) for r in rows]}
 
 
-@router.get("/seasons")
-def api_seasons(
+@router.get("/projects")
+def api_projects(
+    kind: str = "",
     district: str = "",
-    crop: str = "",
+    query: str = "",
     conn: sqlite3.Connection = Depends(conn_dep),
 ) -> dict[str, object]:
-    rows = db.search_seasons(conn, district=district, crop=crop)
-    return {"count": len(rows), "seasons": [dict(r) for r in rows]}
+    rows = db.search_projects(conn, kind=kind, district=district, query=query)
+    return {"count": len(rows), "projects": [dict(r) for r in rows]}
+
+
+@router.get("/districts")
+def api_districts() -> dict[str, object]:
+    from ..karnataka import DIVISIONS, STATE
+    return {"state": STATE,
+            "divisions": {k: list(v) for k, v in DIVISIONS.items()}}

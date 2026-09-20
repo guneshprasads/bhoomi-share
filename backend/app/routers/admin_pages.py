@@ -18,7 +18,7 @@ router = APIRouter()
 COUNT_LABELS = {
     "user": "accounts",
     "listing": "parcels listed",
-    "season": "season plans",
+    "project": "plans posted",
     "pledge": "interests registered",
     "inquiry": "messages sent",
     "waitlist": "on the waitlist",
@@ -39,7 +39,7 @@ def admin_home(
         counts=counts,
         waitlist=db.list_waitlist(conn, limit=200),
         users=db.all_rows(conn, "SELECT * FROM user ORDER BY created_at DESC LIMIT 200"),
-        seasons=db.search_seasons(conn, status="", limit=200),
+        projects=db.search_projects(conn, status="", limit=200),
         listings=db.search_listings(conn, status="", limit=200),
     )
 

@@ -1,53 +1,67 @@
 {% extends "base.html" %}
 {% block title %}How it works &mdash; {{ site_name }}{% endblock %}
-{% block description %}The two things this site does, end to end: funding one season on one parcel, and putting idle land in front of farmers who want it.{% endblock %}
+{% block description %}Four ways to work land in Karnataka: fund a crop season, fund a livestock unit, take shares in a big parcel, or lease land out.{% endblock %}
 
 {% block content %}
 <div class="page__head">
   <div>
-    <h1>How it works</h1>
-    <p>Two separate things happen here, and they do not depend on each other. Read whichever one brought you.</p>
+    <h1>{{ t('nav.how') }}</h1>
+    {% if lang == 'kn' %}
+      <p>ನಾಲ್ಕು ಬೇರೆ ಬೇರೆ ಕೆಲಸಗಳು ಇಲ್ಲಿ ನಡೆಯುತ್ತವೆ. ಯಾವುದು ನಿಮ್ಮನ್ನು ಇಲ್ಲಿಗೆ ಕರೆತಂದಿದೆಯೋ ಅದನ್ನು ಓದಿ.</p>
+    {% else %}
+      <p>Four separate things happen here and they do not depend on each other. Read whichever one brought you.</p>
+    {% endif %}
   </div>
 </div>
 
 <div class="prose">
-  <h2>Funding a season</h2>
+  <h2>1. Funding a crop season</h2>
   <p class="lede">One crop, one named parcel, one season. When it is sold, the proceeds are split the way the agreement says.</p>
   <ol class="steps" style="grid-template-columns:1fr 1fr;margin-top:1.5rem">
-    <li class="step" style="list-style:none"><span class="step__n">01</span><h3>A grower posts a plan</h3><p>Parcel and survey number, crop, sowing window, a costed input budget, the yield they expect, and the split they want.</p></li>
+    <li class="step" style="list-style:none"><span class="step__n">01</span><h3>A grower posts a plan</h3><p>Parcel, district and survey number, crop, sowing window, a costed input budget, the yield they expect, the split they want &mdash; and photographs of the field.</p></li>
     <li class="step" style="list-style:none"><span class="step__n">02</span><h3>You read it and register interest</h3><p>With an amount. Nothing is paid and nothing is binding &mdash; it tells the grower whether the plan is fundable.</p></li>
     <li class="step" style="list-style:none"><span class="step__n">03</span><h3>The season runs</h3><p>Sowing to harvest. The grower posts what was spent and what went in the ground, against the plan you read.</p></li>
     <li class="step" style="list-style:none"><span class="step__n">04</span><h3>The harvest sells and proceeds split</h3><p>Mandi or contract sale, receipts shared, split as signed. Costs come out first; what is left is divided.</p></li>
   </ol>
 
-  <h3>What you are funding, and what you are not</h3>
+  <h2>2. Funding a livestock unit</h2>
+  <p class="lede">Sheep, goat, dairy or poultry. The same shape as a crop plan, with a longer clock.</p>
+  <p>Somebody who keeps animals for a living runs the unit on their own land. You fund the animals, the feed, the shed and the vaccination; they do the work. A cycle is months rather than one harvest &mdash; nine months for a lamb crop, eighteen for a dairy unit to reach its first full lactation &mdash; and the plan says which.</p>
   <ul>
-    <li>You are funding <strong>the inputs and labour of one crop cycle</strong> on one parcel.</li>
-    <li>You are <strong>not</strong> buying land, a share of a company, or a financial product with a stated return.</li>
-    <li>There is <strong>no guaranteed return</strong>. A season that fails splits the same way a good one does.</li>
-    <li>Between registering interest and any money moving there is a partnership deed, a capped pool and counsel's sign-off. <a href="/fine-print">Why</a>.</li>
+    <li><strong>Losses are part of the plan, not a footnote.</strong> Animals die. A plan that does not say what the keeper expects to lose is a plan you should not fund.</li>
+    <li><strong>The animals belong to the unit</strong>, not to you personally, and the split is of what the cycle earns.</li>
+    <li>Vaccination and vet cover should be written into the budget. Ask if it isn&rsquo;t.</li>
   </ul>
 
-  <h2>Leasing land</h2>
+  <h2>3. Shares in a big parcel</h2>
+  <p class="lede">Five acres or more, divided into equal shares so several people can take a piece.</p>
+  <p>The owner states what a year of work on the block costs &mdash; say twenty lakh for twenty-two acres &mdash; and what one share is worth, say twenty-five thousand. That makes eighty shares. Take one or take ten; your claim on the split is your shares divided by all the shares.</p>
+  <ul>
+    <li><strong>You are buying a share of one cycle&rsquo;s work, not a piece of the land.</strong> No part of the survey number changes hands and nothing is registered in your name.</li>
+    <li><strong>The number of people per parcel is capped</strong>, deliberately and visibly, and the page shows how many places are left. <a href="/fine-print">The reason is the fine print</a> &mdash; this is the option closest to the line SEBI draws.</li>
+    <li>Shares are only offered on parcels of five acres and up. Below that, a crop plan does the same job with less complication.</li>
+  </ul>
+
+  <h2>4. Leasing land out</h2>
   <p class="lede">An owner who is not farming this year, a farmer who wants more land, and a fixed-term licence between them.</p>
   <ol class="steps" style="grid-template-columns:1fr 1fr;margin-top:1.5rem">
-    <li class="step" style="list-style:none"><span class="step__n">01</span><h3>List or search</h3><p>Acreage, survey number, water source and hours, soil, road access, what was last grown. Farmers search by district and by what they can irrigate.</p></li>
+    <li class="step" style="list-style:none"><span class="step__n">01</span><h3>List or search</h3><p>Acreage, survey number, water source and hours, soil, road access, what it will grow, photographs. Farmers search by district and by what they can irrigate.</p></li>
     <li class="step" style="list-style:none"><span class="step__n">02</span><h3>Agree on terms</h3><p>Rent per acre per season, or a share of the crop. Who pays for borewell power, who repairs the bunds, who keeps the residue, what happens if the rain fails.</p></li>
-    <li class="step" style="list-style:none"><span class="step__n">03</span><h3>Sign a proper licence</h3><p>A fixed-term licence to cultivate, drafted for the state the land sits in, signed and witnessed. Deliberately not an open-ended tenancy.</p></li>
+    <li class="step" style="list-style:none"><span class="step__n">03</span><h3>Sign a proper licence</h3><p>A fixed-term licence to cultivate, drafted against Karnataka tenancy law, signed and witnessed. Deliberately not an open-ended tenancy.</p></li>
     <li class="step" style="list-style:none"><span class="step__n">04</span><h3>Renew or move on</h3><p>At the end of the term the land comes back, with a record of how it was farmed. Renew if it went well; list it again if it did not.</p></li>
   </ol>
 
   <h3>What this site does and does not do</h3>
   <ul>
-    <li>It puts the parcel in front of farmers and passes on your phone number when one writes to you.</li>
-    <li>It does <strong>not</strong> hold deposits, collect rent, or execute the licence. You sign on paper, with your own witnesses.</li>
-    <li>It does not verify title. Ask for the 7/12 or the RTC and read it, the way you would anyway.</li>
+    <li>It puts the parcel or the plan in front of people and passes on your phone number when one of them writes to you.</li>
+    <li>It does <strong>not</strong> hold deposits, collect rent, move money, or execute any agreement. You sign on paper, with your own witnesses.</li>
+    <li>It does not verify title. Ask for the RTC (pahani) and read it, the way you would anyway.</li>
   </ul>
 
   <h2>What it costs</h2>
   <p>Nothing, during the pilot. We are not charging investors, growers, owners or farmers while we are still proving this on our own 15 acres. When there is a fee it will be stated on this page before it applies to anyone.</p>
 
   <h2>Where it runs</h2>
-  <p>The pilot is on our family's 15 acres. We open other districts one at a time, after a full season of real numbers &mdash; including the parts that went badly. <a href="/#join">Tell us your district</a> and you will hear when it opens.</p>
+  <p>Karnataka, district by district &mdash; all 31 of them are in the lists, but we open them one at a time, after a full season of real numbers. The pilot is our family&rsquo;s 15 acres in Belagavi district. <a href="/#join">Tell us your district</a> and you will hear when it opens.</p>
 </div>
 {% endblock %}

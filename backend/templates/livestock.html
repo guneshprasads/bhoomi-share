@@ -1,0 +1,14 @@
+{% extends "_browse.html" %}
+{% block title %}Livestock units &mdash; {{ site_name }}{% endblock %}
+{% block heading %}{{ t('nav.livestock') }}{% endblock %}
+{% block lede %}
+  {% if lang == 'kn' %}
+    <p>ಕುರಿ, ಮೇಕೆ, ಹೈನುಗಾರಿಕೆ ಅಥವಾ ಕೋಳಿ ಸಾಕಾಣಿಕೆ. ಪ್ರಾಣಿಗಳನ್ನು ತಿಳಿದವರು ಸಾಕುತ್ತಾರೆ, ನೀವು ಪ್ರಾಣಿ, ಮೇವು ಮತ್ತು ಶೆಡ್‌ಗೆ ಹಣ ಹಾಕುತ್ತೀರಿ, ಮತ್ತು ಬಂದದ್ದನ್ನು ಹಂಚಿಕೊಳ್ಳುತ್ತೀರಿ.</p>
+  {% else %}
+    <p>Sheep, goat, dairy or poultry. Somebody who knows animals runs the unit on their land; you fund the animals, the feed and the shed; what it earns is split the way the agreement says. A cycle here is months, not one harvest.</p>
+  {% endif %}
+{% endblock %}
+{% block actions %}<a class="btn btn--solid" href="/dashboard/projects/new?kind=livestock">{{ t('action.post_plan') }}</a>{% endblock %}
+{% block query_label %}{{ t('field.animal') }}{% endblock %}
+{% block query_hint %}sheep, goat, dairy, poultry&hellip;{% endblock %}
+{% block empty %}No livestock units posted yet. If you keep animals and want a unit funded, <a href="/dashboard/projects/new?kind=livestock">write the plan</a>.{% endblock %}

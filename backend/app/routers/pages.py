@@ -1,13 +1,16 @@
-"""The pages that are only words: home, how it works, the fine print."""
+"""The pages that are mostly words: home, how it works, the fine print."""
 
 from __future__ import annotations
 
 import sqlite3
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import RedirectResponse
 
 from .. import db
 from ..deps import conn_dep
+from ..i18n import COOKIE, LANGS
 from ..security import current_user
 from ..templating import render
 
@@ -16,12 +19,24 @@ router = APIRouter()
 
 @router.get("/")
 def home(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=Depends(current_user)):
+    crop = db.search_projects(conn, kind="crop", status="open", limit=2)
+    livestock = db.search_projects(conn, kind="livestock", status="open", limit=2)
+    shares = db.search_projects(conn, kind="shares", status="open", limit=2)
+    listings = db.search_listings(conn, status="open", limit=2)
+
+    projects = (crop + livestock + shares)[:3]
     return render(
-        request,
-        "home.html",
-        user=user,
-        open_seasons=db.search_seasons(conn, status="open", limit=3),
-        recent_listings=db.search_listings(conn, status="open", limit=3),
+        request, "home.html", user=user,
+        projects=projects,
+        project_covers=db.cover_photos(conn, "project", [p["id"] for p in projects]),
+        listings=listings,
+        covers=db.cover_photos(conn, "listing", [l["id"] for l in listings]),
+        counts={
+            "crop": len(db.search_projects(conn, kind="crop", status="open", limit=99)),
+            "livestock": len(db.search_projects(conn, kind="livestock", status="open", limit=99)),
+            "shares": len(db.search_projects(conn, kind="shares", status="open", limit=99)),
+            "land": len(db.search_listings(conn, status="open", limit=99)),
+        },
     )
 
 
@@ -33,3 +48,21 @@ def how_it_works(request: Request, user=Depends(current_user)):
 @router.get("/fine-print")
 def fine_print(request: Request, user=Depends(current_user)):
     return render(request, "fine_print.html", user=user)
+
+
+@router.get("/lang/{code}")
+def set_language(code: str, request: Request, next: str = "/"):
+    """Remember a language choice and go back to the page they were reading."""
+    target = next if next.startswith("/") and not next.startswith("//") else "/"
+    # Drop any ?lang= already on that URL so the cookie is the single source.
+    parsed = urlparse(target)
+    query = "&".join(p for p in parsed.query.split("&") if p and not p.startswith("lang="))
+    clean = parsed.path + (f"?{query}" if query else "")
+
+    response = RedirectResponse(clean, status_code=303)
+    if code in LANGS:
+        response.set_cookie(
+            COOKIE, code, max_age=60 * 60 * 24 * 365,
+            samesite="lax", httponly=False, path="/",
+        )
+    return response
