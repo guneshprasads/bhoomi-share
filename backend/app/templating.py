@@ -86,6 +86,17 @@ def current_theme(request: Request) -> str:
     return saved if saved in THEMES else DEFAULT_THEME
 
 
+def asset(path: str) -> str:
+    """A static URL that changes whenever the file does, so a deploy is never
+    shadowed by a cached copy of the old stylesheet or script."""
+    clean = path.lstrip("/")
+    try:
+        version = int((get_settings().static_dir / clean).stat().st_mtime)
+    except OSError:
+        version = 0
+    return f"/static/{clean}?v={version}"
+
+
 def flash(request: Request, message: str, kind: str = "good") -> None:
     """Queue a message for the next page this person loads.
 
@@ -107,6 +118,7 @@ templates.env.globals.update(
     acres=acres,
     short_date=short_date,
     photo_url=photo_url,
+    asset=asset,
     role_labels=ROLE_LABELS,
     role_list=role_list,
     districts=DISTRICTS,

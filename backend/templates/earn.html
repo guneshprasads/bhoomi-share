@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Ways to earn — {{ site_name }}{% endblock %}
+{% block description %}How investors, growers, landowners and farmers each earn on Bhoomi Share, with a live calculator that shows the good season and the failed one.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('earn.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.earn') }}</span>
+    {% if lang == 'kn' %}
+      <h1 class="rv">ಗಳಿಕೆ ಹೇಗೆ — <span class="em">ಲೆಕ್ಕ ತೋರಿಸಿ.</span></h1>
+      <p class="lead rv">ನೀವು ಯಾವ ಬದಿ ಎಂದು ಆರಿಸಿ, ನಿಮ್ಮ ಸಂಖ್ಯೆಗಳನ್ನು ಹಾಕಿ. ಒಳ್ಳೆಯ ಋತು ಮಾತ್ರವಲ್ಲ, ವಿಫಲವಾದದ್ದನ್ನೂ ನೋಡಿ.</p>
+    {% else %}
+      <h1 class="rv">How you earn &mdash; <span class="em">with the maths shown.</span></h1>
+      <p class="lead rv">Pick the side you are on, put in your own numbers, and see what the agreement&rsquo;s arithmetic does with them. The good season and the failed one, side by side.</p>
+    {% endif %}
+    <p class="disclaimer rv"><strong>{{ 'ಗಮನಿಸಿ:' if lang == 'kn' else 'Read this first:' }}</strong>
+      {{ 'ಇದು ಮುನ್ಸೂಚನೆ ಅಲ್ಲ, ಹೂಡಿಕೆ ಪ್ರಸ್ತಾಪವೂ ಅಲ್ಲ. ಪ್ರಾರಂಭ ಸಂಖ್ಯೆಗಳು ಸುತ್ತಿದ ಉದಾಹರಣೆಗಳು, ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ ಅಲ್ಲ. ನಿಜವಾದ ಬೆಳೆ ಮತ್ತು ಬೆಲೆ ನಿಮ್ಮದೇ ಲೆಕ್ಕ.' if lang == 'kn' else 'These are not forecasts or offers. The starting numbers are round examples, not market data, and a real season can do worse than the worst case here. No return is guaranteed.' }}</p>
+  </div>
+</section>
+
+<section class="container earnwrap">
+  <div class="tabs" role="tablist" aria-label="{{ 'ನೀವು ಯಾರು' if lang == 'kn' else 'Which side are you on' }}">
+    <button class="tab" role="tab" id="tab-investor" aria-controls="investor" aria-selected="true" data-role="investor">
+      <span class="tab__ico">&#8377;</span>{{ 'ಹೂಡಿಕೆದಾರ' if lang == 'kn' else 'Investor' }}</button>
+    <button class="tab" role="tab" id="tab-grower" aria-controls="grower" aria-selected="false" data-role="grower">
+      <span class="tab__ico">&#9752;</span>{{ 'ಬೆಳೆಗಾರ' if lang == 'kn' else 'Grower / keeper' }}</button>
+    <button class="tab" role="tab" id="tab-landowner" aria-controls="landowner" aria-selected="false" data-role="landowner">
+      <span class="tab__ico">&#9635;</span>{{ 'ಭೂಮಾಲೀಕ' if lang == 'kn' else 'Landowner' }}</button>
+    <button class="tab" role="tab" id="tab-farmer" aria-controls="farmer" aria-selected="false" data-role="farmer">
+      <span class="tab__ico">&#10052;</span>{{ 'ರೈತ' if lang == 'kn' else 'Farmer' }}</button>
+  </div>
+
+  <!-- ================= INVESTOR ================= -->
+  <article class="panel2" id="investor" role="tabpanel" aria-labelledby="tab-investor" data-role="investor">
+    <div class="panel2__copy">
+      <h2>{{ 'ಹೂಡಿಕೆದಾರರಾಗಿ ಗಳಿಕೆ' if lang == 'kn' else 'Earning as an investor' }}</h2>
+      <p class="lead">You put up the working capital for one crop, herd, batch cycle or share of a parcel. You earn by getting your costs back first and then taking the agreed percentage of what is left.</p>
+      <h3>How the money reaches you</h3>
+      <ul class="ticks">
+        <li>The plan lists its costs and its split <em>before</em> you register interest.</li>
+        <li>When the harvest, animals or batches sell, proceeds first repay the listed costs to whoever paid them.</li>
+        <li>Whatever is left is divided by the stated percentages &mdash; for example 70% to you, 30% to the grower.</li>
+      </ul>
+      <h3>What you need</h3>
+      <ul class="ticks">
+        <li>Money you can afford to see tied up for a season, or lose.</li>
+        <li>An hour to read the plan properly: the parcel, the photographs, the budget, the grower&rsquo;s log.</li>
+      </ul>
+      <h3>What can go wrong</h3>
+      <ul class="crosses">
+        <li>Rain fails, pests arrive, animals fall ill, prices drop at the mandi.</li>
+        <li>A sale below the cost repays you only what there is. A failed season can return nothing.</li>
+        <li>Your money is tied up until the cycle ends.</li>
+      </ul>
+      <p><a class="btn btn--line" href="/invest">Browse open plans &rarr;</a></p>
+    </div>
+
+    <div class="calc card" data-kind-group="investor">
+      <div class="calc__head">
+        <h3>Investor calculator</h3>
+        <label class="calc__sel">Model
+          <select data-model>
+            <option value="crop">Crop plan</option>
+            <option value="livestock">Livestock unit</option>
+            <option value="space">Small space</option>
+            <option value="shares">Land shares</option>
+          </select>
+        </label>
+      </div>
+      <div class="calc__fields" data-fields></div>
+      <div class="calc__out" data-out aria-live="polite">
+        {% include "partials/earn_funded_ssr.html" %}
+      </div>
+    </div>
+  </article>
+
+  <!-- ================= GROWER ================= -->
+  <article class="panel2" id="grower" role="tabpanel" aria-labelledby="tab-grower" data-role="grower">
+    <div class="panel2__copy">
+      <h2>{{ 'ಬೆಳೆಗಾರರಾಗಿ ಗಳಿಕೆ' if lang == 'kn' else 'Earning as a grower or keeper' }}</h2>
+      <p class="lead">You have the skill and the land or space. Someone else funds the working capital. You earn the agreed share of what the season makes after the costs are repaid.</p>
+      <h3>How the money reaches you</h3>
+      <ul class="ticks">
+        <li>You post a costed plan: parcel, crop or animals, budget, expected sale, and the split you want.</li>
+        <li>You keep the agreed percentage of the surplus &mdash; what is left once the listed costs come out.</li>
+        <li>You log spend and progress so the people who funded you can see the season as it runs.</li>
+      </ul>
+      <h3>What you need</h3>
+      <ul class="ticks">
+        <li>Real, honest costs. A plan that understates them is how seasons end badly.</li>
+        <li>Photographs and a named parcel, so a reader can picture it.</li>
+      </ul>
+      <h3>What can go wrong</h3>
+      <ul class="crosses">
+        <li>If the sale does not cover the costs, your share is zero and your labour is unpaid.</li>
+        <li>You are accountable to the plan you posted. Surprises should go in the log early.</li>
+      </ul>
+      <p><a class="btn btn--line" href="/dashboard/projects/new">Post a plan &rarr;</a></p>
+    </div>
+
+    <div class="calc card" data-kind-group="grower">
+      <div class="calc__head"><h3>Grower calculator</h3></div>
+      <div class="calc__fields" data-fields></div>
+      <div class="calc__out" data-out aria-live="polite"></div>
+    </div>
+  </article>
+
+  <!-- ================= LANDOWNER ================= -->
+  <article class="panel2" id="landowner" role="tabpanel" aria-labelledby="tab-landowner" data-role="landowner">
+    <div class="panel2__copy">
+      <h2>{{ 'ಭೂಮಾಲೀಕರಾಗಿ ಗಳಿಕೆ' if lang == 'kn' else 'Earning as a landowner' }}</h2>
+      <p class="lead">Land sitting idle earns nothing. Licensed to someone who will farm it, on a fixed term and on paper, it earns rent and comes back to you on its date.</p>
+      <h3>How the money reaches you</h3>
+      <ul class="ticks">
+        <li>List the parcel: acreage, survey number, water source and hours, soil, road access, photographs.</li>
+        <li>Agree rent per acre per season, or a share of the crop, with a farmer who wrote to you.</li>
+        <li>Sign a fixed-term licence to cultivate, drafted against Karnataka tenancy law, and witnessed.</li>
+      </ul>
+      <h3>What you need</h3>
+      <ul class="ticks">
+        <li>Your RTC (pahani) and survey details in order.</li>
+        <li>A clear view of who pays for borewell power, who mends the bunds and what happens if the rain fails.</li>
+      </ul>
+      <h3>What can go wrong</h3>
+      <ul class="crosses">
+        <li>A rent is only as good as the farmer&rsquo;s season. Agree what happens when it fails.</li>
+        <li>We do not collect rent or verify title. Have your own adviser read the licence.</li>
+      </ul>
+      <p><a class="btn btn--line" href="/dashboard/listings/new">List your land &rarr;</a></p>
+    </div>
+
+    <div class="calc card" data-kind-group="landowner">
+      <div class="calc__head"><h3>Landowner calculator</h3></div>
+      <div class="calc__fields" data-fields></div>
+      <div class="calc__out" data-out aria-live="polite"></div>
+    </div>
+  </article>
+
+  <!-- ================= FARMER ================= -->
+  <article class="panel2" id="farmer" role="tabpanel" aria-labelledby="tab-farmer" data-role="farmer">
+    <div class="panel2__copy">
+      <h2>{{ 'ರೈತರಾಗಿ ಗಳಿಕೆ' if lang == 'kn' else 'Earning as a farmer who needs land' }}</h2>
+      <p class="lead">More land means more you can grow. The question to answer before you sign is simple: after inputs and rent, what is left per acre, and how bad a season can you survive?</p>
+      <h3>How the money reaches you</h3>
+      <ul class="ticks">
+        <li>Search parcels by district, size and what you can actually irrigate.</li>
+        <li>Write to the owner and agree rent or a crop share.</li>
+        <li>You keep what the crop sells for, minus inputs and rent.</li>
+      </ul>
+      <h3>What you need</h3>
+      <ul class="ticks">
+        <li>Working capital for inputs. If you lack it, a <button class="linkbtn" type="button" data-jump="grower">funded plan</button> can carry the season.</li>
+        <li>A realistic yield for <em>that</em> soil and <em>that</em> water.</li>
+      </ul>
+      <h3>What can go wrong</h3>
+      <ul class="crosses">
+        <li>Rent is due even if the crop fails. The calculator shows your break-even: the revenue you need just to cover costs.</li>
+        <li>A licence ends on its date. Renewal is a decision, not something you can assume.</li>
+      </ul>
+      <p><a class="btn btn--line" href="/land">Search parcels &rarr;</a></p>
+    </div>
+
+    <div class="calc card" data-kind-group="farmer">
+      <div class="calc__head"><h3>Farmer calculator</h3></div>
+      <div class="calc__fields" data-fields></div>
+      <div class="calc__out" data-out aria-live="polite"></div>
+    </div>
+  </article>
+</section>
+
+<!-- ================= THE ONE RULE ================= -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಒಂದೇ ನಿಯಮ' if lang == 'kn' else 'The one rule' }}</span>
+      <h2>{{ 'ವೆಚ್ಚ ಮೊದಲು, ಉಳಿದದ್ದು ಹಂಚಿಕೆ.' if lang == 'kn' else 'Costs first, then the rest is split.' }}</h2>
+      <p>Every funded plan on the site follows the same rule, so you can compare any two of them. Here it is worked through for a &#8377;{{ inr(sim.cost) }} plan expecting &#8377;{{ inr(sim.expected_sale) }}, funded 70/30.</p>
+    </div>
+    <div class="rule card">
+      <ol class="rule__steps">
+        <li><b>1</b><span>The harvest sells for <strong>&#8377;{{ inr(sim.expected_sale) }}</strong>.</span></li>
+        <li><b>2</b><span>The listed costs of <strong>&#8377;{{ inr(sim.cost) }}</strong> come out first and go back to the funder.</span></li>
+        <li><b>3</b><span>What is left, <strong>&#8377;{{ inr(sim.expected_sale - sim.cost) }}</strong>, is split 70/30: the funder takes <strong>&#8377;{{ inr((sim.expected_sale - sim.cost) * sim.investor_pct / 100) }}</strong>, the grower <strong>&#8377;{{ inr((sim.expected_sale - sim.cost) * sim.grower_pct / 100) }}</strong>.</span></li>
+        <li><b>4</b><span>If the sale is below <strong>&#8377;{{ inr(sim.cost) }}</strong>, the funder takes back only what there is and the grower gets nothing for their labour.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="container" style="padding-block:clamp(2.5rem,5vw,4rem)">
+  <div class="cta-band rv">
+    <div>
+      <h2>{{ 'ಸಂಖ್ಯೆಗಳು ಸರಿ ಎನಿಸಿದರೆ, ಪಟ್ಟಿಗೆ ಸೇರಿ.' if lang == 'kn' else 'If the numbers make sense, get on the list.' }}</h2>
+      <p>{{ 'ಜಿಲ್ಲೆ ಜಿಲ್ಲೆಯಾಗಿ ತೆರೆಯುತ್ತೇವೆ. ನಿಮ್ಮ ಜಿಲ್ಲೆಯಲ್ಲಿ ಏನು ಲಭ್ಯ ಎಂದು ಹೇಳುತ್ತೇವೆ.' if lang == 'kn' else 'We open district by district. We will tell you what is actually available near you.' }}</p>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <a class="btn btn--solid btn--big" href="/#join">{{ t('cta.join') }}</a>
+      <a class="btn btn--line btn--big" href="/how-it-works">{{ t('nav.how') }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>window.BHOOMI_DEFAULTS={{ defaults | tojson }};</script>
+<script src="{{ asset('earn.js') }}" defer></script>
+{% endblock %}
