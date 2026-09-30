@@ -145,3 +145,48 @@ def test_faq_answers_are_consistent_with_the_fine_print():
 def test_about_page_states_pilot_and_status(client):
     page = client.get("/about").text
     assert "15 acres" in page and "Pre-launch" in page
+
+
+def test_map_boundaries_cover_every_district():
+    import json
+    from pathlib import Path
+
+    from app import karnataka as k
+
+    path = Path(__file__).resolve().parent.parent / "static" / "data" / "karnataka_districts.geojson"
+    g = json.loads(path.read_text())
+    covered = set()
+    for f in g["features"]:
+        assert f["geometry"]["type"] == "MultiPolygon"
+        covered |= set(f["properties"]["districts"])
+    assert covered == set(k.DISTRICTS)
+    # sanity: every coordinate is inside Karnataka's bounding box
+    for f in g["features"]:
+        for poly in f["geometry"]["coordinates"]:
+            for ring in poly:
+                for lon, lat in ring:
+                    assert 74.0 < lon < 78.7 and 11.5 < lat < 18.6
+
+
+def test_agriculture_data_covers_every_district_and_uses_real_models():
+    from app import agri, content
+    from app import karnataka as k
+
+    assert set(agri.DISTRICT_DATA) == set(k.DISTRICTS)
+    for name, (tier, crops, fit, why) in agri.DISTRICT_DATA.items():
+        assert tier in agri.TIERS
+        assert crops and why
+        assert fit and all(slug in content.MODELS for slug in fit), name
+
+
+def test_map_page_ships_leaflet_config_and_attribution(client):
+    page = client.get("/karnataka").text
+    assert "/static/vendor/leaflet/leaflet.js" in page
+    assert "karnataka_districts.geojson" in page
+    assert "OpenStreetMap" in page                      # tile attribution is required
+    assert "not statistics" in page                     # tiers are labelled indicative
+
+
+def test_map_static_assets_are_served(client):
+    assert client.get("/static/data/karnataka_districts.geojson").status_code == 200
+    assert client.get("/static/vendor/leaflet/leaflet.css").status_code == 200

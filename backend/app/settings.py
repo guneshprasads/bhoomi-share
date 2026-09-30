@@ -33,6 +33,8 @@ class Settings:
     rate_limit_per_hour: int
     cookie_secure: bool
     seed_demo: bool
+    tile_url: str
+    tile_attribution: str
 
     uploads_dir: Path
     templates_dir: Path = TEMPLATES_DIR
@@ -75,4 +77,11 @@ def get_settings() -> Settings:
         rate_limit_per_hour=max(1, rate_limit),
         cookie_secure=_flag("BHOOMI_COOKIE_SECURE", False),
         seed_demo=_flag("BHOOMI_SEED_DEMO", True),
+        # Map background. The default is the public OpenStreetMap tile server, which
+        # is fine for a pilot but asks heavy sites to use their own provider; point
+        # this at MapTiler, Stadia, Mapbox or a self-hosted tile server to scale up.
+        tile_url=os.environ.get("BHOOMI_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
+        tile_attribution=os.environ.get(
+            "BHOOMI_TILE_ATTRIBUTION",
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'),
     )

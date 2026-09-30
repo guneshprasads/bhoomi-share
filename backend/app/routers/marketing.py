@@ -73,7 +73,9 @@ def stories(request: Request, user=Depends(current_user)):
 @router.get("/karnataka")
 def karnataka_map(request: Request, conn: sqlite3.Connection = Depends(conn_dep),
                   user=Depends(current_user)):
+    from .. import agri
     from .. import karnataka as k
+    from ..settings import get_settings
 
     plans = {r["district"]: int(r["n"]) for r in db.all_rows(
         conn, "SELECT district, COUNT(*) AS n FROM project WHERE status = 'open' GROUP BY district")}
@@ -90,15 +92,20 @@ def karnataka_map(request: Request, conn: sqlite3.Connection = Depends(conn_dep)
             "plans": plans.get(name, 0),
             "parcels": parcels.get(name, 0),
             "pilot": name == k.PILOT_DISTRICT,
+            **agri.for_map(name),
         })
+    settings = get_settings()
     return render(
         request, "karnataka.html", user=user,
         tiles=tiles,
         divisions=k.DIVISIONS,
         notes=k.DIVISION_NOTES,
+        tiers=agri.TIERS,
         active=sum(1 for t in tiles if t["plans"] or t["parcels"]),
         total_plans=sum(plans.values()),
         total_parcels=sum(parcels.values()),
+        tile_url=settings.tile_url,
+        tile_attribution=settings.tile_attribution,
     )
 
 

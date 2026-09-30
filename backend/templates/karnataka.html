@@ -1,51 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Karnataka district map — {{ site_name }}{% endblock %}
-{% block description %}All 31 Karnataka districts with what is open in each: crop plans, livestock units, small spaces, land shares and parcels to lease. We open district by district, starting with Belagavi.{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ asset('karnataka.css') }}">{% endblock %}
+{% block title %}Karnataka farming map — {{ site_name }}{% endblock %}
+{% block description %}An interactive map of Karnataka's 31 districts: where farming is strongest, which Bhoomi Share model fits each district, and what is open right now.{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}">
+<link rel="stylesheet" href="{{ asset('karnataka.css') }}">
+{% endblock %}
 
 {% block body %}
 <section class="pagehero">
   <div class="container">
     <span class="kicker rv">{{ t('nav.karnataka') }}</span>
     {% if lang == 'kn' %}
-      <h1 class="rv">ಕರ್ನಾಟಕ, <span class="em">ಜಿಲ್ಲೆ ಜಿಲ್ಲೆಯಾಗಿ.</span></h1>
-      <p class="lead rv">31 ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಪ್ರತಿಯೊಂದರಲ್ಲಿ ಏನು ತೆರೆದಿದೆ ಎಂದು ನೋಡಿ. ಒಂದೊಂದಾಗಿ ತೆರೆಯುತ್ತೇವೆ — ಮೊದಲು ಬೆಳಗಾವಿ.</p>
+      <h1 class="rv">ಕರ್ನಾಟಕ, <span class="em">ಎಲ್ಲಿ ಕೃಷಿ ಬಲ, ಎಲ್ಲಿ ಹೊಂದುತ್ತದೆ.</span></h1>
+      <p class="lead rv">31 ಜಿಲ್ಲೆಗಳ ನಕ್ಷೆ: ಎಲ್ಲಿ ಕೃಷಿ ಪ್ರಬಲ, ಯಾವ ಮಾದರಿ ಎಲ್ಲಿ ಹೊಂದುತ್ತದೆ, ಮತ್ತು ಈಗ ಏನು ತೆರೆದಿದೆ. ಒಂದು ಜಿಲ್ಲೆ ಒತ್ತಿ.</p>
     {% else %}
-      <h1 class="rv">Karnataka, <span class="em">district by district.</span></h1>
-      <p class="lead rv">All 31 districts, and what is open in each. We open them one at a time after a full season of real numbers, starting where our own 15 acres are: Belagavi.</p>
+      <h1 class="rv">Karnataka, <span class="em">where farming is strongest and where it fits.</span></h1>
+      <p class="lead rv">All 31 districts on a real map: where cropland dominates, which of the five models suits each district, and what is open right now. Click a district.</p>
     {% endif %}
   </div>
 </section>
 
 <section class="container mapwrap">
+  <div class="mapbar" role="radiogroup" aria-label="{{ 'ನಕ್ಷೆ ಪದರ' if lang == 'kn' else 'Map layer' }}">
+    <button type="button" class="layer is-on" role="radio" aria-checked="true" data-layer="tier"><span>{{ 'ಕೃಷಿ ಭೂದೃಶ್ಯ' if lang == 'kn' else 'Farming landscape' }}</span></button>
+    <button type="button" class="layer" role="radio" aria-checked="false" data-layer="fit"><span>{{ 'ಹೊಂದುವ ಮಾದರಿ' if lang == 'kn' else 'Best-fit model' }}</span></button>
+    <button type="button" class="layer" role="radio" aria-checked="false" data-layer="live"><span>{{ 'ಈಗ ತೆರೆದಿರುವುದು' if lang == 'kn' else 'Open right now' }}</span></button>
+    <button type="button" class="layer" role="radio" aria-checked="false" data-layer="division"><span>{{ 'ವಿಭಾಗ' if lang == 'kn' else 'Division' }}</span></button>
+  </div>
+
   <div class="mapgrid">
-    <div class="tilemap-wrap card">
-      <div class="tilemap" role="group" aria-label="{{ 'ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳು' if lang == 'kn' else 'Karnataka districts' }}">
-        {% for t_ in tiles %}
-          <button type="button"
-                  class="tile tile--{{ t_.division | lower }}{% if (t_.name_kn if lang == 'kn' else t_.name) | length > 9 %} tile--long{% endif %}{% if t_.plans or t_.parcels %} tile--live{% endif %}{% if t_.pilot %} tile--pilot{% endif %}"
-                  style="grid-column:{{ t_.col + 1 }};grid-row:{{ t_.row + 1 }}"
-                  data-name="{{ t_.name }}" data-name-kn="{{ t_.name_kn }}" data-division="{{ t_.division }}"
-                  data-plans="{{ t_.plans }}" data-parcels="{{ t_.parcels }}" data-pilot="{{ 1 if t_.pilot else 0 }}"
-                  aria-label="{{ t_.name_kn if lang == 'kn' else t_.name }}: {{ t_.plans }} plans, {{ t_.parcels }} parcels">
-            <span class="tile__name">{{ t_.name_kn if lang == 'kn' else t_.name }}</span>
-            {% if t_.plans or t_.parcels %}<span class="tile__n">{{ t_.plans + t_.parcels }}</span>{% endif %}
-            {% if t_.pilot %}<span class="tile__pilot" title="Pilot"></span>{% endif %}
-          </button>
-        {% endfor %}
-      </div>
-      <ul class="legend" aria-label="Legend">
-        {% for d in divisions %}<li><i class="sw-{{ d | lower }}"></i>{{ d }} {{ 'ವಿಭಾಗ' if lang == 'kn' else 'division' }}</li>{% endfor %}
-        <li><i class="sw-live"></i>{{ 'ತೆರೆದಿರುವುದು ಇದೆ' if lang == 'kn' else 'Something is open' }}</li>
-        <li><i class="sw-pilot"></i>{{ 'ನಮ್ಮ ಪೈಲಟ್' if lang == 'kn' else 'Our pilot' }}</li>
-      </ul>
-      <p class="muted" style="font-size:.78rem;margin-top:.8rem">{{ 'ಇದು ನಕ್ಷೆ ಅಲ್ಲ, ರೇಖಾಚಿತ್ರ; ವಿಸ್ತೀರ್ಣ ಅನುಪಾತದಲ್ಲಿಲ್ಲ.' if lang == 'kn' else 'A diagram, not a map: each district is one equal tile, placed roughly where it sits.' }}</p>
+    <div class="mapcard card">
+      <div id="kmap" class="lmap" role="application" aria-label="{{ 'ಕರ್ನಾಟಕ ನಕ್ಷೆ' if lang == 'kn' else 'Interactive map of Karnataka districts' }}"></div>
+      <ul class="legend" id="legend" aria-live="polite"></ul>
+      <p class="muted mapnote">
+        {{ 'ಕೃಷಿ ಮಟ್ಟಗಳು ಸೂಚಕ ಮಾತ್ರ — ಅಂಕಿ-ಅಂಶಗಳಲ್ಲ. ಗಡಿಗಳು 2011 ಜನಗಣತಿಯವು; ವಿಜಯನಗರ (2021) ಬಳ್ಳಾರಿಯೊಂದಿಗೆ ತೋರಿಸಲಾಗಿದೆ.' if lang == 'kn' else 'Farming tiers are indicative background, not statistics. Boundaries are Census 2011; Vijayanagara (split from Ballari in 2021) is shown with Ballari.' }}
+      </p>
     </div>
 
     <aside class="dpanel card" id="dpanel" aria-live="polite">
       <div class="dpanel__empty" id="dEmpty">
         <h2>{{ 'ಒಂದು ಜಿಲ್ಲೆ ಆರಿಸಿ' if lang == 'kn' else 'Pick a district' }}</h2>
-        <p>{{ 'ನಕ್ಷೆಯಲ್ಲಿ ಒಂದು ಚೌಕವನ್ನು ಒತ್ತಿ.' if lang == 'kn' else 'Select a tile to see what is open there.' }}</p>
+        <p>{{ 'ನಕ್ಷೆಯಲ್ಲಿ ಒಂದು ಜಿಲ್ಲೆಯನ್ನು ಒತ್ತಿ.' if lang == 'kn' else 'Select a district on the map to see what grows there, which model fits, and what is open.' }}</p>
         <div class="dtotals">
           <div><b>{{ total_plans }}</b><span>{{ 'ತೆರೆದ ಯೋಜನೆಗಳು' if lang == 'kn' else 'plans open' }}</span></div>
           <div><b>{{ total_parcels }}</b><span>{{ 'ಪಟ್ಟಿ ಮಾಡಿದ ಭೂಮಿ' if lang == 'kn' else 'parcels listed' }}</span></div>
@@ -53,17 +48,24 @@
         </div>
       </div>
       <div class="dpanel__body" id="dBody" hidden>
-        <span class="pill pill--rose" id="dDiv"></span>
+        <div class="dpanel__pills"><span class="pill pill--rose" id="dDiv"></span><span class="pill pill--gold" id="dTier"></span></div>
         <h2 id="dName"></h2>
+        <div class="dshare" id="dShare" hidden></div>
         <p id="dPilot" class="dpilot" hidden>{{ 'ನಮ್ಮ ಕುಟುಂಬದ 15 ಎಕರೆ ಪೈಲಟ್ ಇಲ್ಲಿದೆ.' if lang == 'kn' else 'Our family’s 15-acre pilot is in this district.' }}</p>
+        <p class="dcrops"><strong>{{ 'ಸಾಮಾನ್ಯವಾಗಿ ಬೆಳೆಯುವುದು:' if lang == 'kn' else 'Commonly grown:' }}</strong> <span id="dCrops"></span></p>
+        <p class="dwhy" id="dWhy"></p>
+
+        <h3 class="dh">{{ 'ಹೊಂದುವ ಮಾದರಿಗಳು' if lang == 'kn' else 'Models that fit best' }}</h3>
+        <div class="dfit" id="dFit"></div>
+
+        <h3 class="dh">{{ 'ಈಗ ತೆರೆದಿರುವುದು' if lang == 'kn' else 'Open here now' }}</h3>
         <div class="dcounts">
           <a id="dPlans" href="#"><b>0</b><span>{{ 'ತೆರೆದ ಯೋಜನೆಗಳು' if lang == 'kn' else 'open plans' }}</span></a>
           <a id="dParcels" href="#"><b>0</b><span>{{ 'ಪಟ್ಟಿ ಮಾಡಿದ ಭೂಮಿ' if lang == 'kn' else 'parcels to lease' }}</span></a>
         </div>
-        <p class="dnote" id="dNote"></p>
-        <p class="dcrops"><strong>{{ 'ಸಾಮಾನ್ಯವಾಗಿ ಬೆಳೆಯುವುದು:' if lang == 'kn' else 'Commonly grown in this division:' }}</strong> <span id="dCrops"></span></p>
         <p class="dnone" id="dNone" hidden>{{ 'ಇಲ್ಲಿ ಇನ್ನೂ ಏನೂ ತೆರೆದಿಲ್ಲ. ಈ ಜಿಲ್ಲೆ ತೆರೆದಾಗ ತಿಳಿಸಲು ಪಟ್ಟಿಗೆ ಸೇರಿ.' if lang == 'kn' else 'Nothing is open here yet. Join the waitlist and we will tell you when this district opens.' }}</p>
         <a class="btn btn--solid" href="/#join">{{ t('cta.join') }}</a>
+        <p class="muted dcaveat">{{ 'ಇದು ನಮ್ಮ ಆರಂಭಿಕ ಅಭಿಪ್ರಾಯ, ಸಲಹೆ ಅಲ್ಲ.' if lang == 'kn' else 'Our starting view for planning the pilot, not advice. Every plan states its own crop and its own water.' }}</p>
       </div>
     </aside>
   </div>
@@ -88,9 +90,39 @@
     </div>
   </div>
 </section>
+
+<section class="container" style="padding-block:clamp(2rem,4vw,3.5rem)">
+  <details class="alt" id="altview">
+    <summary>{{ 'ಸರಳ ಗ್ರಿಡ್ ನೋಟ (ಕೀಬೋರ್ಡ್‌ಗೆ ಅನುಕೂಲ)' if lang == 'kn' else 'Prefer a simple grid, or using a keyboard? Open the district diagram' }}</summary>
+    <div class="tilemap-wrap">
+      <div class="tilemap" role="group" aria-label="{{ 'ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳು' if lang == 'kn' else 'Karnataka districts' }}">
+        {% for t_ in tiles %}
+          <button type="button"
+                  class="tile tile--{{ t_.division | lower }}{% if (t_.name_kn if lang == 'kn' else t_.name) | length > 9 %} tile--long{% endif %}{% if t_.plans or t_.parcels %} tile--live{% endif %}{% if t_.pilot %} tile--pilot{% endif %}"
+                  style="grid-column:{{ t_.col + 1 }};grid-row:{{ t_.row + 1 }}"
+                  data-name="{{ t_.name }}"
+                  aria-label="{{ t_.name_kn if lang == 'kn' else t_.name }}: {{ t_.plans }} plans, {{ t_.parcels }} parcels">
+            <span class="tile__name">{{ t_.name_kn if lang == 'kn' else t_.name }}</span>
+            {% if t_.plans or t_.parcels %}<span class="tile__n">{{ t_.plans + t_.parcels }}</span>{% endif %}
+          </button>
+        {% endfor %}
+      </div>
+      <p class="muted" style="font-size:.78rem;margin-top:.8rem">{{ 'ಇದು ನಕ್ಷೆ ಅಲ್ಲ, ರೇಖಾಚಿತ್ರ; ವಿಸ್ತೀರ್ಣ ಅನುಪಾತದಲ್ಲಿಲ್ಲ.' if lang == 'kn' else 'A diagram, not a map: each district is one equal tile, placed roughly where it sits.' }}</p>
+    </div>
+  </details>
+</section>
 {% endblock %}
 
 {% block scripts %}
-<script>window.BHOOMI_DIV_NOTES={{ notes | tojson }};</script>
+<script>
+window.BHOOMI_MAP = {
+  tileUrl: {{ tile_url | tojson }},
+  attribution: {{ tile_attribution | tojson }},
+  geojson: {{ asset('data/karnataka_districts.geojson') | tojson }},
+  districts: {{ tiles | tojson }},
+  notes: {{ notes | tojson }}
+};
+</script>
+<script src="{{ asset('vendor/leaflet/leaflet.js') }}"></script>
 <script src="{{ asset('karnataka.js') }}" defer></script>
 {% endblock %}
