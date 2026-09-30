@@ -1,34 +1,155 @@
 # Bhoomi Share
 
-An agricultural site for **Karnataka**, built as one FastAPI app that serves
-both the pages and the JSON behind them. Five ways to work land and space:
+An agriculture site for **Karnataka** that connects people who have **land or
+space**, people who have **money**, and people who can **farm**, in five clear ways,
+all on paper, in **English and ಕನ್ನಡ**. It is **pre-launch**: no money moves
+through the site, and nothing on it is an offer to invest.
 
-1. **Crop plan.** A farmer posts one crop on one named parcel for one season,
-   costed, with photographs. People read the plan and register interest against
-   it. When the harvest sells, proceeds split the way the agreement says.
-2. **Livestock unit.** Sheep, goat, dairy or poultry, run by someone who keeps
-   animals. The investor funds the animals, feed and shed; the cycle is months
-   rather than one harvest.
-3. **Small space.** A 30 by 40 site, a shed, a terrace or a spare room —
-   measured in square feet, up to one acre — used for something small and
-   intensive like mushrooms, vermicompost or microgreens. Whoever has the space
-   runs it; the investor funds the setup and the first batches. Cycles are weeks
-   rather than seasons, so a plan says how many batches it covers.
-4. **Land shares.** A parcel of five acres or more divided into equal shares of
-   a fixed rupee value. Your slice of the return matches the slice of the cost
-   you covered. **The number of people per parcel is capped** — that cap is what
-   keeps it out of collective-investment territory until counsel says otherwise.
-5. **Lease.** Owners who are not farming their land list it; farmers who want
-   more land find it and write to the owner. The agreement is a fixed-term
-   licence to cultivate, drafted for Karnataka.
+| If you are... | you can... |
+|---|---|
+| an **investor** | fund one crop, herd, batch cycle or share of a parcel, and see its bad case first |
+| a **grower / keeper** | get a season funded and keep an agreed share |
+| a **landowner** | licence idle land on a fixed-term agreement and earn rent |
+| a **farmer** | find land by district, size and irrigation, and know your break-even before you sign |
 
-Every page is available in **English or ಕನ್ನಡ**, and all 31 Karnataka districts
-are a list you pick from rather than a box you type into.
+The five models: **crop plans**, **livestock units**, **small spaces** (mushrooms,
+vermicompost, microgreens), **land shares** and **leases**. Every funded plan follows
+**one rule**: what the crop or animals sell for first repays the listed costs to
+whoever paid them; what is left is split by the agreed percentages; a failed season
+can return nothing. No return is guaranteed.
 
-Pre-launch. **No money moves through this site and no agreement is executed by
-it.** Registering interest in a plan is a message to a grower, not a
-subscription — see `/fine-print`, which explains the SEBI and tenancy-law
-reasons the product is shaped this way.
+## Contents
+
+1. [How it works](#how-it-works)
+2. [The flow for a new user](#the-flow-for-a-new-user)
+3. [Authentication and authorization](#authentication-and-authorization)
+4. [The first-run tutorial](#the-first-run-tutorial)
+5. [The product pages: earn, models, map, ledger, risk](#the-product-pages)
+6. [Quick start](#run-it) · [Pages](#pages) · [API](#api) · [Layout](#how-it-is-put-together) · [Data](#data--where-it-lives-and-how-to-take-a-copy) · [Tests](#tests)
+7. [Deploying, including why Streamlit cannot host this](#deploying)
+
+---
+
+## How it works
+
+```
+  browser ──HTTP──▶  FastAPI app (one process)
+                       ├─ pages      server-rendered Jinja HTML, English + Kannada
+                       ├─ JSON API   /api/...  (waitlist, calculators, ledger, risk)
+                       ├─ engines    simulator.py, ledger.py, risk.py  (pure Python, tested)
+                       └─ db.py      every SQL query, written once
+                                        ├─ SQLite file   (default, local)
+                                        └─ Postgres      (DATABASE_URL, for hosting)
+```
+
+- **Server-rendered, no build step.** Pages are Jinja templates with a little
+  vanilla JavaScript for the sidebar, calculators, map and ledger. Every page is
+  readable with JavaScript off.
+- **The maths lives on the server.** The earnings calculators, the ledger checks and
+  the risk simulation are plain Python functions with tests, reached through JSON
+  endpoints, so what the page shows can never drift from what the tests prove.
+- **Two databases, one set of queries.** SQLite for the laptop, Postgres for a host.
+  A small adapter (`db.PgConn`) handles the dialect differences.
+- **The ledger and risk pages are stateless.** Your ledger stays in your browser
+  (session storage); the server checks and simulates it and stores nothing.
+- **Security by default.** Strict Content-Security-Policy with per-request nonces,
+  cross-site POST refusal, login throttling, hashed passwords, signed cookies.
+
+## The flow for a new user
+
+**1. Arrive and look around (no account needed).**
+`/` explains the idea and shows live counts. From there, without signing up, you can:
+use the **calculators** at `/earn`, read the **five models** at `/models`, explore the
+**Karnataka map** at `/karnataka`, try the **example farm** at `/ledger` and
+`/ledger/risk`, read the **stories**, **FAQ** and **fine print**, and browse open plans
+(`/invest`) and parcels (`/land`). Language switches between English and ಕನ್ನಡ at any time.
+
+**2. Join the waitlist (optional).** The form on the home page takes a name, a phone
+number, which side you are on and your district. It is how we tell you when your
+district opens. Nothing is offered or charged.
+
+**3. Create an account.** `/signup`: name, email, phone, district (picked from the 31
+Karnataka districts), at least one side (investor, grower, landowner, farmer; you can
+change it later) and a password of 8+ characters. You are signed in straight away.
+
+**4. The tutorial runs once.** On your first visit to your dashboard a six-step guided
+tour shows what each part is for. You can skip it, and replay it any time with
+**"Show me around again"** (`/dashboard?tour=1`).
+
+**5. Do what your side does.**
+
+| Side | Steps |
+|---|---|
+| **Landowner** | *List your land* (survey number, water source and hours, soil, road access, photographs) → farmers search by district and irrigation and **write to you** → agree terms → sign a fixed-term licence **on paper** |
+| **Grower / keeper** | *Post a plan* (pick the kind; the form shows only the fields it needs; budget, expected sale, split, photographs) → people read it and **register interest** → keep the season **log** up to date |
+| **Investor** | Browse plans → read the budget, photographs and the grower's log → **register interest** with an amount (a message, not a payment) → see the risk on the ledger pages first |
+| **Farmer** | Search parcels → **write to the owner** → work out your break-even on `/earn` before you sign |
+
+**6. Nothing is binding here.** Registering interest or writing to an owner is a
+message that passes on your name, district and phone number. Any agreement, payment
+and signature happens **on paper, between the people involved**, never through the site.
+
+**7. Admins** (a separate flag on the account) see the waitlist, accounts, plans and
+listings at `/admin`.
+
+## Authentication and authorization
+
+**Authentication: who you are.**
+- **Sign up / log in / log out** are real and work today: `/signup`, `/login`, `POST /logout`.
+- Passwords are **scrypt** hashes (stdlib, salted, never stored in the clear).
+- A login sets a **signed session cookie** (`SameSite=Lax`, 30 days, `Secure` when
+  `BHOOMI_COOKIE_SECURE=1`). The cookie holds only your user id, signed with
+  `BHOOMI_SECRET_KEY`.
+- Wrong email or password gives one vague message (it does not say which was wrong).
+- **Failed logins are throttled**: more than `BHOOMI_LOGIN_LIMIT` (default 10) per hour
+  from one connection gets a `429`. Counting uses a salted hash, never the raw IP.
+- **Cross-site POSTs are refused**: a state-changing request whose `Origin` is another
+  site gets a `403`.
+- The `next` parameter after login only ever redirects **inside this site**.
+
+**Authorization: what you may do.**
+- **Roles** (`investor`, `grower`, `landowner`, `farmer`) are choices about which
+  sections to show you, not permissions to do anything special.
+- **Ownership is checked on every write.** Editing someone else's parcel, plan or
+  season log is a `403`. Drafts are visible only to their owner.
+- **Admin** is a separate flag that opens `/admin`. With demo data off, create the
+  first admin with `python scripts/make_admin.py you@example.com` after signing up.
+- The admin **JSON API** uses a token (`X-Admin-Token`) instead of a session, and
+  returns `503` rather than falling open if no token is configured.
+
+**Not built yet (be aware before real users):** email verification, password reset,
+two-factor sign-in, and server-side session revocation (a cookie stays valid until it
+expires or you log out on that browser). These are the next sensible additions.
+
+## The first-run tutorial
+
+The guided tour **is still there and working.** It is a dimmed overlay with a
+spotlight on one thing at a time, six steps, in whichever language you are reading:
+Welcome, Invest, Land on offer, Your plans, What you back, Your profile.
+
+- It runs **once**, the first time a new account opens its dashboard.
+- Whether you have seen it is stored **on your account**, not in the browser, so it
+  does not reappear on a second device or vanish when you clear cookies.
+- Replay it with **"Show me around again"** on the dashboard (`/dashboard?tour=1`).
+- A step whose target is hidden (the nav links on a phone) still shows its words,
+  centred, without the spotlight.
+
+## The product pages
+
+| Page | What it does |
+|---|---|
+| `/earn` | Four calculators (investor, grower, landowner, farmer) that always show the **failed season** and a **break-even**. Numbers come from `/api/simulate`. |
+| `/models` | The five models compared, and one page per model: steps, an example budget, a worked example, risks, FAQ. |
+| `/karnataka` | An **interactive map** of all 31 districts (Leaflet + OpenStreetMap; boundaries from DataMeet's Census 2011 data). Four layers: farming landscape, best-fit model, open right now, division. The farming tiers are qualitative background, labelled indicative, not statistics. |
+| `/ledger` | **Check.** Import a CSV (or use the example farm). Every plan gets an account checked against four balance rules (+/-5%): the budget adds up, spend was logged, money in equals money out, enough past seasons. A trust score 0-100. *Not reported* is never read as zero. |
+| `/ledger/risk` | **Predict and decide.** A seeded 2,000-season simulation per plan: chance the sale falls short of the costs, expected shortfall, a one-in-twenty bad case. Six fixes compared on the same draws, ranked by net benefit. A whole-holding "where to act first" table and a three-source reconciliation of the expected yield. |
+| `/story`, `/foresight` | The problem, the idea and outcomes per side; a 2026-2036 foresight canvas. |
+
+The **example holding is invented** and labelled so everywhere. Risk outputs are
+**simulations from stated assumptions, not forecasts**, and every assumption is shown
+and editable.
+
+---
 
 ## Run it
 
@@ -291,6 +412,22 @@ CI (`.github/workflows/ci.yml`) runs both.
 
 ## Deploying
 
-See **[DEPLOY.md](DEPLOY.md)**: a free path (Render + Neon), other hosts, every
-environment variable, and a go-live checklist. Streamlit Community Cloud only
-runs Streamlit scripts, so it cannot host this app.
+See **[DEPLOY.md](DEPLOY.md)** for the step-by-step guide, every environment variable
+and a go-live checklist.
+
+**Can it be hosted free on Streamlit?** Not directly. Streamlit Community Cloud only
+runs Streamlit scripts (one Python file that uses the `streamlit` library); it cannot
+run this FastAPI app or its database. The free route that does work:
+
+1. **Database:** a free Postgres from **Neon** (set as `DATABASE_URL`).
+2. **Web app:** a free **Render** (or Koyeb / Hugging Face Spaces) service built from the
+   included `Dockerfile` (`render.yaml` does most of it).
+3. **Optional Streamlit front door:** `streamlit/streamlit_app.py` is a small Streamlit
+   page that introduces the site and links to it. Deploy it on Streamlit Community Cloud
+   with the main file `streamlit/streamlit_app.py` and a secret `SITE_URL = "https://your-site"`.
+   It can also show the site in an embedded frame, but sign-in does not work inside a
+   frame (browsers block third-party cookies), and it needs
+   `BHOOMI_FRAME_ANCESTORS=https://*.streamlit.app` on the real site. Link out rather than embed.
+
+Free hosts wipe their disk on every deploy, which is why the app stores data (and
+photographs) in Postgres when `DATABASE_URL` is set.
