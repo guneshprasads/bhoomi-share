@@ -13,11 +13,20 @@ differ, and keeping them together means one set of queries, one meter, one card.
 from __future__ import annotations
 
 import hashlib
+import os
+import re
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterator, Sequence
+
+try:  # Postgres is optional: a SQLite-only install never needs the driver
+    import psycopg
+    from psycopg.rows import dict_row
+    from psycopg_pool import ConnectionPool
+except ImportError:  # pragma: no cover - exercised only on installs without psycopg
+    psycopg = None  # type: ignore[assignment]
 
 # A parcel this size or larger may be offered as units.
 BIG_LAND_ACRES = 5.0
@@ -160,6 +169,13 @@ CREATE TABLE IF NOT EXISTS photo (
     created_at TEXT NOT NULL
 );
 
+-- Photograph bytes, kept in the database when the host's disk is not permanent
+-- (BHOOMI_PHOTOS_IN_DB). The file on disk is then only a cache of this row.
+CREATE TABLE IF NOT EXISTS photo_blob (
+    path TEXT PRIMARY KEY,
+    data BLOB NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS waitlist (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT NOT NULL,
@@ -211,9 +227,130 @@ def connect(db_path: Path) -> sqlite3.Connection:
     return conn
 
 
+# --------------------------------------------------------------------------- #
+# Postgres support
+#
+# Every query in this module is written once, for SQLite. PgConn adapts a
+# psycopg connection to the same small surface (execute / executescript /
+# commit, rows you can index by column name, cursor.lastrowid), translating the
+# few places the dialects differ, so the query functions below run unchanged on
+# either. Pick the backend with DATABASE_URL; leave it unset to use the file.
+# --------------------------------------------------------------------------- #
+
+def is_postgres(target: Any) -> bool:
+    return isinstance(target, str) and target.startswith(("postgres://", "postgresql://"))
+
+
+# `user` is a reserved word in Postgres, and this schema has a table called user.
+_USER_TABLE = re.compile(r"(?i)\b(from|join|into|update|table|references|exists)(\s+)user\b(?!\")")
+
+
+def _quote_user(sql: str) -> str:
+    return _USER_TABLE.sub(lambda m: f'{m.group(1)}{m.group(2)}"user"', sql)
+
+
+def _translate(sql: str, has_params: bool) -> str:
+    if has_params:
+        sql = sql.replace("%", "%%").replace("?", "%s")
+    return _quote_user(sql)
+
+
+def _pg_schema(script: str) -> str:
+    script = re.sub(r"(?im)^\s*PRAGMA[^;]*;\s*", "", script)
+    script = script.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
+    script = re.sub(r"\bREAL\b", "DOUBLE PRECISION", script)
+    script = re.sub(r"\bBLOB\b", "BYTEA", script)
+    return _quote_user(script)
+
+
+class PgCursor:
+    """The little of sqlite3's cursor that this module uses."""
+
+    def __init__(self, cur: Any, is_insert: bool) -> None:
+        self._cur = cur
+        self.lastrowid: int | None = None
+        if is_insert:
+            row = cur.fetchone()
+            self.lastrowid = int(row["id"]) if row else None
+
+    @property
+    def rowcount(self) -> int:
+        return self._cur.rowcount
+
+    def fetchone(self) -> Any:
+        return self._cur.fetchone()
+
+    def fetchall(self) -> list[Any]:
+        return self._cur.fetchall()
+
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self._cur)
+
+
+class PgConn:
+    def __init__(self, raw: Any) -> None:
+        self.raw = raw
+
+    def execute(self, sql: str, params: Sequence[Any] = ()) -> PgCursor:
+        q = _translate(sql, bool(params))
+        insert = q.lstrip()[:6].upper() == "INSERT"
+        if insert and "RETURNING" not in q.upper():
+            q = q.rstrip().rstrip(";") + " RETURNING id"
+        cur = self.raw.execute(q, tuple(params) if params else None)
+        return PgCursor(cur, insert)
+
+    def executescript(self, script: str) -> None:
+        self.raw.execute(_pg_schema(script))
+
+    def commit(self) -> None:
+        self.raw.commit()
+
+    def rollback(self) -> None:
+        self.raw.rollback()
+
+    def close(self) -> None:  # the pool owns the real connection
+        pass
+
+
+_POOLS: dict[str, Any] = {}
+
+
+def _pool(url: str) -> Any:
+    if psycopg is None:
+        raise RuntimeError("DATABASE_URL is set but psycopg is not installed: pip install 'psycopg[binary,pool]'")
+    pool = _POOLS.get(url)
+    if pool is None:
+        pool = ConnectionPool(
+            url, min_size=1, max_size=int(os.environ.get("BHOOMI_DB_POOL", "5")),
+            # prepare_threshold=None keeps this working behind PgBouncer in
+            # transaction mode, which is how Neon's pooled endpoint runs
+            kwargs={"row_factory": dict_row, "prepare_threshold": None},
+            open=True, timeout=15,
+        )
+        _POOLS[url] = pool
+    return pool
+
+
+import atexit  # noqa: E402  (registered next to the thing it cleans up)
+
+
+def close_pools() -> None:
+    for pool in _POOLS.values():
+        pool.close()
+    _POOLS.clear()
+
+
+atexit.register(close_pools)
+
+
 @contextmanager
-def closing_conn(db_path: Path) -> Iterator[sqlite3.Connection]:
-    conn = connect(db_path)
+def closing_conn(target: Any) -> Iterator[Any]:
+    """Yield a connection for `target`: a Path (SQLite file) or a Postgres URL."""
+    if is_postgres(target):
+        with _pool(target).connection() as raw:
+            yield PgConn(raw)
+        return
+    conn = connect(target)
     try:
         yield conn
     finally:
@@ -230,9 +367,18 @@ ADDED_COLUMNS: tuple[tuple[str, str, str], ...] = (
 )
 
 
-def migrate(conn: sqlite3.Connection) -> list[str]:
+def migrate(conn: Any) -> list[str]:
     applied = []
     for table, column, spec in ADDED_COLUMNS:
+        if isinstance(conn, PgConn):
+            have = conn.execute(
+                "SELECT 1 AS x FROM information_schema.columns "
+                "WHERE table_schema = current_schema() AND table_name = ? AND column_name = ?",
+                (table, column)).fetchone()
+            if not have:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {spec}")
+                applied.append(f"{table}.{column}")
+            continue
         existing = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
         if column not in existing:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {spec}")
@@ -240,8 +386,12 @@ def migrate(conn: sqlite3.Connection) -> list[str]:
     return applied
 
 
-def init_db(db_path: Path) -> None:
-    with closing_conn(db_path) as conn:
+def init_db(target: Any) -> None:
+    with closing_conn(target) as conn:
+        if isinstance(conn, PgConn):
+            # several workers start at once; take a lock so they do not race to
+            # create the same tables. It is released when the transaction ends.
+            conn.execute("SELECT pg_advisory_xact_lock(727274)")
         conn.executescript(SCHEMA)
         migrate(conn)
         conn.commit()
@@ -348,14 +498,29 @@ def photo_by_id(conn: sqlite3.Connection, photo_id: int) -> sqlite3.Row | None:
 
 
 def delete_photo(conn: sqlite3.Connection, photo_id: int) -> bool:
+    row = one(conn, "SELECT path FROM photo WHERE id = ?", (photo_id,))
+    if row:
+        conn.execute("DELETE FROM photo_blob WHERE path = ?", (row["path"],))
     return conn.execute("DELETE FROM photo WHERE id = ?", (photo_id,)).rowcount > 0
 
 
 def delete_photos_for(conn: sqlite3.Connection, owner_kind: str, owner_id: int) -> list[str]:
     """Delete the rows and hand back the paths so the caller can unlink files."""
     paths = [r["path"] for r in photos_for(conn, owner_kind, owner_id)]
+    for path in paths:
+        conn.execute("DELETE FROM photo_blob WHERE path = ?", (path,))
     conn.execute("DELETE FROM photo WHERE owner_kind = ? AND owner_id = ?", (owner_kind, owner_id))
     return paths
+
+
+def put_blob(conn: sqlite3.Connection, path: str, data: bytes) -> None:
+    conn.execute("DELETE FROM photo_blob WHERE path = ?", (path,))
+    conn.execute("INSERT INTO photo_blob (path, data) VALUES (?, ?)", (path, data))
+
+
+def get_blob(conn: sqlite3.Connection, path: str) -> bytes | None:
+    row = one(conn, "SELECT data FROM photo_blob WHERE path = ?", (path,))
+    return bytes(row["data"]) if row else None
 
 
 def cover_photos(conn: sqlite3.Connection, owner_kind: str, ids: Sequence[int]) -> dict[int, str]:

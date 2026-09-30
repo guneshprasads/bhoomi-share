@@ -22,9 +22,16 @@ def _flag(name: str, default: bool) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _database_url() -> str | None:
+    """DATABASE_URL (the name hosts like Render and Neon hand out) or BHOOMI_DATABASE_URL."""
+    raw = (os.environ.get("BHOOMI_DATABASE_URL") or os.environ.get("DATABASE_URL") or "").strip()
+    return raw or None
+
+
 @dataclass(frozen=True)
 class Settings:
     db_path: Path
+    database_url: str | None
     admin_token: str | None
     ip_salt: str
     secret_key: str
@@ -34,12 +41,18 @@ class Settings:
     cookie_secure: bool
     seed_demo: bool
     tile_url: str
+    photos_in_db: bool
     site_url: str
     tile_attribution: str
 
     uploads_dir: Path
     templates_dir: Path = TEMPLATES_DIR
     static_dir: Path = STATIC_DIR
+
+    @property
+    def db_target(self):
+        """What to hand to db.closing_conn: the Postgres URL if set, else the SQLite file."""
+        return self.database_url or self.db_path
 
 
 @lru_cache
@@ -66,6 +79,7 @@ def get_settings() -> Settings:
 
     return Settings(
         db_path=db,
+        database_url=_database_url(),
         uploads_dir=uploads,
         admin_token=(os.environ.get("BHOOMI_ADMIN_TOKEN") or "").strip() or None,
         ip_salt=os.environ.get("BHOOMI_IP_SALT", "change-me"),
@@ -82,6 +96,9 @@ def get_settings() -> Settings:
         # is fine for a pilot but asks heavy sites to use their own provider; point
         # this at MapTiler, Stadia, Mapbox or a self-hosted tile server to scale up.
         site_url=(os.environ.get("BHOOMI_SITE_URL") or "").strip().rstrip("/"),
+        # Hosts like Render's free tier wipe the disk on every deploy, so with a hosted
+        # database the photographs live in the database too (the disk is a cache).
+        photos_in_db=_flag("BHOOMI_PHOTOS_IN_DB", bool(_database_url())),
         tile_url=os.environ.get("BHOOMI_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
         tile_attribution=os.environ.get(
             "BHOOMI_TILE_ATTRIBUTION",

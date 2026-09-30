@@ -202,6 +202,8 @@ def save_photos(
             problems.append(str(exc))
             continue
         db.add_photo(conn, owner_kind, owner_id, path)
+        if settings.photos_in_db:
+            db.put_blob(conn, path, (settings.uploads_dir / path).read_bytes())
         room -= 1
     return problems
 
