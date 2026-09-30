@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% set mname = t(model.i18n) %}
+{% block title %}{{ mname }} — {{ site_name }}{% endblock %}
+{% block description %}{{ model.tagline }} {{ model.summary }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('earn.css') }}"><link rel="stylesheet" href="{{ asset('models.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero mhero">
+  <div class="container mhero__grid">
+    <div>
+      <a class="crumb rv" href="/models">&larr; {{ t('nav.models') }}</a>
+      <span class="kicker rv">{{ 'ಮಾದರಿ' if lang == 'kn' else 'Model' }}</span>
+      <h1 class="rv">{{ mname }}</h1>
+      <p class="lead rv">{{ model.tagline_kn if lang == 'kn' else model.tagline }}</p>
+      <p class="rv msum">{{ model.summary }}</p>
+      <div class="hero2__cta rv">
+        <a class="btn btn--solid btn--big" href="{{ model.browse }}">{{ 'ತೆರೆದಿರುವುದನ್ನು ನೋಡಿ' if lang == 'kn' else 'Browse what is open' }} ({{ open_count }})</a>
+        <a class="btn btn--line btn--big" href="/earn#{{ 'landowner' if model.kind == 'lease' else 'investor' }}">{{ t('cta.simulate') }}</a>
+      </div>
+    </div>
+    <dl class="glance card rv">
+      <div><dt>{{ 'ಚಕ್ರ' if lang == 'kn' else 'Cycle' }}</dt><dd>{{ model.cycle }}</dd></div>
+      <div><dt>{{ 'ಹಣ ಹಾಕುವವರು' if lang == 'kn' else 'Who funds' }}</dt><dd>{{ model.funds }}</dd></div>
+      <div><dt>{{ 'ದುಡಿಯುವವರು' if lang == 'kn' else 'Who works' }}</dt><dd>{{ model.works }}</dd></div>
+      <div><dt>{{ 'ಗಾತ್ರ' if lang == 'kn' else 'Size' }}</dt><dd>{{ model.size }}</dd></div>
+      <div><dt>{{ 'ಹಂಚಿಕೆ' if lang == 'kn' else 'Split' }}</dt><dd>{{ model.split }}</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- how it works -->
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ' if lang == 'kn' else 'How it works' }}</span>
+      <h2>{{ 'ನಾಲ್ಕು ಹೆಜ್ಜೆಗಳಲ್ಲಿ.' if lang == 'kn' else 'In four steps.' }}</h2>
+    </div>
+    <ol class="tl">
+      {% for title, body in model.steps %}
+        <li class="rv" style="--d:{{ loop.index0 * 0.07 }}s"><span class="tl__n">{{ loop.index }}</span><h3>{{ title }}</h3><p>{{ body }}</p></li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<!-- costs + outcomes -->
+<section class="section section--alt">
+  <div class="container mcols">
+    {% if model.costs %}
+    <div>
+      <span class="kicker">{{ 'ವೆಚ್ಚ ಹೇಗಿರುತ್ತದೆ' if lang == 'kn' else 'Where the money goes' }}</span>
+      <h2 style="font-size:clamp(1.6rem,1.1rem + 1.6vw,2.3rem);margin-bottom:1.2rem">{{ 'ಉದಾಹರಣೆ ಬಜೆಟ್' if lang == 'kn' else 'An example budget' }}: &#8377;{{ inr(cost_total) }}</h2>
+      <div class="stack" role="img" aria-label="Breakdown of the example budget">
+        {% for name, amt in model.costs %}<i style="flex:{{ amt }}" class="stack__{{ loop.index }}" title="{{ name }}: {{ inr(amt) }}"></i>{% endfor %}
+      </div>
+      <ul class="lines">
+        {% for name, amt in model.costs %}
+          <li><span class="sw sw{{ loop.index }}"></span><span>{{ name }}</span><b>&#8377;{{ inr(amt) }}</b><em>{{ (amt / cost_total * 100) | round(0) | int }}%</em></li>
+        {% endfor %}
+      </ul>
+      <p class="muted" style="font-size:.82rem;margin-top:1rem">{{ model.cost_note }}</p>
+    </div>
+    {% else %}
+    <div>
+      <span class="kicker">{{ 'ನಿಯಮಗಳು' if lang == 'kn' else 'What gets agreed' }}</span>
+      <h2 style="font-size:clamp(1.6rem,1.1rem + 1.6vw,2.3rem);margin-bottom:1.2rem">{{ 'ಸಹಿ ಮಾಡುವ ಮೊದಲು' if lang == 'kn' else 'Before anyone signs' }}</h2>
+      <ul class="ticks">
+        <li>Rent per acre per season, or a share of the crop.</li>
+        <li>Who pays for borewell power and who repairs the bunds.</li>
+        <li>Who keeps the crop residue.</li>
+        <li>What happens if the rain fails.</li>
+        <li>The end date, and how renewal is decided.</li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="card out">
+      <span class="pill pill--gold">{{ 'ಉದಾಹರಣೆ ಲೆಕ್ಕ — ಮುನ್ಸೂಚನೆ ಅಲ್ಲ' if lang == 'kn' else 'Worked example, not a forecast' }}</span>
+      {% if sim.kind == 'landowner' %}
+        <h3 style="margin:1rem 0 .3rem">{{ sim.acres | round(0) | int }} acres at &#8377;{{ inr(sim.rent_per_acre) }} an acre, {{ sim.seasons }} seasons</h3>
+        <div class="res res--big" style="margin-top:.8rem">
+          <div class="big"><span>Per season</span><b>&#8377;{{ inr(sim.per_season) }}</b></div>
+          <div class="big big--hi"><span>Per year, if renewed</span><b>&#8377;{{ inr(sim.net_per_year) }}</b></div>
+          <p class="res__note">{{ sim.note_term }}</p>
+        </div>
+      {% else %}
+        <h3 style="margin:1rem 0 .6rem">What the funder gets back</h3>
+        {% include "partials/earn_funded_ssr.html" %}
+        <p class="res__note" style="margin-top:.8rem">Costs are repaid first; the rest is split. The failed season is shown on purpose.</p>
+      {% endif %}
+      <p style="margin-top:1rem"><a class="btn btn--line btn--small" href="/earn#{{ 'landowner' if model.kind == 'lease' else 'investor' }}">Change the numbers &rarr;</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- who / risks -->
+<section class="section">
+  <div class="container">
+    <div class="grid grid--2">
+      <div class="card rv">
+        <span class="pill pill--rose">{{ 'ಯಾರಿಗೆ ಸೂಕ್ತ' if lang == 'kn' else 'Good fit' }}</span>
+        <ul class="ticks" style="margin-top:1rem">{% for x in model.good_for %}<li>{{ x }}</li>{% endfor %}</ul>
+      </div>
+      <div class="card rv" style="--d:.08s">
+        <span class="pill">{{ 'ಯಾರಿಗೆ ಅಲ್ಲ' if lang == 'kn' else 'Not a fit' }}</span>
+        <ul class="crosses" style="margin-top:1rem">{% for x in model.not_for %}<li>{{ x }}</li>{% endfor %}</ul>
+      </div>
+    </div>
+
+    <div class="section__head" style="margin-top:clamp(2.5rem,5vw,4rem)">
+      <span class="kicker">{{ 'ಅಪಾಯಗಳು' if lang == 'kn' else 'Risks, plainly' }}</span>
+      <h2>{{ 'ತಪ್ಪಾಗಬಹುದಾದ ವಿಷಯಗಳು.' if lang == 'kn' else 'What can go wrong.' }}</h2>
+    </div>
+    <div class="grid grid--3">
+      {% for name, body in model.risks %}
+        <div class="card rv" style="--d:{{ loop.index0 * 0.07 }}s"><h3>{{ name }}</h3><p>{{ body }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- faq -->
+<section class="section section--alt">
+  <div class="container faqwrap">
+    <div class="section__head" style="margin-bottom:0">
+      <span class="kicker">{{ t('nav.faq') }}</span>
+      <h2>{{ mname }}</h2>
+      <p><a href="/faq">{{ 'ಎಲ್ಲಾ ಪ್ರಶ್ನೆಗಳು' if lang == 'kn' else 'All questions' }} &rarr;</a> &middot; <a href="/fine-print">{{ t('nav.fineprint') }}</a></p>
+    </div>
+    <div class="faq">
+      {% for q, a in model.faq %}<details><summary>{{ q }}</summary><div class="faq__a"><p>{{ a }}</p></div></details>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- other models -->
+<section class="section">
+  <div class="container">
+    <div class="section__head"><span class="kicker">{{ 'ಇತರ ಮಾದರಿಗಳು' if lang == 'kn' else 'The other models' }}</span></div>
+    <div class="grid grid--4">
+      {% for o in others %}
+        <a class="card rv" style="--d:{{ loop.index0 * 0.06 }}s" href="/models/{{ o.slug }}">
+          <span class="other__g">{{ o.glyph }}</span>
+          <h3>{{ t(o.i18n) }}</h3>
+          <p>{{ o.tagline_kn if lang == 'kn' else o.tagline }}</p>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="cta-band rv" style="margin-top:clamp(2.5rem,5vw,4rem)">
+      <div>
+        <h2>{{ 'ಈ ಮಾದರಿ ನಿಮಗೆ ಹೊಂದುತ್ತದೆಯೇ?' if lang == 'kn' else 'Does this model fit you?' }}</h2>
+        <p>{{ 'ಕಾಯುವ ಪಟ್ಟಿಗೆ ಸೇರಿ; ನಿಮ್ಮ ಜಿಲ್ಲೆ ತೆರೆದಾಗ ತಿಳಿಸುತ್ತೇವೆ.' if lang == 'kn' else 'Join the waitlist and we will tell you when your district opens.' }}</p>
+      </div>
+      <a class="btn btn--solid btn--big" href="/#join">{{ t('cta.join') }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

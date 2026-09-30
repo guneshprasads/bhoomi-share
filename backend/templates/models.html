@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}The five models — {{ site_name }}{% endblock %}
+{% block description %}Crop plans, livestock units, small spaces, land shares and leases compared: who funds, who works, how long it takes, and what can go wrong.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('earn.css') }}"><link rel="stylesheet" href="{{ asset('models.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.models') }}</span>
+    {% if lang == 'kn' %}
+      <h1 class="rv">ಐದು ಮಾದರಿಗಳು, <span class="em">ಒಂದೇ ನಿಯಮ.</span></h1>
+    {% else %}
+      <h1 class="rv">Five models, <span class="em">one rule.</span></h1>
+    {% endif %}
+    <p class="lead rv">Each one has its own clock, its own cost structure and its own risks. Every funded one follows the same rule: costs are repaid first, then the rest is split as signed.</p>
+  </div>
+</section>
+
+<section class="container" style="padding-bottom:clamp(2.5rem,5vw,4rem)">
+  <div class="grid grid--3 mgrid">
+    {% for m in models %}
+      <a class="card rv" style="--d:{{ loop.index0 * 0.07 }}s" href="/models/{{ m.slug }}">
+        <div class="mgrid__top"><span class="other__g">{{ m.glyph }}</span><span class="pill pill--gold">{{ counts[m.kind] }} {{ 'ಲಭ್ಯ' if lang == 'kn' else ('listed' if m.kind == 'lease' else 'open') }}</span></div>
+        <h3>{{ t(m.i18n) }}</h3>
+        <p>{{ m.tagline_kn if lang == 'kn' else m.tagline }}</p>
+        <p class="mgrid__cycle">{{ m.cycle }}</p>
+        <span class="role__go">{{ 'ಇನ್ನಷ್ಟು' if lang == 'kn' else 'Read the model' }} &rarr;</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಹೋಲಿಕೆ' if lang == 'kn' else 'Side by side' }}</span>
+      <h2>{{ 'ನಿಮಗೆ ಯಾವುದು ಹೊಂದುತ್ತದೆ?' if lang == 'kn' else 'Which one fits?' }}</h2>
+    </div>
+    <div class="cmp card">
+      <table>
+        <thead><tr><th></th>{% for m in models %}<th>{{ t(m.i18n) }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          <tr><th>Cycle</th>{% for m in models %}<td>{{ m.cycle }}</td>{% endfor %}</tr>
+          <tr><th>Who funds</th>{% for m in models %}<td>{{ m.funds }}</td>{% endfor %}</tr>
+          <tr><th>Who works</th>{% for m in models %}<td>{{ m.works }}</td>{% endfor %}</tr>
+          <tr><th>Size</th>{% for m in models %}<td>{{ m.size }}</td>{% endfor %}</tr>
+          <tr><th>Main risk</th>{% for m in models %}<td>{{ m.risks[0][0] }}: {{ m.risks[0][1] }}</td>{% endfor %}</tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
