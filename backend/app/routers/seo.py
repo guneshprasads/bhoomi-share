@@ -6,7 +6,7 @@ import sqlite3
 from xml.sax.saxutils import escape
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 
 from .. import content, db
 from ..deps import conn_dep
@@ -90,3 +90,10 @@ def healthz(conn: sqlite3.Connection = Depends(conn_dep)) -> JSONResponse:
     except Exception:  # noqa: BLE001 - any failure means "not healthy"
         return JSONResponse({"ok": False, "db": "down"}, status_code=503)
     return JSONResponse({"ok": True, "db": "up"})
+
+
+@router.get("/favicon.ico", include_in_schema=False)
+def favicon() -> FileResponse:
+    """Browsers ask for /favicon.ico whether or not the page links one."""
+    return FileResponse(get_settings().static_dir / "favicon.ico", media_type="image/x-icon",
+                        headers={"Cache-Control": "public, max-age=86400"})
