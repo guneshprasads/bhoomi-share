@@ -167,3 +167,6 @@ body.modal-open{overflow:hidden}
   .lpanel[hidden]{display:block !important}
   body{background:#fff}.card{box-shadow:none;break-inside:avoid}
 }
+
+/* the import dialog's empty areas must not draw an empty bar */
+.msteps:empty,.missues[hidden],.merr[hidden]{display:none}
