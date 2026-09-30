@@ -1,0 +1,31 @@
+/* How it works: one season as a journey */
+.journey{position:relative;padding-block:clamp(1rem,3vw,2rem) clamp(3rem,6vw,5rem);display:grid;gap:clamp(1.5rem,3vw,2.25rem)}
+.jrail{position:absolute;left:calc(var(--gutter) + 22px);top:2rem;bottom:5rem;width:2px;background:var(--line)}
+.jrail span{display:block;width:100%;height:100%;background:repeating-linear-gradient(180deg,var(--burgundy) 0 8px,transparent 8px 15px);opacity:.45}
+.phase{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:clamp(1rem,3vw,2rem);align-items:start}
+.phase__n{
+  position:relative;z-index:1;width:44px;height:44px;border-radius:50%;
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.1rem;color:#fff;
+  background:linear-gradient(150deg,var(--burgundy-hi),var(--burgundy-deep));
+  box-shadow:0 0 0 6px var(--bg),0 10px 22px -10px color-mix(in srgb,var(--burgundy) 80%,transparent);
+}
+.phase__body{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:clamp(1.15rem,2.4vw,1.75rem);box-shadow:var(--shadow-sm)}
+.phase__body h2{font-size:clamp(1.3rem,1rem + 1vw,1.75rem);margin-bottom:1rem}
+.r3grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}
+.r3{border-radius:12px;padding:.9rem 1rem;background:var(--bg-2);border:1px solid var(--line-soft);border-top:3px solid var(--line)}
+.r3 b{display:block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem;color:var(--text)}
+.r3 p{font-size:.9rem;line-height:1.55;margin:0}
+.r3 a{color:var(--burgundy);font-weight:600}
+.r3--inv{border-top-color:var(--burgundy)}
+.r3--inv b{color:var(--burgundy)}
+.r3--grower{border-top-color:var(--gold-soft)}
+.r3--grower b{color:var(--gold)}
+.r3--site{border-top-color:var(--text-soft)}
+.r3--paper{border-top-color:var(--leaf);background:color-mix(in srgb,var(--leaf) 6%,#fff)}
+.r3--paper b{color:var(--leaf)}
+@media (max-width:860px){
+  .r3grid{grid-template-columns:1fr}
+  .phase{grid-template-columns:36px minmax(0,1fr);gap:.8rem}
+  .phase__n{width:36px;height:36px;font-size:.95rem}
+  .jrail{left:calc(var(--gutter) + 17px)}
+}

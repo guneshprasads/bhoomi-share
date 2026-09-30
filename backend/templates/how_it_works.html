@@ -1,76 +1,165 @@
 {% extends "base.html" %}
-{% block title %}How it works &mdash; {{ site_name }}{% endblock %}
-{% block description %}Five ways to work land and space in Karnataka: fund a crop season, a livestock unit or a small space, take shares in a big parcel, or lease land out.{% endblock %}
+{% block title %}How it works — {{ site_name }}{% endblock %}
+{% block description %}One season on Bhoomi Share from first post to final split: what the investor, the grower and the site each do, and what stays on paper between people.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('earn.css') }}"><link rel="stylesheet" href="{{ asset('models.css') }}"><link rel="stylesheet" href="{{ asset('how.css') }}">{% endblock %}
 
-{% block content %}
-<div class="page__head">
-  <div>
-    <h1>{{ t('nav.how') }}</h1>
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.how') }}</span>
     {% if lang == 'kn' %}
-      <p>ಐದು ಬೇರೆ ಬೇರೆ ಕೆಲಸಗಳು ಇಲ್ಲಿ ನಡೆಯುತ್ತವೆ. ಯಾವುದು ನಿಮ್ಮನ್ನು ಇಲ್ಲಿಗೆ ಕರೆತಂದಿದೆಯೋ ಅದನ್ನು ಓದಿ.</p>
+      <h1 class="rv">ಒಂದು ಋತು, <span class="em">ಆರಂಭದಿಂದ ಅಂತ್ಯದವರೆಗೆ.</span></h1>
+      <p class="lead rv">ಐದು ಬೇರೆ ಬೇರೆ ಕೆಲಸಗಳು ಇಲ್ಲಿ ನಡೆಯುತ್ತವೆ. ಯಾರು ಏನು ಮಾಡುತ್ತಾರೆ, ಸೈಟ್ ಏನು ಮಾಡುತ್ತದೆ ಮತ್ತು ಕಾಗದದಲ್ಲಿ ಏನು ಉಳಿಯುತ್ತದೆ ಎಂದು ನೋಡಿ.</p>
     {% else %}
-      <p>Five separate things happen here and they do not depend on each other. Read whichever one brought you.</p>
+      <h1 class="rv">One season, <span class="em">start to finish.</span></h1>
+      <p class="lead rv">Five separate things happen here and they do not depend on each other. Follow one funded season from the first post to the final split, and see who does what, what the site does, and what stays on paper between people.</p>
     {% endif %}
   </div>
-</div>
+</section>
 
-<div class="prose">
-  <h2>1. Funding a crop season</h2>
-  <p class="lede">One crop, one named parcel, one season. When it is sold, the proceeds are split the way the agreement says.</p>
-  <ol class="steps" style="grid-template-columns:1fr 1fr;margin-top:1.5rem">
-    <li class="step" style="list-style:none"><span class="step__n">01</span><h3>A grower posts a plan</h3><p>Parcel, district and survey number, crop, sowing window, a costed input budget, the yield they expect, the split they want &mdash; and photographs of the field.</p></li>
-    <li class="step" style="list-style:none"><span class="step__n">02</span><h3>You read it and register interest</h3><p>With an amount. Nothing is paid and nothing is binding &mdash; it tells the grower whether the plan is fundable.</p></li>
-    <li class="step" style="list-style:none"><span class="step__n">03</span><h3>The season runs</h3><p>Sowing to harvest. The grower posts what was spent and what went in the ground, against the plan you read.</p></li>
-    <li class="step" style="list-style:none"><span class="step__n">04</span><h3>The harvest sells and proceeds split</h3><p>Mandi or contract sale, receipts shared, split as signed. Costs come out first; what is left is divided.</p></li>
-  </ol>
+<!-- journey -->
+<section class="container journey">
+  <div class="jrail" aria-hidden="true"><span></span></div>
 
-  <h2>2. Funding a livestock unit</h2>
-  <p class="lede">Sheep, goat, dairy or poultry. The same shape as a crop plan, with a longer clock.</p>
-  <p>Somebody who keeps animals for a living runs the unit on their own land. You fund the animals, the feed, the shed and the vaccination; they do the work. A cycle is months rather than one harvest &mdash; nine months for a lamb crop, eighteen for a dairy unit to reach its first full lactation &mdash; and the plan says which.</p>
-  <ul>
-    <li><strong>Losses are part of the plan, not a footnote.</strong> Animals die. A plan that does not say what the keeper expects to lose is a plan you should not fund.</li>
-    <li><strong>The animals belong to the unit</strong>, not to you personally, and the split is of what the cycle earns.</li>
-    <li>Vaccination and vet cover should be written into the budget. Ask if it isn&rsquo;t.</li>
-  </ul>
+  <article class="phase rv">
+    <div class="phase__n">1</div>
+    <div class="phase__body">
+      <h2>{{ 'ಒಂದು ಯೋಜನೆ ಪ್ರಕಟವಾಗುತ್ತದೆ' if lang == 'kn' else 'A plan is posted' }}</h2>
+      <div class="r3grid">
+        <div class="r3 r3--grower"><b>{{ 'ಬೆಳೆಗಾರ' if lang == 'kn' else 'The grower' }}</b><p>Posts the parcel, district and survey number, the crop or animals, a costed budget, the expected yield, the split they want, and photographs.</p></div>
+        <div class="r3 r3--site"><b>{{ 'ಸೈಟ್' if lang == 'kn' else 'The site' }}</b><p>Shows the plan in full, in English and Kannada, with its budget arithmetic and a meter for how much is spoken for.</p></div>
+        <div class="r3 r3--paper"><b>{{ 'ಕಾಗದದಲ್ಲಿ' if lang == 'kn' else 'On paper' }}</b><p>Nothing yet.</p></div>
+      </div>
+    </div>
+  </article>
 
-  <h2>3. Funding a small space</h2>
-  <p class="lede">A 30 by 40 site, a shed, a terrace or a spare room &mdash; used for something small and intensive, like mushrooms.</p>
-  <p>You do not need a farm for this. Whoever has the space runs the activity; you fund the setup and the first batches. Because a batch of oyster mushrooms is ready in weeks rather than months, a plan covers several of them and says how many.</p>
-  <ul>
-    <li><strong>Space is measured in square feet</strong>, up to one acre. A 30 by 40 site is 1,200 sq ft. Anything bigger is a farm and belongs under a crop plan or shares.</li>
-    <li><strong>The budget should separate the setup from each batch</strong> &mdash; racks, spawn, substrate, water, power, labour. Ask if it does not.</li>
-    <li><strong>Yield is the least certain number.</strong> Mushrooms are sensitive to temperature and humidity, and the first batches are usually the worst. Be careful with a plan that promises the same yield every time.</li>
-  </ul>
+  <article class="phase rv">
+    <div class="phase__n">2</div>
+    <div class="phase__body">
+      <h2>{{ 'ನೀವು ಓದಿ ಆಸಕ್ತಿ ದಾಖಲಿಸುತ್ತೀರಿ' if lang == 'kn' else 'You read it and register interest' }}</h2>
+      <div class="r3grid">
+        <div class="r3 r3--inv"><b>{{ 'ಹೂಡಿಕೆದಾರ' if lang == 'kn' else 'The investor' }}</b><p>Reads the plan properly, then registers interest with an amount. Nothing is paid and nothing is binding.</p></div>
+        <div class="r3 r3--site"><b>{{ 'ಸೈಟ್' if lang == 'kn' else 'The site' }}</b><p>Tells the grower whether the plan is fundable, and passes on your name, district and phone number. Pools are capped and kept small.</p></div>
+        <div class="r3 r3--paper"><b>{{ 'ಕಾಗದದಲ್ಲಿ' if lang == 'kn' else 'On paper' }}</b><p>Nothing yet. Counsel reviews the structure before anything is signed.</p></div>
+      </div>
+    </div>
+  </article>
 
-  <h2>4. Shares in a big parcel</h2>
-  <p class="lede">Five acres or more, divided into equal shares so several people can take a piece.</p>
-  <p>The owner states what a year of work on the block costs &mdash; say twenty lakh for twenty-two acres &mdash; and what one share is worth, say twenty-five thousand. That makes eighty shares. Take one or take ten; your claim on the split is your shares divided by all the shares.</p>
-  <ul>
-    <li><strong>You are buying a share of one cycle&rsquo;s work, not a piece of the land.</strong> No part of the survey number changes hands and nothing is registered in your name.</li>
-    <li><strong>The number of people per parcel is capped</strong>, deliberately and visibly, and the page shows how many places are left. <a href="/fine-print">The reason is the fine print</a> &mdash; this is the option closest to the line SEBI draws.</li>
-    <li>Shares are only offered on parcels of five acres and up. Below that, a crop plan does the same job with less complication.</li>
-  </ul>
+  <article class="phase rv">
+    <div class="phase__n">3</div>
+    <div class="phase__body">
+      <h2>{{ 'ಒಪ್ಪಂದ ಸಹಿ ಮಾಡಲಾಗುತ್ತದೆ' if lang == 'kn' else 'The agreement is signed' }}</h2>
+      <div class="r3grid">
+        <div class="r3 r3--inv"><b>{{ 'ಎರಡೂ ಕಡೆ' if lang == 'kn' else 'Both sides' }}</b><p>Sign on paper with your own witnesses, and agree the split, the costs and what happens if the season fails.</p></div>
+        <div class="r3 r3--site"><b>{{ 'ಸೈಟ್' if lang == 'kn' else 'The site' }}</b><p>Does not hold money or execute anything. It is not a party to the agreement.</p></div>
+        <div class="r3 r3--paper"><b>{{ 'ಕಾಗದದಲ್ಲಿ' if lang == 'kn' else 'On paper' }}</b><p>A deed or partnership agreement for that crop on that parcel, for a fixed term.</p></div>
+      </div>
+    </div>
+  </article>
 
-  <h2>5. Leasing land out</h2>
-  <p class="lede">An owner who is not farming this year, a farmer who wants more land, and a fixed-term licence between them.</p>
-  <ol class="steps" style="grid-template-columns:1fr 1fr;margin-top:1.5rem">
-    <li class="step" style="list-style:none"><span class="step__n">01</span><h3>List or search</h3><p>Acreage, survey number, water source and hours, soil, road access, what it will grow, photographs. Farmers search by district and by what they can irrigate.</p></li>
-    <li class="step" style="list-style:none"><span class="step__n">02</span><h3>Agree on terms</h3><p>Rent per acre per season, or a share of the crop. Who pays for borewell power, who repairs the bunds, who keeps the residue, what happens if the rain fails.</p></li>
-    <li class="step" style="list-style:none"><span class="step__n">03</span><h3>Sign a proper licence</h3><p>A fixed-term licence to cultivate, drafted against Karnataka tenancy law, signed and witnessed. Deliberately not an open-ended tenancy.</p></li>
-    <li class="step" style="list-style:none"><span class="step__n">04</span><h3>Renew or move on</h3><p>At the end of the term the land comes back, with a record of how it was farmed. Renew if it went well; list it again if it did not.</p></li>
-  </ol>
+  <article class="phase rv">
+    <div class="phase__n">4</div>
+    <div class="phase__body">
+      <h2>{{ 'ಋತು ನಡೆಯುತ್ತದೆ' if lang == 'kn' else 'The season runs' }}</h2>
+      <div class="r3grid">
+        <div class="r3 r3--grower"><b>{{ 'ಬೆಳೆಗಾರ' if lang == 'kn' else 'The grower' }}</b><p>Works the land and posts updates: what was spent, what went in the ground, anything that changed against the plan.</p></div>
+        <div class="r3 r3--inv"><b>{{ 'ಹೂಡಿಕೆದಾರ' if lang == 'kn' else 'The investor' }}</b><p>Follows the log. Surprises that show up early are cheap; surprises that show up at harvest are not.</p></div>
+        <div class="r3 r3--site"><b>{{ 'ಸೈಟ್' if lang == 'kn' else 'The site' }}</b><p>Keeps the log in one place, next to the plan it belongs to.</p></div>
+      </div>
+    </div>
+  </article>
 
-  <h3>What this site does and does not do</h3>
-  <ul>
-    <li>It puts the parcel or the plan in front of people and passes on your phone number when one of them writes to you.</li>
-    <li>It does <strong>not</strong> hold deposits, collect rent, move money, or execute any agreement. You sign on paper, with your own witnesses.</li>
-    <li>It does not verify title. Ask for the RTC (pahani) and read it, the way you would anyway.</li>
-  </ul>
+  <article class="phase rv">
+    <div class="phase__n">5</div>
+    <div class="phase__body">
+      <h2>{{ 'ಕೊಯ್ಲು ಮಾರಾಟವಾಗುತ್ತದೆ' if lang == 'kn' else 'The harvest sells' }}</h2>
+      <div class="r3grid">
+        <div class="r3 r3--grower"><b>{{ 'ಬೆಳೆಗಾರ' if lang == 'kn' else 'The grower' }}</b><p>Sells at the mandi or on contract and shares the receipts.</p></div>
+        <div class="r3 r3--site"><b>{{ 'ಸೈಟ್' if lang == 'kn' else 'The site' }}</b><p>Records the sale in the log. The money does not pass through the site.</p></div>
+        <div class="r3 r3--paper"><b>{{ 'ಕಾಗದದಲ್ಲಿ' if lang == 'kn' else 'On paper' }}</b><p>Receipts, as they would be on any farm.</p></div>
+      </div>
+    </div>
+  </article>
 
-  <h2>What it costs</h2>
-  <p>Nothing, during the pilot. We are not charging investors, growers, owners or farmers while we are still proving this on our own 15 acres. When there is a fee it will be stated on this page before it applies to anyone.</p>
+  <article class="phase rv">
+    <div class="phase__n">6</div>
+    <div class="phase__body">
+      <h2>{{ 'ಲಾಭ ಹಂಚಿಕೆಯಾಗುತ್ತದೆ' if lang == 'kn' else 'Proceeds are split' }}</h2>
+      <div class="r3grid">
+        <div class="r3 r3--inv"><b>{{ 'ಹೂಡಿಕೆದಾರ' if lang == 'kn' else 'The investor' }}</b><p>Gets the listed costs back first, then the agreed percentage of what is left.</p></div>
+        <div class="r3 r3--grower"><b>{{ 'ಬೆಳೆಗಾರ' if lang == 'kn' else 'The grower' }}</b><p>Takes the rest of the surplus. If the sale did not cover the costs, the share is zero.</p></div>
+        <div class="r3 r3--paper"><b>{{ 'ಕಾಗದದಲ್ಲಿ' if lang == 'kn' else 'On paper' }}</b><p>Settlement as signed. <a href="/earn">See the arithmetic &rarr;</a></p></div>
+      </div>
+    </div>
+  </article>
+</section>
 
-  <h2>Where it runs</h2>
-  <p>Karnataka, district by district &mdash; all 31 of them are in the lists, but we open them one at a time, after a full season of real numbers. The pilot is our family&rsquo;s 15 acres in Belagavi district. <a href="/#join">Tell us your district</a> and you will hear when it opens.</p>
-</div>
+<!-- the other four -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಉಳಿದ ದಾರಿಗಳು' if lang == 'kn' else 'The other ways' }}</span>
+      <h2>{{ 'ಅದೇ ಆಕಾರ, ಬೇರೆ ಗಡಿಯಾರ.' if lang == 'kn' else 'Same shape, different clock.' }}</h2>
+      <p>A crop season is one of five. The others follow the same steps with a different cycle and a different thing being funded.</p>
+    </div>
+    <div class="grid grid--2">
+      <a class="card rv" href="/models/livestock"><h3>{{ t('kind.livestock') }}</h3><p>The cycle is months, not one harvest: nine for a lamb crop, eighteen for a dairy unit to reach a full lactation. Losses are part of the plan, not a footnote.</p></a>
+      <a class="card rv" href="/models/small-spaces"><h3>{{ t('kind.space') }}</h3><p>A shed or a 30 by 40 site, funded in batches that take weeks. The budget separates the one-time setup from each batch.</p></a>
+      <a class="card rv" href="/models/land-shares"><h3>{{ t('kind.shares') }}</h3><p>Five acres or more in equal shares. A share is a share of one cycle&rsquo;s work, never of the land, and the number of people per parcel is capped.</p></a>
+      <a class="card rv" href="/models/land-lease"><h3>{{ t('kind.lease') }}</h3><p>List, agree terms, sign a fixed-term licence drafted for Karnataka, then renew or move on. The term ends on its date.</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- does / does not -->
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಸೈಟ್ ಏನು ಮಾಡುತ್ತದೆ' if lang == 'kn' else 'The site’s job' }}</span>
+      <h2>{{ 'ಏನು ಮಾಡುತ್ತದೆ, ಏನು ಮಾಡುವುದಿಲ್ಲ.' if lang == 'kn' else 'What it does, and what it does not.' }}</h2>
+    </div>
+    <div class="grid grid--2">
+      <div class="card rv">
+        <span class="pill pill--rose">{{ 'ಮಾಡುತ್ತದೆ' if lang == 'kn' else 'It does' }}</span>
+        <ul class="ticks" style="margin-top:1rem">
+          <li>Puts the parcel or the plan in front of people.</li>
+          <li>Passes on your phone number when someone writes to you.</li>
+          <li>Keeps the plan, the photographs, the budget and the log in one place.</li>
+          <li>Shows the money arithmetic, including the failed-season case.</li>
+        </ul>
+      </div>
+      <div class="card rv" style="--d:.08s">
+        <span class="pill">{{ 'ಮಾಡುವುದಿಲ್ಲ' if lang == 'kn' else 'It does not' }}</span>
+        <ul class="crosses" style="margin-top:1rem">
+          <li>Hold deposits, collect rent, or move money.</li>
+          <li>Execute any agreement. You sign on paper, with your own witnesses.</li>
+          <li>Verify title. Ask for the RTC (pahani) and read it, the way you would anyway.</li>
+          <li>Guarantee any return, or promise a yield.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid grid--2" style="margin-top:clamp(1rem,2vw,1.5rem)">
+      <div class="card rv">
+        <h3>{{ 'ಇದರ ಬೆಲೆ ಎಷ್ಟು?' if lang == 'kn' else 'What it costs' }}</h3>
+        <p>Nothing, during the pilot. We are not charging investors, growers, owners or farmers while we are still proving this on our own 15 acres. When there is a fee it will be stated on this page before it applies to anyone.</p>
+      </div>
+      <div class="card rv" style="--d:.08s">
+        <h3>{{ 'ಎಲ್ಲಿ ನಡೆಯುತ್ತದೆ?' if lang == 'kn' else 'Where it runs' }}</h3>
+        <p>Karnataka, district by district. All 31 are in the lists, but we open them one at a time after a full season of real numbers. The pilot is our family&rsquo;s 15 acres in Belagavi district. <a href="/karnataka">See the map &rarr;</a></p>
+      </div>
+    </div>
+
+    <div class="cta-band rv" style="margin-top:clamp(2.5rem,5vw,4rem)">
+      <div>
+        <h2>{{ 'ನಿಮ್ಮ ಜಿಲ್ಲೆ ಯಾವಾಗ ತೆರೆಯುತ್ತದೆ?' if lang == 'kn' else 'Want to know when your district opens?' }}</h2>
+        <p>{{ 'ಕಾಯುವ ಪಟ್ಟಿಗೆ ಸೇರಿ.' if lang == 'kn' else 'Join the waitlist and tell us which side you are on.' }}</p>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+        <a class="btn btn--solid btn--big" href="/#join">{{ t('cta.join') }}</a>
+        <a class="btn btn--line btn--big" href="/fine-print">{{ t('nav.fineprint') }}</a>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
