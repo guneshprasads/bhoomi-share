@@ -256,3 +256,99 @@ def open_counts(conn) -> dict[str, int]:
     counts = {k: len(db.search_projects(conn, kind=k, status="open", limit=99)) for k in db.KINDS}
     counts["lease"] = len(db.search_listings(conn, status="open", limit=99))
     return counts
+
+
+# --------------------------------------------------------------------------- #
+# worked stories
+# --------------------------------------------------------------------------- #
+
+# Composite, illustrative people. They exist to make the arithmetic concrete;
+# every page that shows them says so. Numbers come from the simulator so they
+# can never disagree with the calculators.
+STORIES: list[dict[str, Any]] = [
+    {
+        "slug": "ravi",
+        "name": "Ravi",
+        "role": "Investor",
+        "role_kn": "ಹೂಡಿಕೆದಾರ",
+        "place": "Bengaluru Urban",
+        "model": "crop-plans",
+        "sim_kind": "crop",
+        "sim": {"cost": 100000, "sale": 160000, "investor_pct": 70},
+        "situation": "Ravi works in IT and has a little money he will not need for a season. He has no land and no wish to farm, but he grew up around it and can read a budget.",
+        "did": "He finds a chana plan on a 3.2-acre parcel in Belagavi, reads the costs line by line, looks at the photographs and the grower's log from earlier seasons, and registers interest for the whole budget. Counsel-reviewed paperwork follows; money never passes through the site.",
+        "learned": "The return he can hope for is decent, but the failed season loses everything he put in. He funds only an amount he could lose, and he treats the break-even sale as the number that matters.",
+    },
+    {
+        "slug": "manjula",
+        "name": "Manjula",
+        "role": "Grower",
+        "role_kn": "ಬೆಳೆಗಾರ್ತಿ",
+        "place": "Belagavi",
+        "model": "crop-plans",
+        "sim_kind": "crop",
+        "sim": {"cost": 100000, "sale": 160000, "investor_pct": 70},
+        "situation": "Manjula has three acres with canal water and thirty years of experience, but not the working capital for a full season of inputs.",
+        "did": "She posts a costed plan with honest numbers, photographs of the field and the split she thinks is fair. She keeps the log up to date, including the week the rain came late.",
+        "learned": "In a good season her share is the agreed 30% of what is left after costs. In a poor one it is zero. That is exactly why she puts real costs in the plan: an understated budget flatters the return on paper and hurts everyone at harvest.",
+    },
+    {
+        "slug": "shalini",
+        "name": "Shalini",
+        "role": "Landowner",
+        "role_kn": "ಭೂಮಾಲೀಕರು",
+        "place": "Athani, Belagavi",
+        "model": "land-lease",
+        "sim_kind": "landowner",
+        "sim": {"acres": 4, "rent_per_acre": 8000, "seasons": 2, "upkeep_per_acre": 0},
+        "situation": "Shalini lives in the city and inherited four acres she cannot farm. For years a neighbour has used it on a handshake, which earns her little and protects neither of them.",
+        "did": "She lists the parcel with its survey number, water hours and photographs, agrees a rent per acre per season with a farmer who wrote to her, and signs a fixed-term licence drafted for Karnataka, witnessed by two people.",
+        "learned": "The land comes back to her on the licence's end date, with a record of how it was farmed. Renewal is a decision she makes again each time, not something that happens by default.",
+    },
+    {
+        "slug": "asha",
+        "name": "Asha",
+        "role": "Farmer",
+        "role_kn": "ರೈತ",
+        "place": "Bagalkote",
+        "model": "land-lease",
+        "sim_kind": "farmer",
+        "sim": {"acres": 3, "revenue_per_acre": 45000, "inputs_per_acre": 22000, "rent_per_acre": 8000},
+        "situation": "Asha farms two acres of her own and can manage more, with her own inputs, if she can find good land with reliable water.",
+        "did": "She searches parcels by district and irrigation, writes to an owner, and before signing works out her break-even: the revenue per acre she needs just to cover inputs and rent.",
+        "learned": "The deal only works if a bad season is survivable. She asks for a rent she can carry even when the crop disappoints, and for a licence term long enough to see a second season.",
+    },
+    {
+        "slug": "lakshmi",
+        "name": "Lakshmi",
+        "role": "Space host",
+        "role_kn": "ಜಾಗದ ಮಾಲೀಕರು",
+        "place": "Mysuru",
+        "model": "small-spaces",
+        "sim_kind": "space",
+        "sim": {"setup": 40000, "batches": 6, "batch_cost": 9000, "batch_sale": 20000, "investor_pct": 60},
+        "situation": "Lakshmi has a spare shed behind her house and has grown oyster mushrooms on a small scale. She needs racks, humidity control and the first batches' spawn.",
+        "did": "She posts a plan that separates the one-time setup from each batch, states six batches, and is candid that the first batch or two are usually the weakest.",
+        "learned": "A plan that promised identical yields every batch would have looked better on paper and been less honest. Her funder reads the failed-season line and decides knowing it.",
+    },
+    {
+        "slug": "mahesh",
+        "name": "Mahesh",
+        "role": "Livestock keeper",
+        "role_kn": "ಜಾನುವಾರು ಸಾಕಣೆದಾರ",
+        "place": "Hassan",
+        "model": "livestock",
+        "sim_kind": "livestock",
+        "sim": {"cost": 250000, "sale": 380000, "investor_pct": 60},
+        "situation": "Mahesh has a shed, water and fodder, and years of experience with sheep, but not the capital to buy a larger flock.",
+        "did": "His plan lists animals, feed, shed repairs and vet cover as separate lines, and states the loss he expects over a nine-month cycle.",
+        "learned": "Animals die. Because the expected loss is written down, nobody is surprised, and the funder can judge whether the keeper is being realistic.",
+    },
+]
+
+
+def story_with_numbers(story: dict[str, Any]) -> dict[str, Any]:
+    out = {k: v for k, v in story.items() if k != "sim"}
+    out["result"] = simulator.run(story["sim_kind"], story["sim"])
+    out["model_obj"] = get(story["model"])
+    return out

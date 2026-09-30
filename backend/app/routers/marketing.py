@@ -60,3 +60,11 @@ def model_detail(slug: str, request: Request, conn: sqlite3.Connection = Depends
         sim=content.worked_example(model),
         others=[content.get(s) for s in content.ORDER if s != slug],
     )
+
+
+@router.get("/stories")
+def stories(request: Request, user=Depends(current_user)):
+    return render(
+        request, "stories.html", user=user,
+        stories=[content.story_with_numbers(s) for s in content.STORIES],
+    )

@@ -80,3 +80,21 @@ def test_how_it_works_walks_one_season_and_states_what_the_site_does_not_do(clie
         assert step in r.text
     assert "Hold deposits, collect rent, or move money" in r.text
     assert "Guarantee any return" in r.text
+
+
+def test_stories_are_labelled_illustrative_and_show_failure(client):
+    r = client.get("/stories")
+    assert r.status_code == 200
+    assert "illustrative, not real customers" in r.text
+    assert "Failed season" in r.text
+    for name in ("Ravi", "Manjula", "Shalini", "Asha", "Lakshmi", "Mahesh"):
+        assert name in r.text
+
+
+def test_story_numbers_come_from_the_simulator():
+    from app import content
+    ravi = content.story_with_numbers(next(s for s in content.STORIES if s["slug"] == "ravi"))
+    expected = next(x for x in ravi["result"]["scenarios"] if x["key"] == "expected")
+    assert expected["you_net"] == 42000
+    shalini = content.story_with_numbers(next(s for s in content.STORIES if s["slug"] == "shalini"))
+    assert shalini["result"]["per_year"] == 64000
