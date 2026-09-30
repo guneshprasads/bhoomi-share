@@ -68,3 +68,35 @@ def stories(request: Request, user=Depends(current_user)):
         request, "stories.html", user=user,
         stories=[content.story_with_numbers(s) for s in content.STORIES],
     )
+
+
+@router.get("/karnataka")
+def karnataka_map(request: Request, conn: sqlite3.Connection = Depends(conn_dep),
+                  user=Depends(current_user)):
+    from .. import karnataka as k
+
+    plans = {r["district"]: int(r["n"]) for r in db.all_rows(
+        conn, "SELECT district, COUNT(*) AS n FROM project WHERE status = 'open' GROUP BY district")}
+    parcels = {r["district"]: int(r["n"]) for r in db.all_rows(
+        conn, "SELECT district, COUNT(*) AS n FROM listing WHERE status = 'open' GROUP BY district")}
+
+    tiles = []
+    for name, (col, row) in k.TILE_POS.items():
+        tiles.append({
+            "name": name,
+            "name_kn": k.DISTRICTS_KN[name],
+            "col": col, "row": row,
+            "division": k.DIVISION_OF[name],
+            "plans": plans.get(name, 0),
+            "parcels": parcels.get(name, 0),
+            "pilot": name == k.PILOT_DISTRICT,
+        })
+    return render(
+        request, "karnataka.html", user=user,
+        tiles=tiles,
+        divisions=k.DIVISIONS,
+        notes=k.DIVISION_NOTES,
+        active=sum(1 for t in tiles if t["plans"] or t["parcels"]),
+        total_plans=sum(plans.values()),
+        total_parcels=sum(parcels.values()),
+    )

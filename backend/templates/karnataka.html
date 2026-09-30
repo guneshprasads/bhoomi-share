@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Karnataka district map — {{ site_name }}{% endblock %}
+{% block description %}All 31 Karnataka districts with what is open in each: crop plans, livestock units, small spaces, land shares and parcels to lease. We open district by district, starting with Belagavi.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('karnataka.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.karnataka') }}</span>
+    {% if lang == 'kn' %}
+      <h1 class="rv">ಕರ್ನಾಟಕ, <span class="em">ಜಿಲ್ಲೆ ಜಿಲ್ಲೆಯಾಗಿ.</span></h1>
+      <p class="lead rv">31 ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಪ್ರತಿಯೊಂದರಲ್ಲಿ ಏನು ತೆರೆದಿದೆ ಎಂದು ನೋಡಿ. ಒಂದೊಂದಾಗಿ ತೆರೆಯುತ್ತೇವೆ — ಮೊದಲು ಬೆಳಗಾವಿ.</p>
+    {% else %}
+      <h1 class="rv">Karnataka, <span class="em">district by district.</span></h1>
+      <p class="lead rv">All 31 districts, and what is open in each. We open them one at a time after a full season of real numbers, starting where our own 15 acres are: Belagavi.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="container mapwrap">
+  <div class="mapgrid">
+    <div class="tilemap-wrap card">
+      <div class="tilemap" role="group" aria-label="{{ 'ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳು' if lang == 'kn' else 'Karnataka districts' }}">
+        {% for t_ in tiles %}
+          <button type="button"
+                  class="tile tile--{{ t_.division | lower }}{% if (t_.name_kn if lang == 'kn' else t_.name) | length > 9 %} tile--long{% endif %}{% if t_.plans or t_.parcels %} tile--live{% endif %}{% if t_.pilot %} tile--pilot{% endif %}"
+                  style="grid-column:{{ t_.col + 1 }};grid-row:{{ t_.row + 1 }}"
+                  data-name="{{ t_.name }}" data-name-kn="{{ t_.name_kn }}" data-division="{{ t_.division }}"
+                  data-plans="{{ t_.plans }}" data-parcels="{{ t_.parcels }}" data-pilot="{{ 1 if t_.pilot else 0 }}"
+                  aria-label="{{ t_.name_kn if lang == 'kn' else t_.name }}: {{ t_.plans }} plans, {{ t_.parcels }} parcels">
+            <span class="tile__name">{{ t_.name_kn if lang == 'kn' else t_.name }}</span>
+            {% if t_.plans or t_.parcels %}<span class="tile__n">{{ t_.plans + t_.parcels }}</span>{% endif %}
+            {% if t_.pilot %}<span class="tile__pilot" title="Pilot"></span>{% endif %}
+          </button>
+        {% endfor %}
+      </div>
+      <ul class="legend" aria-label="Legend">
+        {% for d in divisions %}<li><i class="sw-{{ d | lower }}"></i>{{ d }} {{ 'ವಿಭಾಗ' if lang == 'kn' else 'division' }}</li>{% endfor %}
+        <li><i class="sw-live"></i>{{ 'ತೆರೆದಿರುವುದು ಇದೆ' if lang == 'kn' else 'Something is open' }}</li>
+        <li><i class="sw-pilot"></i>{{ 'ನಮ್ಮ ಪೈಲಟ್' if lang == 'kn' else 'Our pilot' }}</li>
+      </ul>
+      <p class="muted" style="font-size:.78rem;margin-top:.8rem">{{ 'ಇದು ನಕ್ಷೆ ಅಲ್ಲ, ರೇಖಾಚಿತ್ರ; ವಿಸ್ತೀರ್ಣ ಅನುಪಾತದಲ್ಲಿಲ್ಲ.' if lang == 'kn' else 'A diagram, not a map: each district is one equal tile, placed roughly where it sits.' }}</p>
+    </div>
+
+    <aside class="dpanel card" id="dpanel" aria-live="polite">
+      <div class="dpanel__empty" id="dEmpty">
+        <h2>{{ 'ಒಂದು ಜಿಲ್ಲೆ ಆರಿಸಿ' if lang == 'kn' else 'Pick a district' }}</h2>
+        <p>{{ 'ನಕ್ಷೆಯಲ್ಲಿ ಒಂದು ಚೌಕವನ್ನು ಒತ್ತಿ.' if lang == 'kn' else 'Select a tile to see what is open there.' }}</p>
+        <div class="dtotals">
+          <div><b>{{ total_plans }}</b><span>{{ 'ತೆರೆದ ಯೋಜನೆಗಳು' if lang == 'kn' else 'plans open' }}</span></div>
+          <div><b>{{ total_parcels }}</b><span>{{ 'ಪಟ್ಟಿ ಮಾಡಿದ ಭೂಮಿ' if lang == 'kn' else 'parcels listed' }}</span></div>
+          <div><b>{{ active }}</b><span>{{ 'ಸಕ್ರಿಯ ಜಿಲ್ಲೆಗಳು' if lang == 'kn' else 'districts active' }}</span></div>
+        </div>
+      </div>
+      <div class="dpanel__body" id="dBody" hidden>
+        <span class="pill pill--rose" id="dDiv"></span>
+        <h2 id="dName"></h2>
+        <p id="dPilot" class="dpilot" hidden>{{ 'ನಮ್ಮ ಕುಟುಂಬದ 15 ಎಕರೆ ಪೈಲಟ್ ಇಲ್ಲಿದೆ.' if lang == 'kn' else 'Our family’s 15-acre pilot is in this district.' }}</p>
+        <div class="dcounts">
+          <a id="dPlans" href="#"><b>0</b><span>{{ 'ತೆರೆದ ಯೋಜನೆಗಳು' if lang == 'kn' else 'open plans' }}</span></a>
+          <a id="dParcels" href="#"><b>0</b><span>{{ 'ಪಟ್ಟಿ ಮಾಡಿದ ಭೂಮಿ' if lang == 'kn' else 'parcels to lease' }}</span></a>
+        </div>
+        <p class="dnote" id="dNote"></p>
+        <p class="dcrops"><strong>{{ 'ಸಾಮಾನ್ಯವಾಗಿ ಬೆಳೆಯುವುದು:' if lang == 'kn' else 'Commonly grown in this division:' }}</strong> <span id="dCrops"></span></p>
+        <p class="dnone" id="dNone" hidden>{{ 'ಇಲ್ಲಿ ಇನ್ನೂ ಏನೂ ತೆರೆದಿಲ್ಲ. ಈ ಜಿಲ್ಲೆ ತೆರೆದಾಗ ತಿಳಿಸಲು ಪಟ್ಟಿಗೆ ಸೇರಿ.' if lang == 'kn' else 'Nothing is open here yet. Join the waitlist and we will tell you when this district opens.' }}</p>
+        <a class="btn btn--solid" href="/#join">{{ t('cta.join') }}</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ನಾಲ್ಕು ವಿಭಾಗಗಳು' if lang == 'kn' else 'Four divisions' }}</span>
+      <h2>{{ 'ಪ್ರತಿ ವಿಭಾಗದಲ್ಲೂ ಬೇರೆ ಬೆಳೆ, ಬೇರೆ ನೀರು.' if lang == 'kn' else 'Each division grows differently.' }}</h2>
+      <p>General background to orient you. It is not advice and not a yield claim: conditions vary a great deal inside a division, and every plan states its own crop and its own water.</p>
+    </div>
+    <div class="grid grid--4">
+      {% for d, districts in divisions.items() %}
+      <div class="card rv">
+        <span class="pill pill--gold">{{ districts | length }} {{ 'ಜಿಲ್ಲೆಗಳು' if lang == 'kn' else 'districts' }}</span>
+        <h3 style="margin-top:.9rem">{{ d }}</h3>
+        <p>{{ notes[d].note }}</p>
+        <p style="margin-top:.7rem"><strong>{{ 'ಬೆಳೆಗಳು:' if lang == 'kn' else 'Commonly grown:' }}</strong> {{ notes[d].crops }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>window.BHOOMI_DIV_NOTES={{ notes | tojson }};</script>
+<script src="{{ asset('karnataka.js') }}" defer></script>
+{% endblock %}
