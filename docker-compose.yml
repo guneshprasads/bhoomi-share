@@ -1,0 +1,33 @@
+# Run the whole stack locally, with a real Postgres, the way production runs:
+#   docker compose up --build        then open http://localhost:8000
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: bhoomi
+      POSTGRES_PASSWORD: bhoomi
+      POSTGRES_DB: bhoomi
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bhoomi -d bhoomi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://bhoomi:bhoomi@db:5432/bhoomi
+      BHOOMI_SECRET_KEY: local-only-change-me
+      BHOOMI_ADMIN_TOKEN: local-only-change-me
+      BHOOMI_SEED_DEMO: "1"          # demo accounts and plans; turn off for real data
+      BHOOMI_COOKIE_SECURE: "0"      # http://localhost, not https
+
+volumes:
+  pgdata:

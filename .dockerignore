@@ -1,0 +1,12 @@
+.git
+.github
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+backend/.env
+backend/*.sqlite3*
+backend/uploads/*
+backend/backups/*
+backend/tests
+*.md

@@ -65,13 +65,20 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # BHOOMI_ADMIN_T
 
 | Path | What it is |
 |---|---|
-| `/` | The landing page: the pitch, the split, the fine print, the waitlist form |
+| `/` | The landing page: hero, live counts, roles, the five models, scenario bars, open plans, FAQ teaser, waitlist |
+| `/earn` | Ways to earn: role tabs and live calculators (investor, grower, landowner, farmer) |
+| `/models`, `/models/{slug}` | The five models compared, and one page per model |
+| `/how-it-works` | One funded season as a six-phase journey |
+| `/stories` | Six illustrative worked examples |
+| `/karnataka` | Interactive district map: farming tiers, best-fit model, live activity |
+| `/faq`, `/about` | Questions and answers; the pilot and the principles |
+| `/sitemap.xml`, `/robots.txt`, `/healthz` | SEO files and a health check for the host |
 | `/invest` | All three funded kinds in one list, filterable by kind and district |
 | `/seasons`, `/livestock`, `/spaces`, `/shares` | One kind each, same filters |
 | `/projects/{id}` | The plan, the photographs, the budget maths, the log |
 | `/land`, `/land/{id}` | Parcels on offer, filterable by district, size and irrigation |
 | `/lang/kn`, `/lang/en` | Switch language; remembered in a cookie for a year |
-| `/how-it-works`, `/fine-print` | The two flows end to end; the law that shapes them |
+| `/fine-print` | The law that shapes the product |
 | `/signup`, `/login` | Accounts. Roles: investor, grower, landowner, farmer |
 | `/dashboard` | Your parcels, the farmers asking about them, your plans, what you back |
 | `/dashboard?tour=1` | Replays the first-run guided tour on demand |
@@ -118,19 +125,24 @@ backend/
     templating.py    Jinja setup, ₹ formatting, flash messages, language
     deps.py          login/admin dependencies, typed 403 and 404
     seed.py          demo content for an empty database
-  scripts/backup.py  consistent database snapshots, zip, or CSV per table
-    routers/         pages, auth, land, projects, dashboard, admin_pages, api
+    simulator.py     the earnings maths behind /earn (tested; no money moves)
+    content.py       models, stories and FAQ as data
+    agri.py          farming tiers and best-fit models per district (indicative)
+    hardening.py    security headers, CSP nonces, caching
+    routers/         pages, marketing, seo, media, auth, land, projects,
+                     dashboard, admin_pages, api
+  scripts/           backup.py, make_admin.py, build_geo.py, make_og.py
   templates/         Jinja pages; base.html holds the shell, _browse.html the
                      four listing pages
-  static/            styles.css (the whole design system), app.js, tour.js, icon
+  static/            styles.css (legacy) + site.css (design system v2), per-page
+                     css/js, vendor/leaflet, data/karnataka_districts.geojson
   uploads/           photographs (gitignored)
-  tests/             82 tests
+  tests/             144 tests, runnable on SQLite or Postgres
 ```
 
-Server-rendered HTML with POST-then-redirect, and about 120 lines of JavaScript
-for the mobile menu and the waitlist form. No build step and no front-end
-framework: the site works with JS off apart from the waitlist, which falls back
-to an in-page thank-you.
+Server-rendered HTML with POST-then-redirect. A small amount of vanilla JavaScript
+adds the sidebar menu, the calculators, the map and the waitlist form. No build
+step and no front-end framework; every page is readable with JS off.
 
 ### Behaviour worth knowing
 
@@ -175,9 +187,15 @@ to an in-page thank-you.
 
 ## Data — where it lives and how to take a copy
 
-**SQLite**, one file: `backend/bhoomi.sqlite3`. No server, no container, no
-credentials. Photographs are **not** in it — they are files under
-`backend/uploads/`, referenced by path.
+**Two backends, one set of queries.** With no configuration the app uses **SQLite**,
+one file: `backend/bhoomi.sqlite3` (no server, no container, no credentials) and
+photographs are files under `backend/uploads/`. Set **`DATABASE_URL`** to a
+Postgres connection string and it switches to **Postgres** instead; a small
+adapter in `db.py` handles the dialect differences, so the query code is written
+once. On Postgres, photographs are also stored in the database
+(`BHOOMI_PHOTOS_IN_DB`, on by default there) because free hosts wipe the disk on
+every deploy. The SQLite backup script below applies to the SQLite file only; for
+Postgres use your provider's backups or `pg_dump`.
 
 Columns added after the first release are applied in place by `db.migrate()` on
 startup — **this database holds real accounts and is never rebuilt from
@@ -251,3 +269,20 @@ element the dashboard actually renders), and admin access.
 
 The first two wait on counsel. Until then this is a pilot on fifteen acres with
 a website attached.
+
+
+## Tests
+
+```bash
+cd backend && .venv/bin/python -m pytest -q          # SQLite
+BHOOMI_TEST_DATABASE_URL=postgresql://user:pass@localhost:5432/dbname \
+  .venv/bin/python -m pytest -q                      # the same suite on Postgres
+```
+
+CI (`.github/workflows/ci.yml`) runs both.
+
+## Deploying
+
+See **[DEPLOY.md](DEPLOY.md)**: a free path (Render + Neon), other hosts, every
+environment variable, and a go-live checklist. Streamlit Community Cloud only
+runs Streamlit scripts, so it cannot host this app.
