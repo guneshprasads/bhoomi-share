@@ -130,3 +130,13 @@ def faq(request: Request, user=Depends(current_user)):
 @router.get("/about")
 def about(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=Depends(current_user)):
     return render(request, "about.html", user=user)
+
+
+@router.get("/ledger")
+def ledger_page(request: Request, user=Depends(current_user)):
+    return render(request, "ledger.html", user=user)
+
+
+@router.get("/ledger/risk")
+def risk_page(request: Request, user=Depends(current_user)):
+    return render(request, "risk.html", user=user)

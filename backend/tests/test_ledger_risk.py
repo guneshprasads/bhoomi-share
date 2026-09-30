@@ -150,3 +150,15 @@ def test_api_errors_are_readable(client):
     assert client.post("/api/holding", json={"plans": []}).status_code == 422
     bad = client.post("/api/risk", json={"plan": {"id": "z", "kind": "crop"}})
     assert bad.status_code == 422
+
+
+def test_verdict_uses_value_created_not_a_possibly_negative_shortfall_change():
+    r = risk.assess(plan())
+    assert r["best"] and "adds" in r["verdict"] and "protects" not in r["verdict"]
+    assert "-" not in r["verdict"].split("pays back")[1].split("a net gain")[0]
+
+
+def test_ledger_and_risk_pages_render(client):
+    for path in ("/ledger", "/ledger/risk"):
+        r = client.get(path)
+        assert r.status_code == 200 and "Example data" in r.text or "simulation, not a forecast" in r.text

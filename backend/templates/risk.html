@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Money-at-risk — {{ site_name }}{% endblock %}
+{% block description %}Which plan runs short of covering its costs, how much that could cost, and which fix pays back first. A simulation from stated assumptions, not a forecast.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('ledger.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.risk') }} &middot; <span id="srcLabel">example holding</span></span>
+    <h1 class="rv">Which plan runs short, <span class="em">and what does it cost?</span></h1>
+    <p class="lead rv">Thousands of simulated seasons on each plan's own budget, yield and price. The chance the sale fails to cover the costs, the money that could be lost, and whether a fix would pay for itself.</p>
+    <p class="disclaimer rv"><strong>A simulation, not a forecast.</strong> Every result comes from assumptions you can see and change below. Example data is invented.</p>
+    <div class="rsel" id="planSel" role="group" aria-label="Choose a plan"></div>
+  </div>
+</section>
+
+<section class="container">
+  <div class="rblock" id="sec1">
+    <div class="rblock__n">1 &middot; The risk</div>
+    <h2 id="h1title">Will the sale cover the costs?</h2>
+    <p class="lsub" id="h1sub" style="max-width:70ch"></p>
+    <div class="kpis" id="kpis"></div>
+    <div class="card" style="padding:1rem 1.2rem"><div id="hist"></div>
+      <p class="muted" style="font-size:.78rem;margin:.5rem 0 0">Each bar is the share of simulated seasons ending with that profit. Left of the line, the sale did not cover the costs. The funder is repaid first, so this is the funder&rsquo;s shortfall.</p></div>
+    <div class="card assume" id="assume"></div>
+  </div>
+
+  <div class="rblock" id="sec2">
+    <div class="rblock__n">2 &middot; The fix</div>
+    <h2 id="h2title">Which fix pays back?</h2>
+    <p class="lsub" style="max-width:70ch">A fix pays back when the value it creates is larger than what it costs. Every option is run on the same simulated seasons, so the difference is the fix and not luck.</p>
+    <div class="card opts"><div id="opts"></div></div>
+    <div class="verdict" id="verdict"></div>
+    <details class="fixset card" id="fixset"><summary>Change the fixes&rsquo; costs and effects (assumed: replace with real quotes)</summary><div class="fixgrid" id="fixgrid"></div></details>
+  </div>
+
+  <div class="rblock" id="sec3">
+    <div class="rblock__n">3 &middot; The whole holding</div>
+    <h2>Where to act first</h2>
+    <p class="lsub" style="max-width:70ch">Every plan with the same assumptions. This is the view a funder or lender asks for: where the money is most at risk, and which fix earns the most.</p>
+    <div class="card hold"><div id="hold"></div></div>
+  </div>
+
+  <div class="rblock" id="sec4">
+    <div class="rblock__n">4 &middot; Can we trust the starting number?</div>
+    <h2 id="h4title">One best estimate from three sources</h2>
+    <p class="lsub" style="max-width:70ch">The plan&rsquo;s own figure, the land&rsquo;s own history and a district benchmark are combined into one expected yield, each weighted by how precise it is. Better data narrows the risk above.</p>
+    <div class="card trustbox"><div id="srcplot"></div><div class="trustside" id="trustside"></div></div>
+    <h3 style="margin-top:1.6rem;font-size:1.1rem">What is data, what is model, what is assumed</h3>
+    <div class="prov" id="prov"></div>
+  </div>
+
+  <p class="rfoot">Built on the same example holding as the <a href="/ledger">Farm ledger</a>. Risk outputs are simulations from stated assumptions, not forecasts of any farm&rsquo;s results, and not investment advice. No money moves through this site.</p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ asset('ledgerlib.js') }}"></script>
+<script src="{{ asset('risk.js') }}" defer></script>
+{% endblock %}
