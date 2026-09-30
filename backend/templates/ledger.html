@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Farm ledger — {{ site_name }}{% endblock %}
+{% block description %}Give every plan an account that has to add up. Import a ledger or try the example farm: balance checks, trust scores, money flows, yields and input costs.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('ledger.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero lhero">
+  <div class="container lhero__grid">
+    <div>
+      <span class="kicker rv">{{ t('nav.ledger') }} &middot; <span id="srcLabel">example holding</span></span>
+      <h1 class="rv">Every plan gets an account <span class="em">that has to add up.</span></h1>
+      <p class="lead rv">Import a ledger, or try the example farm. Each plan is checked against simple balance rules, scored for trust, and shown as money in and money out. <strong>Not reported</strong> is never read as zero.</p>
+      <div class="lhero__cta rv">
+        <button class="btn btn--solid btn--big" type="button" id="btnImport">Import a ledger</button>
+        <a class="btn btn--line btn--big" href="/ledger/risk">Money-at-risk &rarr;</a>
+      </div>
+      <p class="disclaimer rv" id="exNote"><strong>Example data.</strong> Invented for illustration: not the pilot's numbers and not a real person's. It deliberately contains the mess real ledgers have.</p>
+    </div>
+    <div class="card lsum rv" id="summary" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="container lbody">
+  <div class="ltoolbar">
+    <div class="chips" id="filter" role="group" aria-label="Filter by plan"></div>
+    <div class="lactions">
+      <button class="btn btn--line btn--small" type="button" id="btnCsv">Download CSV</button>
+      <button class="btn btn--line btn--small" type="button" id="btnPrint">Print / PDF</button>
+      <button class="btn btn--line btn--small" type="button" id="btnReset" hidden>Back to the example</button>
+    </div>
+  </div>
+
+  <div class="ltabs" role="tablist" aria-label="Ledger views">
+    <button class="ltab" role="tab" aria-selected="true" data-tab="overview">Overview</button>
+    <button class="ltab" role="tab" aria-selected="false" data-tab="balance">Balance check</button>
+    <button class="ltab" role="tab" aria-selected="false" data-tab="seasons">Seasons &amp; yield</button>
+    <button class="ltab" role="tab" aria-selected="false" data-tab="costs">Input costs</button>
+    <a class="ltab ltab--link" href="/ledger/risk">Money-at-risk &rarr;</a>
+  </div>
+
+  <div class="lpanel" id="tab-overview" role="tabpanel">
+    <h2 class="lh">Money in &rarr; money out, per plan</h2>
+    <p class="lsub">Left: what the season brought in. Right: where it went. Hatched is money the file cannot account for. Plans with no sold season show what the plan <em>expects</em> instead.</p>
+    <div class="grid grid--3" id="flows"></div>
+  </div>
+
+  <div class="lpanel" id="tab-balance" role="tabpanel" hidden>
+    <h2 class="lh">Does each account add up?</h2>
+    <p class="lsub">Four rules, each allowed ±5%: the budget lines match the stated budget, spending was logged and stayed near budget, a sold season's receipts equal what was paid out, and there are enough past seasons to judge the spread.</p>
+    <div class="card ltable"><div id="balance"></div></div>
+    <div class="card needs" id="needs"></div>
+  </div>
+
+  <div class="lpanel" id="tab-seasons" role="tabpanel" hidden>
+    <h2 class="lh">Same land, very different seasons</h2>
+    <p class="lsub">Yield per unit for each past season (bars), against what the plan expects and a district benchmark (assumed). The reconciled estimate weights each source by how precise it is.</p>
+    <div class="grid grid--2" id="seasons"></div>
+  </div>
+
+  <div class="lpanel" id="tab-costs" role="tabpanel" hidden>
+    <h2 class="lh">What the inputs cost</h2>
+    <p class="lsub">Budget lines grouped by category. Move the sliders to see what a price change does to every plan's budget. Unit costs here are planning values: replace them with real quotes.</p>
+    <div class="card whatif" id="whatif"></div>
+    <div class="card" id="costs"></div>
+  </div>
+
+  <div class="card howread" id="howread">
+    <h2 class="lh">How the import reads a file</h2>
+    <p class="lsub">One CSV, five columns. The <code>record</code> column decides where each number goes, so any ledger can be read, not just this one.</p>
+    <div class="grid grid--2">
+      <div>
+        <table class="mini"><thead><tr><th>record</th><th>what it becomes</th></tr></thead><tbody>
+          <tr><td><code>meta</code></td><td>A fact about the plan: name, district, kind, area, investor_pct, stated_budget, expected_yield, expected_price</td></tr>
+          <tr><td><code>cost</code></td><td>A budget line: label is the item, value the rupees</td></tr>
+          <tr><td><code>spent</code></td><td>What the log says was spent</td></tr>
+          <tr><td><code>history</code></td><td>One past season: season, label <code>yield</code> or <code>price</code>, value</td></tr>
+          <tr><td><code>sale</code></td><td>Receipts for a sold season</td></tr>
+        </tbody></table>
+      </div>
+      <div>
+        <pre class="csvpeek" id="csvpeek"></pre>
+        <p class="needs-human"><strong>Needs a human:</strong> anything it cannot read is listed, not guessed. A spend of <code>-</code> stays <em>not reported</em>; a cost of <code>abc</code> is skipped and named.</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="muted lfoot">Example data is invented. Checks and trust scores describe how complete and consistent a ledger is, not whether a farm will make money.</p>
+</section>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal__veil" data-close></div>
+  <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="modal__x" type="button" data-close aria-label="Close">&times;</button>
+    <h2 id="mTitle">Add a ledger</h2>
+    <div class="mtabs"><button class="mtab is-on" data-m="file">Import a file</button><button class="mtab" data-m="paste">Paste CSV</button></div>
+    <div class="mpane" id="m-file">
+      <label class="drop" id="drop"><input type="file" accept=".csv,text/csv,text/plain" id="file" hidden>
+        <strong>Drop a .csv here</strong><span>or click to choose one</span></label>
+      <p class="or">or</p>
+      <button class="btn btn--solid" type="button" id="useExample">Use the example farm&rsquo;s file</button>
+      <p class="muted" style="font-size:.8rem;margin-top:.6rem"><a href="#" id="dlTemplate">Download the example as a template</a></p>
+    </div>
+    <div class="mpane" id="m-paste" hidden>
+      <textarea id="paste" rows="9" placeholder="plan,record,label,value,season&#10;my-plan,meta,name,Chana,&#10;my-plan,cost,Seed,12000,"></textarea>
+      <button class="btn btn--solid" type="button" id="readPaste">Read it</button>
+    </div>
+    <ol class="msteps" id="msteps"></ol>
+    <p class="merr" id="merr" role="alert" hidden></p>
+    <ul class="missues" id="missues" hidden></ul>
+    <p class="muted" style="font-size:.78rem;margin-top:1rem">Your file is read on this page and checked by the server. It is not stored or shared.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ asset('ledgerlib.js') }}"></script>
+<script src="{{ asset('ledger.js') }}" defer></script>
+{% endblock %}

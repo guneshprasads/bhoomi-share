@@ -265,8 +265,8 @@ def _verdict(base: dict[str, Any], best: dict[str, Any] | None) -> str:
     if not best:
         return "No single fix here pays for itself on these assumptions. The risk is real; it is cheaper to carry than to insure against."
     m = f", {best['multiple']}× its cost" if best["multiple"] else ""
-    return (f"{best['label']} pays back: it protects ₹{best['protects']:,} of expected shortfall{m}, "
-            f"for a net gain of ₹{best['net_benefit']:,} a season.")
+    return (f"{best['label']} pays back: it adds ₹{best['value']:,} of expected value for ₹{best['cost']:,}{m}, "
+            f"a net gain of ₹{best['net_benefit']:,} a season.")
 
 
 def holding(plans: list[dict[str, Any]], assumptions: dict[str, float] | None = None, runs: int = 1200) -> dict[str, Any]:
