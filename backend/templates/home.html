@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Bhoomi Share — put Karnataka's land, money and skills to work{% endblock %}
 {% block description %}Fund a crop season, a livestock unit or a small space, take a share of a big parcel, or licence land you aren't farming. Five clear ways to earn from land in Karnataka, all on paper, all in English and Kannada.{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ asset('home.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('home.css') }}"><link rel="stylesheet" href="{{ asset('story.css') }}">{% endblock %}
 
 {% macro scenario_label(key) -%}
   {%- if key == 'strong' -%}{{ 'ಉತ್ತಮ ಋತು' if lang == 'kn' else 'Strong season' }}
@@ -28,8 +28,8 @@
         <p class="lead rv" style="--d:.12s">Those three rarely sit with the same person. Bhoomi Share puts them together across Karnataka in five clear ways: fund a crop, back a livestock unit, put a small space to work, take a slice of a big parcel, or licence land you aren&rsquo;t farming. Everything on paper, nothing hidden.</p>
       {% endif %}
       <div class="hero2__cta rv" style="--d:.18s">
-        <a class="btn btn--solid btn--big" href="/earn">{{ t('cta.simulate') }}</a>
-        <a class="btn btn--line btn--big" href="/models/crop-plans">{{ t('cta.explore') }}</a>
+        <a class="btn btn--solid btn--big" href="/ledger">{{ t('cta.example') }} &rarr;</a>
+        <a class="btn btn--line btn--big" href="/earn">{{ t('cta.simulate') }}</a>
       </div>
       <ul class="trust rv" style="--d:.24s">
         <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ 'ಈ ಸೈಟ್ ಮೂಲಕ ಹಣ ಚಲಿಸುವುದಿಲ್ಲ' if lang == 'kn' else 'No money moves through this site' }}</li>
@@ -74,6 +74,37 @@
     <div><b data-count="{{ counts.land }}" data-plain>0</b><span>{{ 'ಪಟ್ಟಿ ಮಾಡಿದ ಭೂಮಿ' if lang == 'kn' else 'Parcels listed' }}</span></div>
     <div><b data-count="5" data-plain>0</b><span>{{ 'ಕೆಲಸ ಮಾಡುವ ದಾರಿಗಳು' if lang == 'kn' else 'Ways to work land' }}</span></div>
     <div><b data-count="31" data-plain>0</b><span>{{ 'ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳು' if lang == 'kn' else 'Districts covered' }}</span></div>
+  </div>
+</section>
+
+<!-- ================= CHECK / PREDICT / DECIDE ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಪರಿಶೀಲಿಸಿ. ಊಹಿಸಿ. ನಿರ್ಧರಿಸಿ.' if lang == 'kn' else 'How it works' }}</span>
+      <h2>{{ 'ಪರಿಶೀಲಿಸಿ. ಊಹಿಸಿ. ನಿರ್ಧರಿಸಿ.' if lang == 'kn' else 'Check. Predict. Decide.' }}</h2>
+      <p>{{ 'ಕೃಷಿ ಹಣ ಹೆಚ್ಚಾಗಿ ಊಹೆ. ನಾವು ಪ್ರತಿ ಯೋಜನೆಯ ಲೆಕ್ಕ ಸರಿಹೊಂದುವಂತೆ ಮಾಡಿ, ಅಪಾಯಕ್ಕೆ ಬೆಲೆ ಕಟ್ಟುತ್ತೇವೆ.' if lang == 'kn' else 'Farm money is mostly guesswork. Every plan gets an account that adds up, a stated chance of falling short, and a fix that pays back: shown on an example farm, with invented data.' }}</p>
+    </div>
+    <div class="grid grid--3">
+      <a class="card rv cpd" href="/ledger"><span class="cpd__n">1</span><h3>{{ 'ಪರಿಶೀಲಿಸಿ' if lang == 'kn' else 'Check' }}</h3>
+        <p>{{ 'ಲೆಡ್ಜರ್ ಆಮದು ಮಾಡಿ; ಪ್ರತಿ ಯೋಜನೆಯ ಲೆಕ್ಕ ಸರಿಹೊಂದಬೇಕು.' if lang == 'kn' else 'Import a ledger. Budget, spend log and settlement must add up; gaps are listed, never guessed.' }}</p>
+        <p class="cpd__p"><b>{{ product.flagged }}</b> {{ 'ಅಂತರಗಳು ಗುರುತಿಸಲಾಗಿದೆ' if lang == 'kn' else 'gaps flagged in' }} {{ product.plans_n }} {{ 'ಉದಾಹರಣೆ ಯೋಜನೆಗಳಲ್ಲಿ' if lang == 'kn' else 'example plans' }}</p></a>
+      <a class="card rv cpd" style="--d:.07s" href="/ledger/risk"><span class="cpd__n">2</span><h3>{{ 'ಊಹಿಸಿ' if lang == 'kn' else 'Predict' }}</h3>
+        <p>{{ 'ಸಾವಿರಾರು ಅನುಕರಣ ಋತುಗಳು: ಮಾರಾಟ ವೆಚ್ಚ ತಲುಪದ ಸಂಭವ.' if lang == 'kn' else 'Thousands of simulated seasons: the chance the sale falls short of the costs, and the bad case.' }}</p>
+        <p class="cpd__p">{{ 'ಅತಿ ಅಪಾಯದ ಯೋಜನೆ:' if lang == 'kn' else 'Riskiest:' }} <b>{{ product.best.name.split(' · ')[0] }}</b>, <b>{{ (product.best.p_short * 100) | round | int }}%</b></p></a>
+      <a class="card rv cpd" style="--d:.14s" href="/ledger/risk#sec2"><span class="cpd__n">3</span><h3>{{ 'ನಿರ್ಧರಿಸಿ' if lang == 'kn' else 'Decide' }}</h3>
+        <p>{{ 'ಪರಿಹಾರಗಳನ್ನು ಹೋಲಿಸಿ; ಯಾವುದು ಮೊದಲು ಹಣ ಮರಳಿಸುತ್ತದೆ ಎಂದು ನೋಡಿ.' if lang == 'kn' else 'Compare fixes on the same simulated seasons and see which pays back first.' }}</p>
+        <p class="cpd__p">{{ 'ಅಪಾಯ ಕಡಿತ:' if lang == 'kn' else 'Expected shortfall cut by' }} <b>{{ product.cut }}%</b></p></a>
+    </div>
+    <div class="cpdhero rv">
+      <div><span class="pill pill--gold">{{ 'ಉದಾಹರಣೆ ಕೃಷಿ · ಕಾಲ್ಪನಿಕ ದತ್ತಾಂಶ' if lang == 'kn' else 'Example farm · invented data' }}</span>
+        <b class="cpdhero__n" data-count="{{ product.totals.expected_shortfall }}" data-prefix="&#8377;">&#8377;{{ inr(product.totals.expected_shortfall) }}</b>
+        <p>{{ 'ಉದಾಹರಣೆ ಕೃಷಿಯ ಒಟ್ಟು ನಿರೀಕ್ಷಿತ ಕೊರತೆ, ಪ್ರತಿ ಋತು' if lang == 'kn' else 'expected shortfall per season across the example farm, simulated from stated assumptions' }}</p></div>
+      <div class="cpdhero__bars">
+        {% for r in product.top %}<div class="shbar"><span>{{ r.name.split(' · ')[0] }}</span><div><i style="width:{{ (r.expected_shortfall / product.top[0].expected_shortfall * 100) | round(1) }}%"></i></div><b>&#8377;{{ inr(r.expected_shortfall) }}</b></div>{% endfor %}
+      </div>
+      <a class="btn btn--solid" href="/ledger">{{ t('cta.example') }} &rarr;</a>
+    </div>
   </div>
 </section>
 

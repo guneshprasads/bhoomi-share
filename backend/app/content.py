@@ -470,3 +470,20 @@ FORESIGHT = {
         ("Open the ledger format", "So a record is portable and no single platform owns it."),
     ],
 }
+
+
+def product_numbers() -> dict[str, Any]:
+    """Headline numbers for the example holding, from the same engine the pages use."""
+    from . import ledger, risk
+
+    plans = ledger.example_plans()
+    h = risk.holding(plans)
+    t = h["totals"]
+    live = [r for r in h["rows"] if not r.get("skipped")]
+    return {
+        "holding": h, "totals": t, "plans_n": len(plans),
+        "flagged": sum(len(c["flags"]) for c in ledger.check_holding(plans)),
+        "cut": round((1 - t["after_fixes"] / t["expected_shortfall"]) * 100) if t["expected_shortfall"] else 0,
+        "best": max(live, key=lambda r: r["expected_shortfall"]),
+        "top": sorted(live, key=lambda r: -r["expected_shortfall"])[:4],
+    }
