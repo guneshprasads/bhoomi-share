@@ -114,7 +114,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ nonce }}">
 window.BHOOMI_MAP = {
   tileUrl: {{ tile_url | tojson }},
   attribution: {{ tile_attribution | tojson }},

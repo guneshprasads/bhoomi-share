@@ -13,14 +13,16 @@ from urllib.parse import quote
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from . import db, seed
 from .deps import Forbidden, LoginRequired, NotFound
-from .routers import admin_pages, api, auth, dashboard, land, marketing, pages, projects
+from .hardening import Hardening
+from .routers import admin_pages, api, auth, dashboard, land, marketing, pages, projects, seo
 from .schemas import ErrorOut
 from .security import current_user
 from .settings import get_settings
@@ -72,6 +74,11 @@ app.add_middleware(
     max_age=60 * 60 * 24 * 30,
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=600)
+# Added last, so it runs first on the way in and last on the way out: every
+# response, including errors, gets the headers.
+app.add_middleware(Hardening, tile_url=settings.tile_url, hsts=settings.cookie_secure)
+
 if settings.allowed_origins:
     from fastapi.middleware.cors import CORSMiddleware
 
@@ -87,7 +94,7 @@ app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="stat
 settings.uploads_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(settings.uploads_dir)), name="uploads")
 
-for router in (pages.router, marketing.router, auth.router, land.router, projects.router,
+for router in (pages.router, marketing.router, seo.router, auth.router, land.router, projects.router,
                dashboard.router, admin_pages.router, api.router):
     app.include_router(router)
 
@@ -137,6 +144,23 @@ async def http_error_handler(request: Request, exc: StarletteHTTPException):
             "That page does not exist. The parcel or plan may also have been taken down.",
         )
     return _error_page(request, exc.status_code, "That did not work.", str(exc.detail))
+
+
+@app.exception_handler(Exception)
+async def unhandled_handler(request: Request, exc: Exception):
+    """Never show a stack trace. The details go to the log; the person gets a page."""
+    log.exception("unhandled error on %s %s", request.method, request.url.path)
+    if _wants_json(request):
+        return JSONResponse(status_code=500, content=ErrorOut(error="Something went wrong on our side.").model_dump())
+    try:
+        return render(request, "error.html", user=None, code=500,
+                      headline="Something went wrong on our side.",
+                      message="It is not you. We have logged it; try again in a moment.",
+                      status_code=500)
+    except Exception:  # noqa: BLE001 - the error page itself failed; fall back to plain text
+        log.exception("error page failed to render")
+        return PlainTextResponse("Something went wrong on our side. Please try again in a moment.",
+                                 status_code=500)
 
 
 @app.exception_handler(RequestValidationError)

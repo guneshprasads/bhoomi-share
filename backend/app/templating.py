@@ -148,6 +148,9 @@ def render(
         **context,
     }
     ctx["theme"] = current_theme(request)
+    ctx["nonce"] = getattr(request.state, "csp_nonce", "")
+    configured = get_settings().site_url
+    ctx["base_url"] = configured or f"{request.url.scheme}://{request.url.netloc}"
     response = templates.TemplateResponse(request, name, ctx, status_code=status_code)
     if request.query_params.get("theme") in THEMES:
         response.set_cookie(THEME_COOKIE, ctx["theme"], max_age=60 * 60 * 24 * 365,

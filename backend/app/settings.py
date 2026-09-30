@@ -34,6 +34,7 @@ class Settings:
     cookie_secure: bool
     seed_demo: bool
     tile_url: str
+    site_url: str
     tile_attribution: str
 
     uploads_dir: Path
@@ -80,6 +81,7 @@ def get_settings() -> Settings:
         # Map background. The default is the public OpenStreetMap tile server, which
         # is fine for a pilot but asks heavy sites to use their own provider; point
         # this at MapTiler, Stadia, Mapbox or a self-hosted tile server to scale up.
+        site_url=(os.environ.get("BHOOMI_SITE_URL") or "").strip().rstrip("/"),
         tile_url=os.environ.get("BHOOMI_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
         tile_attribution=os.environ.get(
             "BHOOMI_TILE_ATTRIBUTION",
