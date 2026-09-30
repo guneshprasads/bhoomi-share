@@ -14,7 +14,7 @@ import sqlite3
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
 from fastapi.responses import Response
 
-from .. import db
+from .. import db, simulator
 from ..deps import conn_dep
 from ..schemas import ErrorOut, Role, WaitlistEntry, WaitlistIn, WaitlistOut, WaitlistPage
 from ..security import settings_dep
@@ -59,6 +59,17 @@ def client_ip(request: Request) -> str:
 @router.get("/health")
 def health(settings: Settings = Depends(settings_dep)) -> dict[str, object]:
     return {"ok": True, "admin_configured": bool(settings.admin_token)}
+
+
+@router.get("/simulate/{kind}", responses={422: {"model": ErrorOut}})
+def simulate(kind: str, request: Request) -> dict[str, object]:
+    """Run one of the earnings calculators. Every query parameter is a number the
+    person chose; nothing is stored."""
+    params = {k: v for k, v in request.query_params.items()}
+    try:
+        return simulator.run(kind, params)
+    except simulator.SimulationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
 
 
 @router.post(
