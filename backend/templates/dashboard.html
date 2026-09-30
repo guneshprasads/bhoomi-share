@@ -189,6 +189,6 @@
 {% block scripts %}
   {% if show_tour %}
     <script id="tour-data" type="application/json">{{ tour | tojson }}</script>
-    <script src="/static/tour.js" defer></script>
+    <script src="{{ asset('tour.js') }}" defer></script>
   {% endif %}
 {% endblock %}

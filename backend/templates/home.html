@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Bhoomi Share — put Karnataka's land, money and skills to work{% endblock %}
 {% block description %}Fund a crop season, a livestock unit or a small space, take a share of a big parcel, or licence land you aren't farming. Five clear ways to earn from land in Karnataka, all on paper, all in English and Kannada.{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/home.css">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('home.css') }}">{% endblock %}
 
 {% macro scenario_label(key) -%}
   {%- if key == 'strong' -%}{{ 'ಉತ್ತಮ ಋತು' if lang == 'kn' else 'Strong season' }}

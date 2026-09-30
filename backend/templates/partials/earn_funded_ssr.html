@@ -1,0 +1,12 @@
+{# First paint of the investor calculator. earn.js replaces this with the same
+   markup as soon as the person moves a control. #}
+<div class="res">
+  <p class="res__sum">Put in <b>&#8377;{{ inr(sim.cost) }}</b> &middot; expected sale <b>&#8377;{{ inr(sim.expected_sale) }}</b> &middot; break-even sale <b>&#8377;{{ inr(sim.breakeven_sale) }}</b></p>
+  {% for s in sim.scenarios %}
+  <div class="res__row">
+    <div class="res__name">{{ {'strong':'Strong season','expected':'As planned','weak':'Weak season','failed':'Failed season'}[s.key] }}<small>sale &#8377;{{ inr(s.sale) }}</small></div>
+    <div class="res__get">back &#8377;{{ inr(s.you_get_back) }}</div>
+    <div class="res__net {{ 'neg' if s.you_net < 0 else 'pos' }}">{{ '+' if s.you_net > 0 }}{{ inr(s.you_net) }} <small>({{ '+' if s.you_return_pct > 0 }}{{ s.you_return_pct }}%)</small></div>
+  </div>
+  {% endfor %}
+</div>
