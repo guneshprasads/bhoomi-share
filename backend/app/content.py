@@ -418,3 +418,55 @@ FAQ_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
 
 def faq_flat() -> list[tuple[str, str]]:
     return [qa for _, items in FAQ_GROUPS for qa in items]
+
+
+# --------------------------------------------------------------------------- #
+# Foresight canvas: 2026-2036
+# --------------------------------------------------------------------------- #
+
+# A foresight exercise, not a forecast. It says what would have to happen for
+# farm money to become more transparent in Karnataka, and what follows if it
+# does. Drivers are real, public features of the landscape, stated without
+# invented statistics.
+FORESIGHT = {
+    "drivers": [
+        ("Groundwater and monsoon", "Many holdings depend on borewells, and rainfall has become less predictable. Water is the variable that most often decides a season."),
+        ("Input and labour costs", "Seed, fertiliser and labour costs move faster than many farm-gate prices, which squeezes the margin a funder is relying on."),
+        ("Digital markets", "e-NAM links regulated mandis online, and price information is easier to see than it was. Forward prices and assured buyers are becoming practical."),
+        ("Crop insurance", "Schemes such as PMFBY exist, but many growers do not know the real cost and trigger of cover. Making it visible makes it comparable."),
+        ("Absent owners, small holdings", "Land is increasingly held by people who do not farm it, in pieces too small to finance on their own."),
+        ("Collective farming", "Farmer Producer Organisations and shared-risk arrangements are a stated policy direction, and need trustworthy records to work."),
+    ],
+    "milestones": [
+        (2026, "The pilot season", "Our own 15 acres run every model with our own capital. A full season of numbers, including the parts that went badly, goes on the record."),
+        (2027, "One district opens", "Belagavi opens first, on counsel-reviewed structures, with small capped pools and fixed-term licences."),
+        (2028, "Every plan has an account", "No plan is shown without a ledger that has been checked: budget adds up, spending logged, money in equals money out."),
+        (2030, "Risk is shown before money is asked for", "A funder sees the chance of a shortfall and the bad case before committing, and which fix would pay back."),
+        (2032, "Public data replaces assumptions", "Mandi prices, weather and district yield records feed the simulation, so fewer of its numbers are assumed."),
+        (2036, "A common, open record", "A shared, open farm-account format across Karnataka, so a grower's record travels with them and any lender can read it."),
+    ],
+    "opportunities": [
+        ("Cheaper working capital where risk is visible", "When a funder can see the bad case, they can price it, and small growers stop paying for uncertainty."),
+        ("Licences replace handshakes", "Owners who would never write anything down can let land be farmed on paper that protects both sides."),
+        ("Reviewers verify instead of watch", "Extension workers and lenders move from chasing paperwork to checking the flagged gaps."),
+    ],
+    "risks": [
+        ("False confidence in a model", "A simulation can look precise and be wrong. Every number must carry its assumptions, and humans must still decide."),
+        ("One platform becomes the gatekeeper", "If one record format wins and is closed, small operators are locked in. Hence: open the format."),
+        ("Shared weather, shared loss", "Plans in one district can fail together in one bad monsoon. Diversifying across districts and models matters."),
+        ("Regulation moves", "Rules on collective investment and on tenancy can change. The structure has to be reviewed again each time."),
+    ],
+    "future": [
+        "Every regulated farm arrangement has a checked account that any funder or lender can read.",
+        "The bad case is shown as plainly as the good case, before any money moves.",
+        "Growers carry their record from one season and one funder to the next.",
+        "Specialists spend their time on the flagged exceptions, not on raw paperwork.",
+    ],
+    "steps": [
+        ("Finish the pilot season", "Publish the numbers, including the failures."),
+        ("Settle the structure with counsel", "Pools capped and small; licences fixed-term; nothing that looks like a public scheme."),
+        ("Open one district", "Belagavi first. Learn from real plans before opening another."),
+        ("Replace assumptions with data", "Wire in public price and weather data, and show which numbers moved from assumed to measured."),
+        ("Open the ledger format", "So a record is portable and no single platform owns it."),
+    ],
+}

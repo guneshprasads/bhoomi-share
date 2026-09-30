@@ -140,3 +140,28 @@ def ledger_page(request: Request, user=Depends(current_user)):
 @router.get("/ledger/risk")
 def risk_page(request: Request, user=Depends(current_user)):
     return render(request, "risk.html", user=user)
+
+
+@router.get("/foresight")
+def foresight(request: Request, user=Depends(current_user)):
+    return render(request, "foresight.html", user=user, f=content.FORESIGHT)
+
+
+@router.get("/story")
+def story(request: Request, user=Depends(current_user)):
+    from .. import ledger, risk, simulator
+
+    plans = ledger.example_plans()
+    h = risk.holding(plans)
+    t = h["totals"]
+    checks = ledger.check_holding(plans)
+    flagged = sum(len(c["flags"]) for c in checks)
+    rent = simulator.landowner(4, 8000, 2)
+    farm = simulator.farmer(3, 45000, 22000, 8000)
+    cut = (1 - t["after_fixes"] / t["expected_shortfall"]) * 100 if t["expected_shortfall"] else 0
+    return render(
+        request, "story.html", user=user,
+        holding=h, totals=t, flagged=flagged, plans_n=len(plans), cut=round(cut),
+        best=max((r for r in h["rows"] if not r.get("skipped")), key=lambda r: r["expected_shortfall"]),
+        rent=rent, farm=farm,
+    )
