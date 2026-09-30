@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="{{ lang }}" class="no-js">
+<html lang="{{ lang }}" class="no-js" data-theme="{{ theme }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% block title %}{{ site_name }}{% endblock %}</title>
-<meta name="theme-color" content="#120C0B">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light">
+<style>html,body{background:#FFFFFF;color:#5B4447}</style>
 {% set _desc %}{% block description %}Fund a season's crop on a named parcel, lease farmland, or put a small space to work. Karnataka, district by district. Piloted on our own 15 acres first.{% endblock %}{% endset %}
 <meta name="description" content="{{ _desc | striptags | trim }}">
 <link rel="canonical" href="{{ request.url.scheme }}://{{ request.url.netloc }}{{ request.url.path }}">

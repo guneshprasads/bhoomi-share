@@ -27,6 +27,9 @@
         });
       }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
       rv.forEach(function (el) { io.observe(el); });
+      // failsafe: if the observer never fires (throttled tab, script error),
+      // nothing stays hidden
+      window.setTimeout(function () { rv.forEach(function (el) { el.classList.add('in'); }); }, 4000);
     }
   }
 
@@ -68,5 +71,54 @@
     if (e.key !== 'Escape') { return; }
     var active = document.activeElement;
     if (active && active.closest && active.closest('.nav__group')) { active.blur(); }
+  });
+})();
+
+/* sidebar menu: open from the button, close from the X, the veil, Escape, or any link */
+(function () {
+  var btn = document.getElementById('menuBtn');
+  var drawer = document.getElementById('drawer');
+  var veil = document.getElementById('drawerVeil');
+  var closeBtn = document.getElementById('drawerClose');
+  if (!btn || !drawer || !veil) { return; }
+
+  var lastFocus = null;
+
+  function open() {
+    lastFocus = document.activeElement;
+    veil.hidden = false;
+    document.body.classList.add('drawer-open');
+    drawer.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+    var first = drawer.querySelector('a.dl');
+    if (first) { window.setTimeout(function () { first.focus({ preventScroll: true }); }, 60); }
+  }
+  function close() {
+    document.body.classList.remove('drawer-open');
+    drawer.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    window.setTimeout(function () { if (!document.body.classList.contains('drawer-open')) { veil.hidden = true; } }, 320);
+    if (lastFocus && lastFocus.focus) { lastFocus.focus({ preventScroll: true }); }
+  }
+
+  btn.addEventListener('click', function () {
+    document.body.classList.contains('drawer-open') ? close() : open();
+  });
+  if (closeBtn) { closeBtn.addEventListener('click', close); }
+  veil.addEventListener('click', close);
+  drawer.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a');
+    if (a) { document.body.classList.remove('drawer-open'); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.body.classList.contains('drawer-open')) { close(); }
+    // keep Tab inside the open drawer
+    if (e.key === 'Tab' && document.body.classList.contains('drawer-open')) {
+      var f = drawer.querySelectorAll('a[href],button:not([disabled])');
+      if (!f.length) { return; }
+      var firstEl = f[0], lastEl = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) { e.preventDefault(); lastEl.focus(); }
+      else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); firstEl.focus(); }
+    }
   });
 })();
