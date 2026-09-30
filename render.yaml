@@ -1,0 +1,28 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repository.
+# The free web service sleeps when idle and has no permanent disk, which is why
+# the data lives in an external free Postgres (Neon) and photographs are stored in
+# that database too. See DEPLOY.md.
+services:
+  - type: web
+    name: bhoomi-share
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL          # paste your Neon connection string
+        sync: false
+      - key: BHOOMI_SITE_URL       # e.g. https://bhoomi-share.onrender.com
+        sync: false
+      - key: BHOOMI_SECRET_KEY
+        generateValue: true
+      - key: BHOOMI_ADMIN_TOKEN
+        generateValue: true
+      - key: BHOOMI_IP_SALT
+        generateValue: true
+      - key: BHOOMI_COOKIE_SECURE
+        value: "1"
+      - key: BHOOMI_SEED_DEMO
+        value: "0"
