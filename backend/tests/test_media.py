@@ -50,3 +50,15 @@ def test_path_traversal_is_refused(client):
     for bad in ("../bhoomi.sqlite3", "..%2f..%2fsecret", "listing/../../etc/passwd"):
         assert client.get(f"/uploads/{bad}").status_code == 404
     assert client.get("/uploads/listing/nope.jpg").status_code == 404
+
+
+def test_every_table_that_returns_an_id_really_has_one():
+    """The Postgres adapter asks inserts for `RETURNING id`; keep the list honest."""
+    import re
+
+    from app.db import SCHEMA, TABLES_WITH_ID
+
+    for table in re.findall(r"CREATE TABLE IF NOT EXISTS (\w+)", SCHEMA):
+        block = re.search(rf"CREATE TABLE IF NOT EXISTS {table} \((.*?)\n\);", SCHEMA, re.S).group(1)
+        has_id = re.search(r"^\s*id\s", block, re.M) is not None
+        assert (table in TABLES_WITH_ID) == has_id, table

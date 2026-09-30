@@ -245,6 +245,13 @@ def is_postgres(target: Any) -> bool:
 _USER_TABLE = re.compile(r"(?i)\b(from|join|into|update|table|references|exists)(\s+)user\b(?!\")")
 
 
+TABLES_WITH_ID = frozenset({
+    "user", "listing", "inquiry", "project", "pledge", "project_update",
+    "photo", "waitlist", "submission",
+})
+_INSERT_TARGET = re.compile(r'\s*INSERT\s+INTO\s+("?\w+"?)', re.IGNORECASE)
+
+
 def _quote_user(sql: str) -> str:
     return _USER_TABLE.sub(lambda m: f'{m.group(1)}{m.group(2)}"user"', sql)
 
@@ -293,7 +300,10 @@ class PgConn:
 
     def execute(self, sql: str, params: Sequence[Any] = ()) -> PgCursor:
         q = _translate(sql, bool(params))
-        insert = q.lstrip()[:6].upper() == "INSERT"
+        # cursor.lastrowid has no Postgres equivalent, so inserts into tables that
+        # have an id ask for it back. A table without one (photo_blob) must not.
+        target = _INSERT_TARGET.match(q)
+        insert = bool(target) and target.group(1).strip('"') in TABLES_WITH_ID
         if insert and "RETURNING" not in q.upper():
             q = q.rstrip().rstrip(";") + " RETURNING id"
         cur = self.raw.execute(q, tuple(params) if params else None)
