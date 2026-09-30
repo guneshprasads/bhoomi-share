@@ -72,6 +72,20 @@ def current_lang(request: Request) -> str:
     return normalise_lang(request.cookies.get(COOKIE))
 
 
+THEMES = ("ruby", "wine", "rosewood")
+DEFAULT_THEME = "ruby"
+THEME_COOKIE = "bhoomi_theme"
+
+
+def current_theme(request: Request) -> str:
+    """?theme= wins for this request (and is remembered); otherwise the cookie."""
+    asked = request.query_params.get("theme")
+    if asked in THEMES:
+        return asked
+    saved = request.cookies.get(THEME_COOKIE)
+    return saved if saved in THEMES else DEFAULT_THEME
+
+
 def flash(request: Request, message: str, kind: str = "good") -> None:
     """Queue a message for the next page this person loads.
 
@@ -121,4 +135,9 @@ def render(
         "now": datetime.now(),
         **context,
     }
-    return templates.TemplateResponse(request, name, ctx, status_code=status_code)
+    ctx["theme"] = current_theme(request)
+    response = templates.TemplateResponse(request, name, ctx, status_code=status_code)
+    if request.query_params.get("theme") in THEMES:
+        response.set_cookie(THEME_COOKIE, ctx["theme"], max_age=60 * 60 * 24 * 365,
+                            samesite="lax", path="/")
+    return response

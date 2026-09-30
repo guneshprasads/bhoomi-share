@@ -6,8 +6,24 @@
       <span class="mark__name">Bhoomi <em>Share</em></span>
     </a>
 
-    <button class="menu" type="button" id="menuBtn" aria-expanded="false" aria-controls="siteNav">
-      <svg width="15" height="12" viewBox="0 0 15 12" aria-hidden="true" focusable="false">
+    <nav class="quick" aria-label="Quick links">
+      <a href="/earn"{% if p.startswith('/earn') %} aria-current="page"{% endif %}>{{ t('nav.earn') }}</a>
+      <a href="/invest" data-tour="invest"{% if p.startswith('/invest') or p.startswith('/projects') %} aria-current="page"{% endif %}>{{ t('nav.invest') }}</a>
+      <a href="/land"{% if p.startswith('/land') %} aria-current="page"{% endif %}>{{ t('nav.land') }}</a>
+    </nav>
+
+    <div class="hdr__cta">
+      {% include "partials/lang_switch.html" %}
+      {% if user %}
+        <a class="btn btn--line btn--small" href="/dashboard">{{ t('nav.dashboard') }}</a>
+      {% else %}
+        <a class="btn btn--line" href="/login">{{ t('auth.login') }}</a>
+        <a class="btn btn--solid" href="/signup">{{ t('auth.signup') }}</a>
+      {% endif %}
+    </div>
+
+    <button class="menu" type="button" id="menuBtn" aria-expanded="false" aria-controls="drawer" aria-label="Open menu">
+      <svg width="16" height="12" viewBox="0 0 15 12" aria-hidden="true" focusable="false">
         <g class="furrow" fill="none">
           <line x1="0.75" y1="1.5" x2="14.25" y2="1.5"></line>
           <line x1="0.75" y1="6" x2="10" y2="6"></line>
@@ -16,61 +32,63 @@
       </svg>
       <span>Menu</span>
     </button>
-
-    <nav class="nav" id="siteNav" aria-label="Sections">
-      <a href="/earn"{% if p.startswith('/earn') %} aria-current="page"{% endif %}>{{ t('nav.earn') }}</a>
-
-      <div class="nav__group{% if p.startswith('/models') %} is-current{% endif %}">
-        <button class="nav__btn" type="button" aria-haspopup="true">{{ t('nav.models') }}
-          <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
-        <div class="nav__menu">
-          <a href="/models/crop-plans">{{ t('kind.crop') }}{% if lang != 'kn' %}<small>Fund one crop on one named parcel</small>{% endif %}</a>
-          <a href="/models/livestock">{{ t('kind.livestock') }}{% if lang != 'kn' %}<small>Sheep, goat, dairy or poultry</small>{% endif %}</a>
-          <a href="/models/small-spaces">{{ t('kind.space') }}{% if lang != 'kn' %}<small>Mushrooms, vermicompost, microgreens</small>{% endif %}</a>
-          <a href="/models/land-shares">{{ t('kind.shares') }}{% if lang != 'kn' %}<small>A slice of a parcel of five acres or more</small>{% endif %}</a>
-          <a href="/models/land-lease">{{ t('kind.lease') }}{% if lang != 'kn' %}<small>A fixed-term licence to cultivate</small>{% endif %}</a>
-        </div>
-      </div>
-
-      <a href="/invest" data-tour="invest"{% if p.startswith('/invest') or p.startswith('/projects') %} aria-current="page"{% endif %}>{{ t('nav.invest') }}</a>
-      <a href="/land"{% if p.startswith('/land') %} aria-current="page"{% endif %}>{{ t('nav.land') }}</a>
-      <a href="/how-it-works"{% if p.startswith('/how-it-works') %} aria-current="page"{% endif %}>{{ t('nav.how') }}</a>
-
-      <div class="nav__group">
-        <button class="nav__btn" type="button" aria-haspopup="true">{{ t('nav.more') }}
-          <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
-        <div class="nav__menu">
-          <a href="/karnataka">{{ t('nav.karnataka') }}{% if lang != 'kn' %}<small>All 31 districts, with what is open in each</small>{% endif %}</a>
-          <a href="/stories">{{ t('nav.stories') }}{% if lang != 'kn' %}<small>Worked examples from each side</small>{% endif %}</a>
-          <a href="/faq">{{ t('nav.faq') }}{% if lang != 'kn' %}<small>Plain answers, including the awkward ones</small>{% endif %}</a>
-          <a href="/fine-print">{{ t('nav.fineprint') }}{% if lang != 'kn' %}<small>The SEBI and tenancy-law reasoning</small>{% endif %}</a>
-          <a href="/about">{{ t('nav.about') }}{% if lang != 'kn' %}<small>Who is behind this, and the pilot</small>{% endif %}</a>
-        </div>
-      </div>
-
-      {% if user %}
-        <a class="nav__auth" href="/dashboard">{{ t('nav.dashboard') }}</a>
-        {% if user["is_admin"] %}<a class="nav__auth" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
-      {% else %}
-        <a class="nav__auth" href="/login">{{ t('auth.login') }}</a>
-        <a class="nav__auth" href="/signup">{{ t('auth.signup') }}</a>
-      {% endif %}
-      <span class="nav__auth nav__lang">{% include "partials/lang_switch.html" %}</span>
-    </nav>
-
-    <div class="hdr__cta">
-      {% include "partials/lang_switch.html" %}
-      {% if user %}
-        <a class="btn btn--line btn--small" href="/dashboard">{{ t('nav.dashboard') }}</a>
-        <form method="post" action="/logout" class="inline-form">
-          <button class="btn btn--ghost btn--small" type="submit">{{ t('auth.logout') }}</button>
-        </form>
-      {% else %}
-        <a class="btn btn--line" href="/login">{{ t('auth.login') }}</a>
-        <a class="btn btn--solid" href="/signup">{{ t('auth.signup') }}</a>
-      {% endif %}
-    </div>
   </div>
 </header>
+
+<div class="drawer__veil" id="drawerVeil" hidden></div>
+<aside class="drawer" id="drawer" aria-label="Site menu" aria-hidden="true">
+  <div class="drawer__top">
+    <a class="mark" href="/">
+      {% include "partials/glyph.html" %}
+      <span class="mark__name">Bhoomi <em>Share</em></span>
+    </a>
+    <button class="drawer__close" type="button" id="drawerClose" aria-label="Close menu">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="drawer__body">
+    <div class="drawer__group">
+      <p class="drawer__label">{{ 'ಅನ್ವೇಷಿಸಿ' if lang == 'kn' else 'Explore' }}</p>
+      <a class="dl" style="--i:0" href="/"{% if p == '/' %} aria-current="page"{% endif %}>{{ 'ಮುಖಪುಟ' if lang == 'kn' else 'Home' }}</a>
+      <a class="dl" style="--i:1" href="/earn"{% if p.startswith('/earn') %} aria-current="page"{% endif %}><span>{{ t('nav.earn') }}{% if lang != 'kn' %}<small>Money maths, with a failed season shown</small>{% endif %}</span></a>
+      <a class="dl" style="--i:2" href="/how-it-works"{% if p.startswith('/how-it-works') %} aria-current="page"{% endif %}><span>{{ t('nav.how') }}{% if lang != 'kn' %}<small>Each side, step by step</small>{% endif %}</span></a>
+      <a class="dl" style="--i:3" href="/stories"{% if p.startswith('/stories') %} aria-current="page"{% endif %}><span>{{ t('nav.stories') }}{% if lang != 'kn' %}<small>Worked examples from every side</small>{% endif %}</span></a>
+      <a class="dl" style="--i:4" href="/karnataka"{% if p.startswith('/karnataka') %} aria-current="page"{% endif %}><span>{{ t('nav.karnataka') }}{% if lang != 'kn' %}<small>All 31 districts, what is open in each</small>{% endif %}</span></a>
+    </div>
+
+    <div class="drawer__group">
+      <p class="drawer__label">{{ t('nav.models') }}</p>
+      <a class="dl" style="--i:5" href="/models/crop-plans"><span>{{ t('kind.crop') }}{% if lang != 'kn' %}<small>Fund one crop on one named parcel</small>{% endif %}</span></a>
+      <a class="dl" style="--i:6" href="/models/livestock"><span>{{ t('kind.livestock') }}{% if lang != 'kn' %}<small>Sheep, goat, dairy or poultry</small>{% endif %}</span></a>
+      <a class="dl" style="--i:7" href="/models/small-spaces"><span>{{ t('kind.space') }}{% if lang != 'kn' %}<small>Mushrooms, vermicompost, microgreens</small>{% endif %}</span></a>
+      <a class="dl" style="--i:8" href="/models/land-shares"><span>{{ t('kind.shares') }}{% if lang != 'kn' %}<small>A slice of a parcel of five acres or more</small>{% endif %}</span></a>
+      <a class="dl" style="--i:9" href="/models/land-lease"><span>{{ t('kind.lease') }}{% if lang != 'kn' %}<small>A fixed-term licence to cultivate</small>{% endif %}</span></a>
+    </div>
+
+    <div class="drawer__group">
+      <p class="drawer__label">{{ 'ಹುಡುಕಿ' if lang == 'kn' else 'Browse' }}</p>
+      <a class="dl" style="--i:10" href="/invest">{{ t('nav.plans') }}</a>
+      <a class="dl" style="--i:11" href="/land">{{ t('nav.land') }}</a>
+    </div>
+
+    <div class="drawer__group">
+      <p class="drawer__label">{{ 'ನಂಬಿಕೆ' if lang == 'kn' else 'Trust' }}</p>
+      <a class="dl" style="--i:12" href="/faq">{{ t('nav.faq') }}</a>
+      <a class="dl" style="--i:13" href="/fine-print"><span>{{ t('nav.fineprint') }}{% if lang != 'kn' %}<small>The SEBI and tenancy-law reasoning</small>{% endif %}</span></a>
+      <a class="dl" style="--i:14" href="/about">{{ t('nav.about') }}</a>
+    </div>
+  </div>
+
+  <div class="drawer__foot">
+    {% if user %}
+      <a class="btn btn--solid" href="/dashboard">{{ t('nav.dashboard') }}</a>
+      {% if user["is_admin"] %}<a class="btn btn--line" href="/admin">{{ t('nav.admin') }}</a>{% endif %}
+      <form method="post" action="/logout"><button class="btn btn--line" type="submit">{{ t('auth.logout') }}</button></form>
+    {% else %}
+      <a class="btn btn--solid" href="/signup">{{ t('auth.signup') }}</a>
+      <a class="btn btn--line" href="/login">{{ t('auth.login') }}</a>
+    {% endif %}
+    {% include "partials/lang_switch.html" %}
+  </div>
+</aside>

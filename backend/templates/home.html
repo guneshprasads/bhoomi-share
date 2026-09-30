@@ -1,332 +1,346 @@
 {% extends "base.html" %}
-{% block title %}Bhoomi Share &mdash; five ways to work land and space in Karnataka{% endblock %}
-{% block description %}Fund a crop season, a livestock unit or a small space for mushrooms, take a share of a big parcel, or lease land you aren't farming. Karnataka, district by district.{% endblock %}
+{% block title %}Bhoomi Share — put Karnataka's land, money and skills to work{% endblock %}
+{% block description %}Fund a crop season, a livestock unit or a small space, take a share of a big parcel, or licence land you aren't farming. Five clear ways to earn from land in Karnataka, all on paper, all in English and Kannada.{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/home.css">{% endblock %}
+
+{% macro scenario_label(key) -%}
+  {%- if key == 'strong' -%}{{ 'ಉತ್ತಮ ಋತು' if lang == 'kn' else 'Strong season' }}
+  {%- elif key == 'expected' -%}{{ 'ನಿರೀಕ್ಷಿತ' if lang == 'kn' else 'As planned' }}
+  {%- elif key == 'weak' -%}{{ 'ದುರ್ಬಲ ಋತು' if lang == 'kn' else 'Weak season' }}
+  {%- else -%}{{ 'ವಿಫಲ ಋತು' if lang == 'kn' else 'Failed season' }}{%- endif -%}
+{%- endmacro %}
 
 {% block body %}
-{% if flashes %}<div class="wrap" style="padding-top:1.5rem">{% include "partials/flash.html" %}</div>{% endif %}
+{% if flashes %}<div class="container" style="padding-top:1.5rem">{% include "partials/flash.html" %}</div>{% endif %}
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="wrap hero__grid">
-      <div>
-        {% if lang == 'kn' %}
-          <h1>ಬೆಳೆಗೆ ಭೂಮಿ, ಹಣ ಮತ್ತು ದುಡಿಯುವ ಕೈ ಬೇಕು.</h1>
-          <p class="hero__sub">ಈ ಮೂರೂ ಒಬ್ಬರ ಬಳಿಯೇ ಇರುವುದು ಅಪರೂಪ. ಭೂಮಿ ಶೇರ್ ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳಲ್ಲಿ ಇವನ್ನು ಜೋಡಿಸುತ್ತದೆ — ಬೆಳೆ, ಜಾನುವಾರು, ಅಣಬೆಯಂತಹ ಸಣ್ಣ ಜಾಗ, ದೊಡ್ಡ ಜಮೀನಿನ ಪಾಲುಗಳು, ಅಥವಾ ಗುತ್ತಿಗೆ. ಎಲ್ಲವೂ ಬರೆದ ಒಪ್ಪಂದದ ಮೇಲೆ.</p>
-        {% else %}
-          <h1>A crop needs land, money, and someone to farm it.</h1>
-          <p class="hero__sub">Those three rarely sit with the same person. Bhoomi Share puts them together across Karnataka&rsquo;s districts, five different ways &mdash; a crop season, a livestock unit, a small space for something like mushrooms, a share of a big parcel, or a straight lease. All of it on paper, for a fixed term.</p>
-        {% endif %}
-
-        <div class="hero__cta">
-          <a class="btn btn--solid" href="/invest">{{ t('nav.invest') }}</a>
-          <a class="btn btn--line" href="/land">{{ t('nav.land') }}</a>
-        </div>
-
-        <p class="pilot">
-          {% if lang == 'kn' %}
-            ನಾವು ಕುಟುಂಬವಾಗಿ <strong>15 ಎಕರೆ</strong> ಸಾಗುವಳಿ ಮಾಡುತ್ತೇವೆ. ಎಲ್ಲ ಮಾದರಿಗಳೂ ಮೊದಲು ಅಲ್ಲಿಯೇ ನಡೆಯುತ್ತವೆ — ನಮ್ಮದೇ ಹಣ, ನಮ್ಮದೇ ಮಣ್ಣು — ಬೇರೆಯವರಿಂದ ಹಣ ಅಥವಾ ಭೂಮಿ ಪಡೆಯುವ ಮೊದಲು.
-          {% else %}
-            We farm <strong>15 acres</strong> as a family. Every model runs there first &mdash; our own capital, our own soil, a full season of numbers &mdash; before we take money or land from anyone else.
-          {% endif %}
-        </p>
-      </div>
-
-      <div class="sheet">
-        <svg viewBox="0 0 520 560" role="img" aria-labelledby="mapTitle mapDesc">
-          <title id="mapTitle">Survey sheet of the family holding</title>
-          <desc id="mapDesc">A cadastral-style plan of eight parcels. The parcel marked BS-04, survey number 212 stroke 3, covers 3.2 acres and is highlighted: it is funded on a 70 percent investor to 30 percent grower split for the Rabi 2026 chana crop. A neighbouring parcel, survey number 215, is marked as leased out on a license running to 2027.</desc>
-
-          <defs>
-            <pattern id="leased" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
-              <rect width="8" height="8" fill="#EAE0C8"></rect>
-              <line x1="0" y1="0" x2="0" y2="8" stroke="#D9CBA9" stroke-width="1.6"></line>
-            </pattern>
-          </defs>
-
-          <!-- neighbouring parcels -->
-          <g stroke="#D9CBA9" stroke-width="1.25">
-            <polygon points="40,44 212,40 208,158 42,168" fill="#EAE0C8"></polygon>
-            <polygon points="212,40 348,45 352,164 208,158" fill="#EAE0C8"></polygon>
-            <polygon points="348,45 480,42 478,156 352,164" fill="#EAE0C8"></polygon>
-            <polygon points="352,164 478,156 482,302 344,312" fill="#EAE0C8"></polygon>
-            <polygon points="38,306 214,300 210,458 44,452" fill="#EAE0C8"></polygon>
-            <polygon points="214,300 344,312 350,448 210,458" fill="#EAE0C8"></polygon>
-            <polygon points="344,312 482,302 478,454 350,448" fill="url(#leased)"></polygon>
-          </g>
-
-          <!-- funded parcel -->
-          <polygon points="42,168 352,164 344,312 38,306" fill="#3E4A2E" stroke="#2C3620" stroke-width="1.25"></polygon>
-
-          <!-- watercourse along the southern boundary -->
-          <path d="M40,470 C130,478 190,466 276,474 C352,481 420,470 480,476" fill="none" stroke="#A6512B" stroke-width="1.25" stroke-dasharray="7 5" opacity=".75"></path>
-          <text x="40" y="492" font-family="Public Sans, sans-serif" font-size="10" fill="#7A6C58">Canal branch &mdash; shared, 6 hours a week</text>
-
-          <!-- neighbour labels -->
-          <g font-family="Public Sans, sans-serif" font-size="10.5" fill="#7A6C58">
-            <text x="56" y="62">Sy. 210/1</text>
-            <text x="56" y="76" class="minor" fill="#9C8E79">2.1 ac &middot; fallow</text>
-            <text x="226" y="62">Sy. 210/2</text>
-            <text x="226" y="76" class="minor" fill="#9C8E79">1.8 ac &middot; tur</text>
-            <text x="364" y="64">Sy. 211</text>
-            <text x="364" y="78" class="minor" fill="#9C8E79">2.4 ac &middot; tur</text>
-            <text x="366" y="186">Sy. 213</text>
-            <text x="366" y="200" class="minor" fill="#9C8E79">2.0 ac &middot; fallow</text>
-            <text x="56" y="326">Sy. 214/1</text>
-            <text x="56" y="340" class="minor" fill="#9C8E79">1.9 ac &middot; jowar</text>
-            <text x="228" y="332">Sy. 214/2</text>
-            <text x="228" y="346" class="minor" fill="#9C8E79">1.6 ac</text>
-            <text x="360" y="332">Sy. 215</text>
-            <text x="360" y="346" class="minor" fill="#9C8E79">leased out</text>
-            <text x="360" y="360" class="minor" fill="#9C8E79">license to 2027</text>
-          </g>
-
-          <!-- funded parcel content -->
-          <g font-family="Public Sans, sans-serif">
-            <text x="66" y="196" font-size="11" font-weight="600" letter-spacing="1.1" fill="#EDE4CF">BS-04 &nbsp;&middot;&nbsp; Sy. 212/3</text>
-            <text x="328" y="196" font-size="11" font-weight="600" letter-spacing="0.6" fill="#BFB79F" text-anchor="end">3.20 acres</text>
-            <text x="64" y="256" font-family="Fraunces, Georgia, serif" font-size="46" font-weight="700" fill="#C89B3C">70 / 30</text>
-            <text x="68" y="278" font-size="10.5" fill="#BFB79F">investor / grower</text>
-            <text x="328" y="278" font-size="10.5" fill="#BFB79F" text-anchor="end">Rabi 2026 &middot; chana</text>
-          </g>
-
-          <!-- sheet furniture: north arrow + scale -->
-          <g transform="translate(40,516)">
-            <line x1="0" y1="18" x2="76" y2="18" stroke="#211A12" stroke-width="1.25"></line>
-            <line x1="0" y1="13" x2="0" y2="23" stroke="#211A12" stroke-width="1.25"></line>
-            <line x1="38" y1="14" x2="38" y2="22" stroke="#211A12" stroke-width="1"></line>
-            <line x1="76" y1="13" x2="76" y2="23" stroke="#211A12" stroke-width="1.25"></line>
-            <text x="86" y="22" font-family="Public Sans, sans-serif" font-size="10" fill="#7A6C58">100 m</text>
-          </g>
-          <g transform="translate(470,514)">
-            <path d="M6,26 L6,4 M6,4 L1.5,11 M6,4 L10.5,11" fill="none" stroke="#211A12" stroke-width="1.25"></path>
-            <text x="6" y="38" font-family="Public Sans, sans-serif" font-size="10" fill="#7A6C58" text-anchor="middle">N</text>
-          </g>
-          <text x="450" y="538" text-anchor="end" font-family="Public Sans, sans-serif" font-size="10" fill="#9C8E79">Family holding &middot; 15.0 acres &middot; illustrative sheet</text>
-        </svg>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOUR WAYS -->
-  <div class="seam"></div>
-  <section class="sec" id="ways">
-    <div class="wrap">
-      <div class="sec__head">
-        <p class="label">Karnataka, district by district</p>
-        {% if lang == 'kn' %}
-          <h2>ಭೂಮಿ ಮತ್ತು ಜಾಗದೊಂದಿಗೆ ಕೆಲಸ ಮಾಡಲು ಐದು ದಾರಿ.</h2>
-          <p>ನಿಮ್ಮ ಬಳಿ ಭೂಮಿ ಇರಲಿ, ಹಣ ಇರಲಿ, ಅಥವಾ ದುಡಿಯುವ ಶಕ್ತಿ ಇರಲಿ — ಒಂದು ದಾರಿ ನಿಮಗಾಗಿ ಇದೆ.</p>
-        {% else %}
-          <h2>Five ways to work land and space.</h2>
-          <p>Whether what you have is land, money, or the ability to farm, one of these is yours.</p>
-        {% endif %}
-      </div>
-
-      <div class="ways">
-        <article class="way way--crop">
-          <h3><a href="/seasons">{{ t('kind.crop') }}</a></h3>
-          <p>A farmer posts the field with photographs and what it will grow. You fund one season &mdash; seed, inputs, water, labour &mdash; and take an agreed share of what it sells for.</p>
-          <p class="way__foot"><span class="way__n">{{ counts.crop }}</span> open now</p>
-        </article>
-
-        <article class="way way--livestock">
-          <h3><a href="/livestock">{{ t('kind.livestock') }}</a></h3>
-          <p>Sheep, goat, dairy or poultry, run by someone who keeps animals for a living. You fund the animals, the feed and the shed; the cycle is months rather than one harvest.</p>
-          <p class="way__foot"><span class="way__n">{{ counts.livestock }}</span> open now</p>
-        </article>
-
-        <article class="way way--space">
-          <h3><a href="/spaces">{{ t('kind.space') }}</a></h3>
-          <p>You do not need a farm. A 30 by 40 site, a shed or a terrace is enough for mushrooms, vermicompost or microgreens. Whoever has the space runs it; you fund the setup and the first batches, and cycles are weeks, not seasons.</p>
-          <p class="way__foot"><span class="way__n">{{ counts.space }}</span> open now</p>
-        </article>
-
-        <article class="way way--shares">
-          <h3><a href="/shares">{{ t('kind.shares') }}</a></h3>
-          <p>Five acres or more, divided into equal shares of a fixed rupee value. Take one or take ten; your slice of the return matches the slice of the cost you covered. Places per parcel are capped.</p>
-          <p class="way__foot"><span class="way__n">{{ counts.shares }}</span> open now</p>
-        </article>
-
-        <article class="way way--lease">
-          <h3><a href="/land">{{ t('kind.lease') }}</a></h3>
-          <p>You are not farming your land this year; somebody else will. A fixed-term licence to cultivate, drafted for Karnataka, signed and witnessed. It ends on its date.</p>
-          <p class="way__foot"><span class="way__n">{{ counts.land }}</span> parcels listed</p>
-        </article>
-      </div>
-
-      <div class="split split--home">
-        <div class="split__bar" role="img" aria-label="Illustrative split: investor 70 percent, the person working the land 30 percent">
-          <div class="split__seg split__seg--inv" style="flex:70 1 0">70%</div>
-          <div class="split__seg split__seg--grow" style="flex:30 1 0">30%</div>
-        </div>
-        <div class="split__key">
-          <span><i class="swatch swatch--inv" aria-hidden="true"></i>Whoever puts in the money</span>
-          <span><i class="swatch swatch--grow" aria-hidden="true"></i>Whoever does the work</span>
-        </div>
-        <p class="split__note">
-          70/30 is what we run on our own land, not a rule. Every plan states its own split, agreed before work starts and written down. What gets split is the sale value minus the costs listed in the plan. A bad season splits the same way: there is no guaranteed return, and we will not offer one.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- LIVE: open plans -->
-  {% if projects %}
-  <div class="seam"></div>
-  <section class="sec">
-    <div class="wrap">
-      <div class="block__head">
-        <h2>Open now</h2>
-        <a class="btn btn--line btn--small" href="/invest">{{ t('nav.invest') }}</a>
-      </div>
-      <div class="records">
-        {% for p in projects %}{% include "partials/project_card.html" %}{% endfor %}
-      </div>
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- LAND -->
-  <div class="seam"></div>
-  <section class="sec" id="land">
-    <div class="wrap">
-      <div class="sec__head">
-        <p class="label">For landowners and farmers</p>
-        {% if lang == 'kn' %}
-          <h2>ಖಾಲಿ ಬಿದ್ದ ಭೂಮಿಗಿಂತ ಯಾರಾದರೂ ಸಾಗುವಳಿ ಮಾಡುವ ಭೂಮಿ ಹೆಚ್ಚು ಬೆಲೆಬಾಳುತ್ತದೆ.</h2>
-          <p>ಇದು ಈಗಾಗಲೇ ನಡೆಯುತ್ತಿದೆ — ಬಾಯಿಮಾತಿನಲ್ಲಿ, ಕಾಗದವಿಲ್ಲದೆ. ಅದು ಒಂದು ದಿನ ಕೈಕೊಡುತ್ತದೆ. ನಾಲ್ಕು ಹೆಜ್ಜೆ, ಮತ್ತು ಮೂರನೆಯದೇ ಮುಖ್ಯ.</p>
-        {% else %}
-          <h2>Land sitting idle is worth more with someone farming it.</h2>
-          <p>Most of this already happens &mdash; by word of mouth, between families, on no paper at all. That works until it doesn&rsquo;t. Four steps, and the third one is the whole point.</p>
-        {% endif %}
-      </div>
-
-      <div class="steps" id="how">
-        <article class="step">
-          <span class="step__n">01</span>
-          <h3>List or search</h3>
-          <p>Acreage, survey number, water source and hours, soil, road access, what was last grown, and photographs. Farmers search by district and by what they can actually irrigate.</p>
-        </article>
-        <article class="step">
-          <span class="step__n">02</span>
-          <h3>Agree on terms</h3>
-          <p>Rent per acre per season, or a share of the crop. Who pays for borewell power, who repairs the bunds, who keeps the residue, what happens if the rain fails.</p>
-        </article>
-        <article class="step">
-          <span class="step__n">03</span>
-          <h3>Sign a proper licence</h3>
-          <p>A fixed-term licence drafted against Karnataka tenancy law, signed and witnessed. Not a handshake, and deliberately not an open-ended tenancy &mdash; <a href="/fine-print">why that distinction matters</a>.</p>
-        </article>
-        <article class="step">
-          <span class="step__n">04</span>
-          <h3>Renew or move on</h3>
-          <p>At the end of the term the land comes back to you, with a record of how it was farmed. Renew with the same farmer if it went well; list it again if it didn&rsquo;t.</p>
-        </article>
-      </div>
-
-      {% if listings %}
-      <div class="block__head" style="margin-top:clamp(2.5rem,4vw,3.5rem)">
-        <h2>{{ t('nav.land') }}</h2>
-        <a class="btn btn--line btn--small" href="/land">All parcels</a>
-      </div>
-      <div class="records">
-        {% for l in listings %}{% include "partials/listing_card.html" %}{% endfor %}
-      </div>
-      {% endif %}
-
-      <div class="hero__cta" style="margin-top:2rem;margin-bottom:0">
-        <a class="btn btn--solid" href="/land">Search parcels</a>
-        <a class="btn btn--line" href="/dashboard/listings/new">{{ t('action.list_land') }}</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FINE PRINT -->
-  <section class="sec fine" id="fineprint">
-    <div class="wrap">
-      <p class="label label--dark">{{ t('nav.fineprint') }}</p>
+<!-- ================= HERO ================= -->
+<section class="hero2">
+  <div class="container hero2__grid">
+    <div class="hero2__copy">
+      <span class="pill pill--rose rv"><span class="dot"></span>
+        {% if lang == 'kn' %}ಪೂರ್ವ-ಪ್ರಾರಂಭ · ನಮ್ಮದೇ 15 ಎಕರೆಯಲ್ಲಿ ಪ್ರಯೋಗ{% else %}Pre-launch · piloted on our own 15 acres{% endif %}
+      </span>
       {% if lang == 'kn' %}
-        <h2>SEBI ನಿಯಮ ಮೀರುವುದಕ್ಕಿಂತ ನಿಧಾನವಾಗಿ ಬೆಳೆಯುವುದೇ ವಾಸಿ.</h2>
+        <h1 class="rv" style="--d:.06s">ಭೂಮಿ, ಹಣ, ದುಡಿಯುವ ಕೈ — <span class="em">ಒಂದೇ ಕಡೆ.</span></h1>
+        <p class="lead rv" style="--d:.12s">ಈ ಮೂರೂ ಒಬ್ಬರ ಬಳಿಯೇ ಇರುವುದು ಅಪರೂಪ. ಭೂಮಿ ಶೇರ್ ಕರ್ನಾಟಕದಲ್ಲಿ ಇವನ್ನು ಜೋಡಿಸುತ್ತದೆ — ಐದು ಸ್ಪಷ್ಟ ದಾರಿಗಳು, ಎಲ್ಲವೂ ಬರೆದ ಒಪ್ಪಂದದ ಮೇಲೆ.</p>
       {% else %}
-        <h2>We would rather grow slowly than fall foul of SEBI.</h2>
+        <h1 class="rv" style="--d:.06s">Land, money and hands &mdash; <span class="em">finally in one place.</span></h1>
+        <p class="lead rv" style="--d:.12s">Those three rarely sit with the same person. Bhoomi Share puts them together across Karnataka in five clear ways: fund a crop, back a livestock unit, put a small space to work, take a slice of a big parcel, or licence land you aren&rsquo;t farming. Everything on paper, nothing hidden.</p>
       {% endif %}
-      <p class="fine__lede">Two pieces of Indian law sit directly across this idea. Neither makes it impossible; both decide how it has to be built. We would rather put them on the front page than in a footnote &mdash; <a href="/fine-print" style="color:var(--gold)">the long version is here</a>.</p>
-
-      <div class="fine__grid">
-        <article class="fine__item">
-          <span class="fine__tag">Money</span>
-          <h3>Small pools, and a lawyer&rsquo;s name on the structure</h3>
-          <p>Pooling money from the public and managing it for a share of the profits can qualify as a Collective Investment Scheme under the SEBI Act. So: capped pool size, a small number of people per plan, an LLP or partnership deed per cycle, and a counsel-reviewed structure before a single rupee moves. Shares in a big parcel are capped hardest of all, because that is the option closest to the line.</p>
-        </article>
-        <article class="fine__item">
-          <span class="fine__tag">Land</span>
-          <h3>State-aware terms, short by design</h3>
-          <p>In Karnataka, as in several states, a tenant who farms the same land continuously can build up occupancy or purchase rights over it. That is exactly why landowners here avoid writing anything down. So the agreements are short fixed-term licences to cultivate, drafted against Karnataka law, with renewal as a decision rather than a default.</p>
-        </article>
-        <article class="fine__item">
-          <span class="fine__tag">Proof</span>
-          <h3>Proven on our own land first</h3>
-          <p>Our 15 acres is the pilot. Our capital in the investor seat, our family in the grower seat, one parcel leased out on the licence we drafted. We want a full season of real numbers &mdash; including the parts that went badly &mdash; before we ask an outsider to fund a crop or hand over a field.</p>
-        </article>
+      <div class="hero2__cta rv" style="--d:.18s">
+        <a class="btn btn--solid btn--big" href="/earn">{{ t('cta.simulate') }}</a>
+        <a class="btn btn--line btn--big" href="/models/crop-plans">{{ t('cta.explore') }}</a>
       </div>
+      <ul class="trust rv" style="--d:.24s">
+        <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ 'ಈ ಸೈಟ್ ಮೂಲಕ ಹಣ ಚಲಿಸುವುದಿಲ್ಲ' if lang == 'kn' else 'No money moves through this site' }}</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ 'ಎಲ್ಲವೂ ಕಾಗದದಲ್ಲಿ' if lang == 'kn' else 'Every plan shows its costs and split' }}</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ 'ಕನ್ನಡ ಮತ್ತು ಇಂಗ್ಲಿಷ್' if lang == 'kn' else 'English and ಕನ್ನಡ' }}</li>
+      </ul>
     </div>
-  </section>
 
-  <!-- WAITLIST -->
-  <section class="sec join" id="join">
-    <div class="wrap join__grid">
-      <div>
-        <p class="label">Waitlist</p>
-        <h2>Tell us which side you&rsquo;re on.</h2>
-        <p style="margin-top:1.1rem;max-width:40ch">We open district by district, after the pilot season closes. Leave your details and we will come back to you with what is actually available near you &mdash; not a launch announcement.</p>
+    <!-- illustrative plan card stack -->
+    <div class="hero2__art rv" style="--d:.15s" aria-hidden="true">
+      <div class="float float--a">
+        <span class="float__ico">&#8377;</span>
+        <div><strong>{{ 'ವೆಚ್ಚ ಮೊದಲು ಮರುಪಾವತಿ' if lang == 'kn' else 'Costs repaid first' }}</strong><small>{{ 'ಉಳಿದದ್ದು ಒಪ್ಪಂದದಂತೆ ಹಂಚಿಕೆ' if lang == 'kn' else 'the rest split as signed' }}</small></div>
       </div>
-
-      <div>
-        <form id="waitlist" novalidate>
-          <div class="field">
-            <label for="wl-name">Name</label>
-            <input type="text" id="wl-name" name="name" autocomplete="name" placeholder="Your full name" required>
-          </div>
-
-          <div class="hp" aria-hidden="true">
-            <label for="wl-company">Company</label>
-            <input type="text" id="wl-company" name="company" tabindex="-1" autocomplete="off">
-          </div>
-
-          <div class="row2">
-            <div class="field">
-              <label for="wl-phone">Phone</label>
-              <input type="tel" id="wl-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" required>
-            </div>
-            <div class="field">
-              <label for="wl-role">I&rsquo;m here as <span class="hint">&mdash; pick one</span></label>
-              <div class="sel">
-                <select id="wl-role" name="role" required>
-                  <option value="" selected>Select one</option>
-                  <option value="Investor">Investor &mdash; I want to fund a season</option>
-                  <option value="Grower">Grower &mdash; I want a season funded</option>
-                  <option value="Landowner">Landowner &mdash; I have land to list</option>
-                  <option value="Farmer">Farmer &mdash; I need more land</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="wl-place">District and state</label>
-            <input type="text" id="wl-place" name="place" placeholder="e.g. Belagavi, Karnataka" required>
-          </div>
-
-          <button class="btn btn--solid" type="submit">Join the waitlist</button>
-          <p class="form__fine" id="wl-status" role="status">Nothing on this page is an offer to invest. We will call or message you once &mdash; no lists, no forwarding your number.</p>
-        </form>
-
-        <div class="thanks" id="wl-thanks" hidden tabindex="-1">
-          <h3>Noted &mdash; thank you.</h3>
-          <p id="wl-thanks-line">We have your details.</p>
-          <p>We will get in touch when the pilot season closes and we know what is available near you. If the structure isn&rsquo;t cleared by then, we will tell you that instead of going quiet.</p>
+      <div class="plan">
+        <div class="plan__top">
+          <span class="pill pill--gold">{{ 'ಉದಾಹರಣೆ ಯೋಜನೆ' if lang == 'kn' else 'Example plan' }}</span>
+          <span class="plan__id">Sy. 212/3</span>
         </div>
+        <h3 class="plan__title">Chana &middot; Rabi 2026</h3>
+        <p class="plan__where">Belagavi &middot; 3.2 ac &middot; {{ 'ಕಾಲುವೆ ನೀರು' if lang == 'kn' else 'canal water, 6 hrs/week' }}</p>
+        <dl class="plan__nums">
+          <div><dt>{{ 'ಬಜೆಟ್' if lang == 'kn' else 'Budget' }}</dt><dd>&#8377;{{ inr(sim.cost) }}</dd></div>
+          <div><dt>{{ 'ನಿರೀಕ್ಷಿತ ಮಾರಾಟ' if lang == 'kn' else 'Expected sale' }}</dt><dd>&#8377;{{ inr(sim.expected_sale) }}</dd></div>
+        </dl>
+        <div class="plan__bar"><span style="flex:{{ sim.investor_pct }}">{{ '%g' % sim.investor_pct }}%</span><span style="flex:{{ sim.grower_pct }}">{{ '%g' % sim.grower_pct }}%</span></div>
+        <div class="plan__key"><span>{{ 'ಹಣ ಹಾಕುವವರು' if lang == 'kn' else 'Funds it' }}</span><span>{{ 'ದುಡಿಯುವವರು' if lang == 'kn' else 'Does the work' }}</span></div>
+      </div>
+      <div class="float float--b">
+        <span class="float__ico float__ico--leaf">&#10003;</span>
+        <div><strong>{{ 'ಬರೆದ ಒಪ್ಪಂದ' if lang == 'kn' else 'Signed on paper' }}</strong><small>{{ 'ನಿಗದಿತ ಅವಧಿ' if lang == 'kn' else 'fixed term, Karnataka law' }}</small></div>
+      </div>
+      <p class="art__note">{{ 'ಕೇವಲ ಉದಾಹರಣೆ — ನಿಜವಾದ ಯೋಜನೆಯಲ್ಲ' if lang == 'kn' else 'Illustrative numbers, not a real plan or a forecast.' }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIVE STATS ================= -->
+<section class="container">
+  <div class="statband rv">
+    <div><b data-count="{{ counts.crop + counts.livestock + counts.space + counts.shares }}" data-plain>0</b><span>{{ 'ತೆರೆದ ಯೋಜನೆಗಳು' if lang == 'kn' else 'Plans open now' }}</span></div>
+    <div><b data-count="{{ counts.land }}" data-plain>0</b><span>{{ 'ಪಟ್ಟಿ ಮಾಡಿದ ಭೂಮಿ' if lang == 'kn' else 'Parcels listed' }}</span></div>
+    <div><b data-count="5" data-plain>0</b><span>{{ 'ಕೆಲಸ ಮಾಡುವ ದಾರಿಗಳು' if lang == 'kn' else 'Ways to work land' }}</span></div>
+    <div><b data-count="31" data-plain>0</b><span>{{ 'ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳು' if lang == 'kn' else 'Districts covered' }}</span></div>
+  </div>
+</section>
+
+<!-- ================= WHO IS IT FOR ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ನೀವು ಯಾರು?' if lang == 'kn' else 'Which side are you on?' }}</span>
+      <h2>{{ 'ನಿಮ್ಮ ಬಳಿ ಇರುವುದು ಯಾವುದು? ಅದಕ್ಕೆ ಒಂದು ದಾರಿ ಇದೆ.' if lang == 'kn' else 'Whatever you have, there is a way to put it to work.' }}</h2>
+      <p>{{ 'ಭೂಮಿ, ಹಣ, ಅಥವಾ ದುಡಿಯುವ ಕೌಶಲ — ಒಬ್ಬೊಬ್ಬರಿಗೆ ಒಂದೊಂದು ದಾರಿ.' if lang == 'kn' else 'Land, savings, a shed, or the skill to farm: each has a clear route, with the money maths shown up front.' }}</p>
+    </div>
+
+    <div class="grid grid--4 roles">
+      <a class="card role rv" href="/earn#investor">
+        <span class="role__ico">&#8377;</span>
+        <h3>{{ 'ಹೂಡಿಕೆದಾರ' if lang == 'kn' else 'You have savings' }}</h3>
+        <p>{{ 'ಓದಬಹುದಾದ ಒಂದು ಬೆಳೆ ಅಥವಾ ಘಟಕಕ್ಕೆ ಹಣ ಹಾಕಿ. ವೆಚ್ಚ ಮೊದಲು ಮರಳುತ್ತದೆ, ಉಳಿದದ್ದು ಒಪ್ಪಂದದಂತೆ ಹಂಚಿಕೆ.' if lang == 'kn' else 'Fund one crop, herd or space you can read in full. Costs are repaid first; the rest is split as signed.' }}</p>
+        <span class="role__go">{{ 'ಗಳಿಕೆ ನೋಡಿ' if lang == 'kn' else 'See how you earn' }} &rarr;</span>
+      </a>
+      <a class="card role rv" style="--d:.07s" href="/earn#grower">
+        <span class="role__ico">&#9752;</span>
+        <h3>{{ 'ಬೆಳೆಗಾರ' if lang == 'kn' else 'You have the skill' }}</h3>
+        <p>{{ 'ನಿಮ್ಮ ಬಳಿ ಹೊಲ ಅಥವಾ ಜಾಗ ಇದೆ, ಬಂಡವಾಳ ಕಡಿಮೆ. ಋತುವಿಗೆ ಹಣ ಪಡೆದು, ಒಪ್ಪಿದ ಪಾಲು ತೆಗೆದುಕೊಳ್ಳಿ.' if lang == 'kn' else 'You have the field or the shed, but not the working capital. Get a season funded and keep an agreed share.' }}</p>
+        <span class="role__go">{{ 'ಗಳಿಕೆ ನೋಡಿ' if lang == 'kn' else 'See how you earn' }} &rarr;</span>
+      </a>
+      <a class="card role rv" style="--d:.14s" href="/earn#landowner">
+        <span class="role__ico">&#9635;</span>
+        <h3>{{ 'ಭೂಮಾಲೀಕ' if lang == 'kn' else 'You own idle land' }}</h3>
+        <p>{{ 'ಸಾಗುವಳಿ ಮಾಡದ ಭೂಮಿಯನ್ನು ನಿಗದಿತ ಅವಧಿಯ ಪರವಾನಗಿಯ ಮೇಲೆ ಕೊಟ್ಟು ಬಾಡಿಗೆ ಪಡೆಯಿರಿ.' if lang == 'kn' else 'Licence land you are not farming on a fixed term and earn rent, without a handshake deal that protects nobody.' }}</p>
+        <span class="role__go">{{ 'ಗಳಿಕೆ ನೋಡಿ' if lang == 'kn' else 'See how you earn' }} &rarr;</span>
+      </a>
+      <a class="card role rv" style="--d:.21s" href="/earn#farmer">
+        <span class="role__ico">&#10052;</span>
+        <h3>{{ 'ರೈತ' if lang == 'kn' else 'You need more land' }}</h3>
+        <p>{{ 'ಜಿಲ್ಲೆ, ನೀರಾವರಿ ಮತ್ತು ಗಾತ್ರದ ಮೂಲಕ ಭೂಮಿ ಹುಡುಕಿ, ಮಾಲೀಕರಿಗೆ ನೇರವಾಗಿ ಬರೆಯಿರಿ.' if lang == 'kn' else 'Search parcels by district, irrigation and size, then write straight to the owner and work out what you keep.' }}</p>
+        <span class="role__go">{{ 'ಗಳಿಕೆ ನೋಡಿ' if lang == 'kn' else 'See how you earn' }} &rarr;</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FIVE MODELS ================= -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಐದು ಮಾದರಿಗಳು' if lang == 'kn' else 'Five models' }}</span>
+      <h2>{{ 'ಭೂಮಿ ಮತ್ತು ಜಾಗದೊಂದಿಗೆ ಕೆಲಸ ಮಾಡಲು ಐದು ದಾರಿ.' if lang == 'kn' else 'Five ways to work land and space.' }}</h2>
+      <p>{{ 'ಪ್ರತಿಯೊಂದಕ್ಕೂ ತನ್ನದೇ ಅವಧಿ, ವೆಚ್ಚದ ರಚನೆ ಮತ್ತು ಅಪಾಯಗಳಿವೆ — ಎಲ್ಲವನ್ನೂ ಮುಂಚೆಯೇ ತೋರಿಸುತ್ತೇವೆ.' if lang == 'kn' else 'Each has its own clock, cost structure and risks, and each page shows all three before you commit to anything.' }}</p>
+    </div>
+
+    <div class="bento">
+      <a class="card bento__a rv" href="/models/crop-plans">
+        <span class="pill pill--gold">{{ counts.crop }} {{ 'ತೆರೆದಿದೆ' if lang == 'kn' else 'open' }}</span>
+        <h3>{{ t('kind.crop') }}</h3>
+        <p>{{ 'ಒಂದು ಬೆಳೆ, ಒಂದು ಹೆಸರಿಸಿದ ಹೊಲ, ಒಂದು ಋತು. ಮಾರಾಟವಾದಾಗ ವೆಚ್ಚ ಮೊದಲು, ಉಳಿದದ್ದು ಹಂಚಿಕೆ.' if lang == 'kn' else 'One crop, one named parcel, one season. When it sells, costs come back first and the rest is split.' }}</p>
+        <span class="bento__meta">{{ '4–6 ತಿಂಗಳು' if lang == 'kn' else 'Cycle: one season, 4–6 months' }}</span>
+      </a>
+      <a class="card bento__b rv" style="--d:.06s" href="/models/livestock">
+        <span class="pill pill--gold">{{ counts.livestock }} {{ 'ತೆರೆದಿದೆ' if lang == 'kn' else 'open' }}</span>
+        <h3>{{ t('kind.livestock') }}</h3>
+        <p>{{ 'ಕುರಿ, ಮೇಕೆ, ಹೈನು ಅಥವಾ ಕೋಳಿ — ಸಾಕುವವರು ದುಡಿಯುತ್ತಾರೆ, ನೀವು ಪ್ರಾಣಿ, ಮೇವು, ಶೆಡ್ ಗೆ ಹಣ ಹಾಕುತ್ತೀರಿ.' if lang == 'kn' else 'Sheep, goat, dairy or poultry. The keeper does the work; you fund animals, feed and shed.' }}</p>
+        <span class="bento__meta">{{ 'ತಿಂಗಳುಗಳ ಚಕ್ರ' if lang == 'kn' else 'Cycle: months' }}</span>
+      </a>
+      <a class="card bento__c rv" style="--d:.12s" href="/models/small-spaces">
+        <span class="pill pill--gold">{{ counts.space }} {{ 'ತೆರೆದಿದೆ' if lang == 'kn' else 'open' }}</span>
+        <h3>{{ t('kind.space') }}</h3>
+        <p>{{ 'ಹೊಲ ಬೇಕಿಲ್ಲ. 30×40 ಜಾಗ, ಶೆಡ್ ಅಥವಾ ತಾರಸಿ ಸಾಕು — ಅಣಬೆ, ಎರೆಹುಳು ಗೊಬ್ಬರ, ಮೈಕ್ರೋಗ್ರೀನ್ಸ್.' if lang == 'kn' else 'No farm needed. A 30 by 40 site, shed or terrace is enough for mushrooms, vermicompost or microgreens.' }}</p>
+        <span class="bento__meta">{{ 'ವಾರಗಳ ಚಕ್ರ' if lang == 'kn' else 'Cycle: weeks per batch' }}</span>
+      </a>
+      <a class="card bento__d rv" style="--d:.18s" href="/models/land-shares">
+        <span class="pill pill--gold">{{ counts.shares }} {{ 'ತೆರೆದಿದೆ' if lang == 'kn' else 'open' }}</span>
+        <h3>{{ t('kind.shares') }}</h3>
+        <p>{{ 'ಐದು ಎಕರೆ ಅಥವಾ ಹೆಚ್ಚು, ಸಮಾನ ಪಾಲುಗಳಾಗಿ ವಿಭಜನೆ. ಒಂದು ಪಾರ್ಸೆಲ್‌ಗೆ ಜನರ ಸಂಖ್ಯೆಗೆ ಮಿತಿ ಇದೆ.' if lang == 'kn' else 'Five acres or more in equal shares. Your slice of the return matches your slice of the cost, and places per parcel are capped.' }}</p>
+        <span class="bento__meta">{{ 'ಒಂದು ಚಕ್ರದ ಕೆಲಸದ ಪಾಲು' if lang == 'kn' else 'A share of one cycle of work, never of the land' }}</span>
+      </a>
+      <a class="card bento__e rv" style="--d:.24s" href="/models/land-lease">
+        <span class="pill pill--gold">{{ counts.land }} {{ 'ಪಟ್ಟಿ' if lang == 'kn' else 'listed' }}</span>
+        <h3>{{ t('kind.lease') }}</h3>
+        <p>{{ 'ನಿಗದಿತ ಅವಧಿಯ ಸಾಗುವಳಿ ಪರವಾನಗಿ, ಕರ್ನಾಟಕಕ್ಕೆ ಬರೆದದ್ದು. ಗಡುವಿನ ದಿನ ಮುಗಿಯುತ್ತದೆ.' if lang == 'kn' else 'A fixed-term licence to cultivate, drafted for Karnataka. It ends on its date and renewal is a decision.' }}</p>
+        <span class="bento__meta">{{ 'ನಿಗದಿತ ಅವಧಿ' if lang == 'kn' else 'Fixed term, renewed only by choice' }}</span>
+      </a>
+    </div>
+
+    <p class="browse-row rv">
+      <span>{{ 'ತೆರೆದಿರುವುದನ್ನು ನೋಡಿ:' if lang == 'kn' else 'Browse what is open:' }}</span>
+      <a href="/seasons">{{ t('kind.crop') }}</a>
+      <a href="/livestock">{{ t('kind.livestock') }}</a>
+      <a href="/spaces">{{ t('kind.space') }}</a>
+      <a href="/shares">{{ t('kind.shares') }}</a>
+      <a href="/land">{{ t('nav.land') }}</a>
+    </p>
+  </div>
+</section>
+
+<!-- ================= MONEY FLOW ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ಹಣ ಹೇಗೆ ಹರಿಯುತ್ತದೆ' if lang == 'kn' else 'How the money flows' }}</span>
+      <h2>{{ 'ವೆಚ್ಚ ಮೊದಲು. ನಂತರ ಉಳಿದದ್ದು ಹಂಚಿಕೆ.' if lang == 'kn' else 'Costs first. Then the rest is split.' }}</h2>
+      <p>{{ 'ಒಂದೇ ನಿಯಮ, ಎಲ್ಲ ಯೋಜನೆಗಳಿಗೂ. ಕೆಟ್ಟ ಋತುವೂ ಅದೇ ರೀತಿ ಹಂಚಲ್ಪಡುತ್ತದೆ — ಖಾತರಿಯ ಆದಾಯ ಇಲ್ಲ.' if lang == 'kn' else 'One rule for every plan. A bad season splits the same way, and there is no guaranteed return.' }}</p>
+    </div>
+
+    <ol class="flow2">
+      <li class="rv"><span class="flow2__n">1</span><h3>{{ 'ಹಣ ಹಾಕುವವರು ವೆಚ್ಚ ಭರಿಸುತ್ತಾರೆ' if lang == 'kn' else 'The funder covers the costs' }}</h3><p>{{ 'ಬೀಜ, ಗೊಬ್ಬರ, ನೀರು, ಕೂಲಿ — ಯೋಜನೆಯಲ್ಲಿ ಪಟ್ಟಿ ಮಾಡಿದ್ದು.' if lang == 'kn' else 'Seed, inputs, water, labour: exactly what the plan lists.' }}</p></li>
+      <li class="rv" style="--d:.08s"><span class="flow2__n">2</span><h3>{{ 'ದುಡಿಯುವವರು ಕೆಲಸ ಮಾಡುತ್ತಾರೆ' if lang == 'kn' else 'The grower does the work' }}</h3><p>{{ 'ಮತ್ತು ಖರ್ಚು ಹಾಗೂ ಪ್ರಗತಿಯನ್ನು ದಾಖಲಿಸುತ್ತಾರೆ.' if lang == 'kn' else 'And logs spend and progress against the plan you read.' }}</p></li>
+      <li class="rv" style="--d:.16s"><span class="flow2__n">3</span><h3>{{ 'ಕೊಯ್ಲು ಮಾರಾಟವಾಗುತ್ತದೆ' if lang == 'kn' else 'The harvest sells' }}</h3><p>{{ 'ಮಂಡಿ ಅಥವಾ ಒಪ್ಪಂದದ ಮಾರಾಟ; ರಸೀದಿಗಳು ಹಂಚಿಕೆಯಾಗುತ್ತವೆ.' if lang == 'kn' else 'Mandi or contract sale; receipts are shared with both sides.' }}</p></li>
+      <li class="rv" style="--d:.24s"><span class="flow2__n">4</span><h3>{{ 'ವೆಚ್ಚ ಮೊದಲು ಮರಳುತ್ತದೆ' if lang == 'kn' else 'Costs come back first' }}</h3><p>{{ 'ಮಾರಾಟದ ಹಣದಿಂದ ಮೊದಲು ಹಣ ಹಾಕಿದವರ ವೆಚ್ಚ ತೀರುತ್ತದೆ.' if lang == 'kn' else 'Sale proceeds first repay whoever paid the listed costs.' }}</p></li>
+      <li class="rv" style="--d:.32s"><span class="flow2__n">5</span><h3>{{ 'ಉಳಿದದ್ದು ಒಪ್ಪಿದಂತೆ ಹಂಚಿಕೆ' if lang == 'kn' else 'What is left is split' }}</h3><p>{{ 'ಉದಾ. 70/30 — ಪ್ರತಿ ಯೋಜನೆ ತನ್ನ ಅನುಪಾತವನ್ನು ಮುಂಚೆಯೇ ಹೇಳುತ್ತದೆ.' if lang == 'kn' else 'For example 70/30. Every plan states its own ratio before work starts.' }}</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= SCENARIOS (computed by the simulator) ================= -->
+<section class="section section--alt">
+  <div class="container scen">
+    <div class="scen__copy">
+      <span class="kicker">{{ 'ನಾಲ್ಕು ಋತುಗಳು, ಒಂದೇ ಲೆಕ್ಕ' if lang == 'kn' else 'Four seasons, one calculation' }}</span>
+      <h2>{{ 'ಒಳ್ಳೆಯ ಋತು ಮಾತ್ರವಲ್ಲ — ವಿಫಲವಾದದ್ದನ್ನೂ ತೋರಿಸುತ್ತೇವೆ.' if lang == 'kn' else 'We show the failed season too, not just the good one.' }}</h2>
+      <p class="lead" style="margin-top:1rem">
+        {% if lang == 'kn' %}₹{{ inr(sim.cost) }} ವೆಚ್ಚದ ಯೋಜನೆ, ₹{{ inr(sim.expected_sale) }} ಮಾರಾಟ ನಿರೀಕ್ಷೆ. ಮಾರಾಟ ಎಷ್ಟು ಬದಲಾದರೆ ಏನಾಗುತ್ತದೆ ಎಂದು ನೋಡಿ.
+        {% else %}A &#8377;{{ inr(sim.cost) }} plan expecting &#8377;{{ inr(sim.expected_sale) }} at sale. Here is what the funder gets back as the sale moves. Break-even is a sale of &#8377;{{ inr(sim.breakeven_sale) }}, {{ sim.breakeven_vs_expected_pct }}% of what was hoped for.{% endif %}
+      </p>
+      <a class="btn btn--solid" href="/earn" style="margin-top:1.5rem">{{ 'ನಿಮ್ಮ ಸಂಖ್ಯೆಗಳನ್ನು ಹಾಕಿ' if lang == 'kn' else 'Use your own numbers' }}</a>
+      <p class="muted" style="font-size:.82rem;margin-top:1rem;max-width:46ch">{{ 'ಉದಾಹರಣೆ ಸಂಖ್ಯೆಗಳು; ಮುನ್ಸೂಚನೆ ಅಲ್ಲ.' if lang == 'kn' else 'Example inputs you can change. This is arithmetic, not a forecast or an offer.' }}</p>
+    </div>
+
+    <div class="bars rv">
+      {% set top = (sim.scenarios | map(attribute='sale') | max) or 1 %}
+      {% for s in sim.scenarios %}
+        <div class="bar">
+          <div class="bar__head"><strong>{{ scenario_label(s.key) }}</strong><span>{{ 'ಮಾರಾಟ' if lang == 'kn' else 'Sale' }} &#8377;{{ inr(s.sale) }}</span></div>
+          <div class="bar__track"><i class="{{ 'bar__fill--neg' if s.you_net < 0 else '' }}" style="width:{{ (s.sale / top * 100) | round(1) }}%"></i></div>
+          <div class="bar__foot">
+            <span>{{ 'ನಿಮಗೆ ಮರಳುವುದು' if lang == 'kn' else 'Funder gets back' }} &#8377;{{ inr(s.you_get_back) }}</span>
+            <b class="{{ 'neg' if s.you_net < 0 else 'pos' }}">{{ '+' if s.you_net > 0 }}{{ inr(s.you_net) }} ({{ '+' if s.you_return_pct > 0 }}{{ s.you_return_pct }}%)</b>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIVE PLANS ================= -->
+{% if projects %}
+<section class="section">
+  <div class="container">
+    <div class="block__head">
+      <h2>{{ 'ಈಗ ತೆರೆದಿರುವವು' if lang == 'kn' else 'Open right now' }}</h2>
+      <a class="btn btn--line btn--small" href="/invest">{{ t('nav.plans') }}</a>
+    </div>
+    <div class="records">
+      {% for p in projects %}{% include "partials/project_card.html" %}{% endfor %}
+    </div>
+    {% if listings %}
+    <div class="block__head" style="margin-top:clamp(2.5rem,4vw,3.5rem)">
+      <h2>{{ t('nav.land') }}</h2>
+      <a class="btn btn--line btn--small" href="/land">{{ 'ಎಲ್ಲಾ ಭೂಮಿ' if lang == 'kn' else 'All parcels' }}</a>
+    </div>
+    <div class="records">
+      {% for l in listings %}{% include "partials/listing_card.html" %}{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<!-- ================= TRUST ================= -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head">
+      <span class="kicker">{{ 'ನಂಬಿಕೆ' if lang == 'kn' else 'Why trust it' }}</span>
+      <h2>{{ 'SEBI ನಿಯಮ ಮೀರುವುದಕ್ಕಿಂತ ನಿಧಾನವಾಗಿ ಬೆಳೆಯುವುದೇ ವಾಸಿ.' if lang == 'kn' else 'We would rather grow slowly than fall foul of SEBI.' }}</h2>
+    </div>
+    <div class="grid grid--3">
+      <article class="card rv">
+        <span class="pill pill--rose">{{ 'ಹಣ' if lang == 'kn' else 'Money' }}</span>
+        <h3 style="margin-top:1rem">{{ 'ಸಣ್ಣ ಪೂಲ್, ವಕೀಲರ ಪರಿಶೀಲನೆ' if lang == 'kn' else 'Small pools, counsel-reviewed' }}</h3>
+        <p>{{ 'ಒಂದು ಯೋಜನೆಗೆ ಜನರ ಸಂಖ್ಯೆಗೆ ಮಿತಿ. ಒಂದು ರೂಪಾಯಿ ಚಲಿಸುವ ಮೊದಲು ವಕೀಲರು ರಚನೆ ಪರಿಶೀಲಿಸುತ್ತಾರೆ.' if lang == 'kn' else 'A hard cap on people per plan, and a lawyer reviews the structure before a single rupee moves.' }}</p>
+      </article>
+      <article class="card rv" style="--d:.08s">
+        <span class="pill pill--rose">{{ 'ಭೂಮಿ' if lang == 'kn' else 'Land' }}</span>
+        <h3 style="margin-top:1rem">{{ 'ಕರ್ನಾಟಕಕ್ಕೆ ಬರೆದ ಒಪ್ಪಂದ' if lang == 'kn' else 'Terms drafted for Karnataka' }}</h3>
+        <p>{{ 'ನಿಗದಿತ ಅವಧಿಯ ಪರವಾನಗಿ, ತೆರೆದ ಕೊನೆಯ ಗುತ್ತಿಗೆ ಅಲ್ಲ. ನವೀಕರಣ ಒಂದು ನಿರ್ಧಾರ.' if lang == 'kn' else 'Fixed-term licences, not open-ended leases. Renewal is a decision, never a default that quietly builds rights.' }}</p>
+      </article>
+      <article class="card rv" style="--d:.16s">
+        <span class="pill pill--rose">{{ 'ಸಾಕ್ಷ್ಯ' if lang == 'kn' else 'Proof' }}</span>
+        <h3 style="margin-top:1rem">{{ 'ಮೊದಲು ನಮ್ಮದೇ ಭೂಮಿಯಲ್ಲಿ' if lang == 'kn' else 'Our own 15 acres first' }}</h3>
+        <p>{{ 'ಬೇರೆಯವರ ಹಣ ಅಥವಾ ಭೂಮಿ ಪಡೆಯುವ ಮೊದಲು ಒಂದು ಪೂರ್ಣ ಋತುವಿನ ನಿಜವಾದ ಸಂಖ್ಯೆಗಳು — ಕೆಟ್ಟ ಭಾಗಗಳೂ ಸೇರಿ.' if lang == 'kn' else 'A full season of real numbers, including the parts that went badly, before we ask anyone else for money or land.' }}</p>
+      </article>
+    </div>
+    <p style="margin-top:1.5rem"><a class="btn btn--line" href="/fine-print">{{ t('nav.fineprint') }} &rarr;</a></p>
+  </div>
+</section>
+
+<!-- ================= FAQ TEASER ================= -->
+<section class="section">
+  <div class="container faqwrap">
+    <div class="section__head" style="margin-bottom:0">
+      <span class="kicker">{{ t('nav.faq') }}</span>
+      <h2>{{ 'ನೇರ ಉತ್ತರಗಳು.' if lang == 'kn' else 'Straight answers.' }}</h2>
+      <p>{{ 'ಅನಾನುಕೂಲ ಪ್ರಶ್ನೆಗಳೂ ಸೇರಿ.' if lang == 'kn' else 'Including the awkward ones.' }}</p>
+      <a class="btn btn--line" href="/faq" style="margin-top:1.25rem">{{ 'ಎಲ್ಲಾ ಪ್ರಶ್ನೆಗಳು' if lang == 'kn' else 'All questions' }} &rarr;</a>
+    </div>
+    <div class="faq">
+      <details><summary>Is the return guaranteed?</summary><div class="faq__a"><p>No. Crops and animals can fail, and a failed season can lose the funder their money. That is why every page shows a failed-season case, and why we will not offer a guaranteed return.</p></div></details>
+      <details><summary>Does money move through this site?</summary><div class="faq__a"><p>No. The site puts plans and parcels in front of people and passes on contact details. Any agreement is signed on paper, between the people in it.</p></div></details>
+      <details><summary>Is this legal under SEBI rules?</summary><div class="faq__a"><p>Pooling money can resemble a Collective Investment Scheme, so pools stay small and capped and counsel reviews the structure first. <a href="/fine-print">The long version is here.</a></p></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WAITLIST ================= -->
+<section class="section join" id="join">
+  <div class="container join__grid">
+    <div>
+      <span class="kicker">{{ 'ಕಾಯುವ ಪಟ್ಟಿ' if lang == 'kn' else 'Waitlist' }}</span>
+      <h2>{{ 'ನೀವು ಯಾವ ಬದಿ ಎಂದು ಹೇಳಿ.' if lang == 'kn' else 'Tell us which side you’re on.' }}</h2>
+      <p class="lead" style="margin-top:1.1rem;max-width:42ch">{{ 'ಪೈಲಟ್ ಋತು ಮುಗಿದ ನಂತರ ಜಿಲ್ಲೆ ಜಿಲ್ಲೆಯಾಗಿ ತೆರೆಯುತ್ತೇವೆ.' if lang == 'kn' else 'We open district by district, after the pilot season closes. Leave your details and we will come back with what is actually available near you, not a launch announcement.' }}</p>
+    </div>
+
+    <div class="card">
+      <form id="waitlist" novalidate>
+        <div class="field">
+          <label for="wl-name">Name</label>
+          <input type="text" id="wl-name" name="name" autocomplete="name" placeholder="Your full name" required>
+        </div>
+
+        <div class="hp" aria-hidden="true">
+          <label for="wl-company">Company</label>
+          <input type="text" id="wl-company" name="company" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="wl-phone">Phone</label>
+            <input type="tel" id="wl-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="10-digit mobile" required>
+          </div>
+          <div class="field">
+            <label for="wl-role">I&rsquo;m here as <span class="hint">&mdash; pick one</span></label>
+            <div class="sel">
+              <select id="wl-role" name="role" required>
+                <option value="" selected>Select one</option>
+                <option value="Investor">Investor &mdash; I want to fund a season</option>
+                <option value="Grower">Grower &mdash; I want a season funded</option>
+                <option value="Landowner">Landowner &mdash; I have land to list</option>
+                <option value="Farmer">Farmer &mdash; I need more land</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="wl-place">District and state</label>
+          <input type="text" id="wl-place" name="place" placeholder="e.g. Belagavi, Karnataka" required>
+        </div>
+
+        <button class="btn btn--solid btn--big" type="submit">{{ t('cta.join') }}</button>
+        <p class="form__fine" id="wl-status" role="status">Nothing on this page is an offer to invest. We will call or message you once &mdash; no lists, no forwarding your number.</p>
+      </form>
+
+      <div class="thanks" id="wl-thanks" hidden tabindex="-1">
+        <h3>Noted &mdash; thank you.</h3>
+        <p id="wl-thanks-line">We have your details.</p>
+        <p>We will get in touch when the pilot season closes and we know what is available near you. If the structure isn&rsquo;t cleared by then, we will tell you that instead of going quiet.</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 {% endblock %}
