@@ -182,3 +182,73 @@ def api_districts() -> dict[str, object]:
     from ..karnataka import DIVISIONS, STATE
     return {"state": STATE,
             "divisions": {k: list(v) for k, v in DIVISIONS.items()}}
+
+
+# --------------------------------------------------------------------------- #
+# ledger and money-at-risk (stateless: the page keeps the ledger, the server does the maths)
+# --------------------------------------------------------------------------- #
+
+from fastapi import Body  # noqa: E402
+
+from .. import example, ledger, risk  # noqa: E402
+
+
+def _ledger_payload(plans: list[dict], issues: list[str]) -> dict:
+    return {
+        "plans": plans, "issues": issues,
+        "checks": ledger.check_holding(plans),
+        "costs": ledger.cost_by_category(plans),
+    }
+
+
+@router.get("/ledger/example")
+def ledger_example() -> dict:
+    plans = ledger.example_plans()
+    return {
+        "name": example.HOLDING_NAME, "note": example.HOLDING_NOTE,
+        "csv": ledger.to_csv(plans), "settled": example.SETTLED,
+        "assumptions": example.DEFAULT_ASSUMPTIONS,
+        "fixes": {k: {kk: vv for kk, vv in v.items() if kk != "kinds"} | {"kinds": list(v["kinds"])}
+                  for k, v in risk.FIX_CATALOG.items()},
+        **_ledger_payload(plans, []),
+    }
+
+
+@router.post("/ledger/import", responses={422: {"model": ErrorOut}})
+def ledger_import(body: dict = Body(...)) -> dict:
+    try:
+        parsed = ledger.parse_csv(str(body.get("csv", "")))
+    except ledger.LedgerError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
+    return _ledger_payload(parsed["plans"], parsed["issues"])
+
+
+def _plan_from(body: dict) -> dict:
+    plan = body.get("plan")
+    if not isinstance(plan, dict) or "id" not in plan:
+        raise HTTPException(status_code=422, detail="Send the plan from the ledger as {\"plan\": {...}}.")
+    plan = dict(plan)
+    plan["costs"] = [tuple(c) for c in plan.get("costs", [])]
+    plan["history"] = [tuple(h) for h in plan.get("history", [])]
+    plan.setdefault("kind", "crop")
+    return plan
+
+
+@router.post("/risk", responses={422: {"model": ErrorOut}})
+def risk_one(body: dict = Body(...)) -> dict:
+    try:
+        return risk.assess(_plan_from(body), body.get("assumptions"), body.get("fixes"), int(body.get("runs", risk.RUNS)))
+    except (ValueError, TypeError, KeyError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
+
+
+@router.post("/holding", responses={422: {"model": ErrorOut}})
+def risk_holding(body: dict = Body(...)) -> dict:
+    plans = body.get("plans")
+    if not isinstance(plans, list) or not plans or len(plans) > ledger.MAX_PLANS:
+        raise HTTPException(status_code=422, detail=f"Send between 1 and {ledger.MAX_PLANS} plans.")
+    try:
+        prepared = [_plan_from({"plan": p}) for p in plans]
+        return risk.holding(prepared, body.get("assumptions"))
+    except (ValueError, TypeError, KeyError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
