@@ -67,6 +67,9 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # BHOOMI_ADMIN_T
 |---|---|
 | `/` | The landing page: hero, live counts, roles, the five models, scenario bars, open plans, FAQ teaser, waitlist |
 | `/earn` | Ways to earn: role tabs and live calculators (investor, grower, landowner, farmer) |
+| `/ledger` | Farm ledger: import a CSV or try the example farm; balance checks, trust scores, money flows, yields, input costs |
+| `/ledger/risk` | Money-at-risk: per-plan simulation, fixes compared, whole-holding ranking, three-source trust |
+| `/story`, `/foresight` | The problem, idea and outcomes; the 2026-2036 foresight canvas |
 | `/models`, `/models/{slug}` | The five models compared, and one page per model |
 | `/how-it-works` | One funded season as a six-phase journey |
 | `/stories` | Six illustrative worked examples |
@@ -94,6 +97,8 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # BHOOMI_ADMIN_T
 | `GET` | `/api/health` | public |
 | `POST` | `/api/waitlist` | public — what the landing-page form posts |
 | `GET` | `/api/listings`, `/api/projects`, `/api/districts` | public, read-only |
+| `GET` | `/api/simulate/{kind}` | public: the earnings calculators |
+| `GET/POST` | `/api/ledger/example`, `/api/ledger/import`, `/api/risk`, `/api/holding` | public, stateless: nothing is stored |
 | `GET` | `/api/admin/waitlist`, `/api/admin/waitlist.csv` | `X-Admin-Token` |
 | `DELETE` | `/api/admin/waitlist/{id}` | `X-Admin-Token` |
 
@@ -126,6 +131,9 @@ backend/
     deps.py          login/admin dependencies, typed 403 and 404
     seed.py          demo content for an empty database
     simulator.py     the earnings maths behind /earn (tested; no money moves)
+    ledger.py        CSV ledger import, balance rules, trust scores
+    risk.py          seeded simulation, fixes compared, reconciliation, holding ranking
+    example.py       the invented example holding (labelled as such everywhere)
     content.py       models, stories and FAQ as data
     agri.py          farming tiers and best-fit models per district (indicative)
     hardening.py    security headers, CSP nonces, caching
@@ -137,7 +145,7 @@ backend/
   static/            styles.css (legacy) + site.css (design system v2), per-page
                      css/js, vendor/leaflet, data/karnataka_districts.geojson
   uploads/           photographs (gitignored)
-  tests/             144 tests, runnable on SQLite or Postgres
+  tests/             170 tests, runnable on SQLite or Postgres
 ```
 
 Server-rendered HTML with POST-then-redirect. A small amount of vanilla JavaScript

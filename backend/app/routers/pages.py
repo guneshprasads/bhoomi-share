@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 
-from .. import db, simulator
+from .. import content, db, simulator
 from ..deps import conn_dep
 from ..i18n import COOKIE, LANGS
 from ..security import current_user
@@ -41,6 +41,7 @@ def home(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=De
         # The home page shows a worked example, computed by the same code the
         # calculators use, so the numbers on the page can never drift from them.
         sim=simulator.run("crop", simulator.DEFAULTS["crop"]),
+        product=content.product_numbers(),
     )
 
 
