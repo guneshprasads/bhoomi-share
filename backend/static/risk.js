@@ -64,7 +64,7 @@
     L.post('/api/risk', { plan: S.plan, assumptions: S.assume, fixes: S.fixes }).then(function (r) {
       if (my !== seq) { return; }
       S.res = r; renderRisk(r); renderFixes(r); renderTrust(r);
-    }).catch(function (e) { $('kpis').innerHTML = '<p class="merr" style="grid-column:1/-1">' + esc(e.message) + ' This plan needs an area, an expected price and a yield or some history to be simulated.</p>'; });
+    }).catch(function (e) { $('kpis').innerHTML = '<p class="merr" style="grid-column:1/-1">' + esc(e.message) + '</p>'; });
     L.post('/api/holding', { plans: S.ledger.plans, assumptions: S.assume }).then(function (h) { if (my === seq) { renderHold(h); } });
   }
 

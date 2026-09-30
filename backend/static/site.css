@@ -474,3 +474,8 @@ html{scrollbar-color:#D9C3BC var(--bg)}
   --gold:#A8731A;
   --gold-soft:#D9A23A;
 }
+
+/* The closed sidebar sits beyond the right edge. Phone browsers widen the whole page
+   to include a fixed element that overflows, so it lives in a clipping container. */
+.drawer-wrap{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:60}
+.drawer-open .drawer-wrap .drawer__veil,.drawer-open .drawer-wrap .drawer{pointer-events:auto}
