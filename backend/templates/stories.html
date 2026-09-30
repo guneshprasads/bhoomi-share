@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Stories — {{ site_name }}{% endblock %}
+{% block description %}Six worked examples, one from each side of Bhoomi Share, with the money arithmetic for a good season and a failed one. Illustrative people, real arithmetic.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('earn.css') }}"><link rel="stylesheet" href="{{ asset('stories.css') }}">{% endblock %}
+
+{% macro scen(key) -%}
+  {%- if key == 'strong' -%}Strong season{%- elif key == 'expected' -%}As planned{%- elif key == 'weak' -%}Weak season{%- else -%}Failed season{%- endif -%}
+{%- endmacro %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.stories') }}</span>
+    {% if lang == 'kn' %}
+      <h1 class="rv">ಆರು ಕಥೆಗಳು, <span class="em">ನಿಜವಾದ ಲೆಕ್ಕ.</span></h1>
+    {% else %}
+      <h1 class="rv">Six stories, <span class="em">real arithmetic.</span></h1>
+    {% endif %}
+    <p class="lead rv">One example from each side of the site, with the numbers worked out for a good season and a failed one.</p>
+    <p class="disclaimer rv"><strong>{{ 'ಗಮನಿಸಿ:' if lang == 'kn' else 'Read this first:' }}</strong>
+      {{ 'ಈ ವ್ಯಕ್ತಿಗಳು ಕಾಲ್ಪನಿಕ ಉದಾಹರಣೆಗಳು; ನಿಜವಾದ ಗ್ರಾಹಕರು ಅಥವಾ ಫಲಿತಾಂಶಗಳಲ್ಲ. ಲೆಕ್ಕ ಮಾತ್ರ ನಿಜ — ಅದೇ ಲೆಕ್ಕಾಚಾರ ಕ್ಯಾಲ್ಕುಲೇಟರ್‌ಗಳಲ್ಲಿದೆ.' if lang == 'kn' else 'These people are illustrative, not real customers, and nothing here is a result anyone achieved. Only the arithmetic is real: it is the same code as the calculators on the earn page.' }}</p>
+  </div>
+</section>
+
+<section class="container stories">
+  {% for s in stories %}
+  <article class="story rv" id="{{ s.slug }}">
+    <header class="story__head">
+      <div class="avatar" aria-hidden="true">{{ s.name[0] }}</div>
+      <div>
+        <h2>{{ s.name }}</h2>
+        <p class="story__meta"><span class="pill pill--rose">{{ s.role_kn if lang == 'kn' else s.role }}</span> <span>{{ s.place }}</span> <span>&middot;</span> <a href="/models/{{ s.model }}">{{ t(s.model_obj.i18n) }}</a></p>
+      </div>
+    </header>
+
+    <div class="story__cols">
+      <div class="story__text">
+        <h3>The situation</h3><p>{{ s.situation }}</p>
+        <h3>What {{ s.name }} did</h3><p>{{ s.did }}</p>
+        <h3>What {{ s.name }} learned</h3><p>{{ s.learned }}</p>
+      </div>
+
+      <div class="card story__num">
+        {% set r = s.result %}
+        {% if r.kind == 'landowner' %}
+          <h3>The numbers</h3>
+          <div class="res res--big">
+            <div class="big"><span>{{ r.acres | round(0) | int }} acres &times; &#8377;{{ inr(r.rent_per_acre) }} an acre</span><b>&#8377;{{ inr(r.per_season) }}</b></div>
+            <div class="big big--hi"><span>{{ r.seasons }} seasons a year, if renewed</span><b>&#8377;{{ inr(r.net_per_year) }}</b></div>
+            <p class="res__note">{{ r.note_term }} The rent is only as good as the farmer&rsquo;s season, so the licence says what happens when it fails.</p>
+          </div>
+        {% elif r.kind == 'farmer' %}
+          <h3>The numbers, per season</h3>
+          <div class="res">
+            <p class="res__sum">Cost per acre (inputs + rent) <b>&#8377;{{ inr(r.cost_per_acre) }}</b> &middot; break-even revenue <b>&#8377;{{ inr(r.breakeven_revenue_per_acre) }}</b> per acre, {{ r.breakeven_vs_expected_pct }}% of what is expected</p>
+            {% for x in r.scenarios %}
+            <div class="res__row"><div class="res__name">{{ scen(x.key) }}<small>&#8377;{{ inr(x.revenue_per_acre) }} an acre</small></div><div class="res__get">&#8377;{{ inr(x.profit_per_acre) }} an acre</div><div class="res__net {{ 'neg' if x.profit_total < 0 else 'pos' }}">{{ '+' if x.profit_total > 0 }}{{ inr(x.profit_total) }}<small>{{ r.acres | round(0) | int }} acres</small></div></div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <h3>The numbers</h3>
+          <div class="res">
+            <p class="res__sum">Budget <b>&#8377;{{ inr(r.cost) }}</b> &middot; expected sale <b>&#8377;{{ inr(r.expected_sale) }}</b> &middot; split {{ '%g' % r.investor_pct }}/{{ '%g' % r.grower_pct }}</p>
+            <div class="res__row res__row--h"><div>Season</div><div>Funder nets</div><div>{{ 'Host keeps' if s.model == 'small-spaces' else ('Keeper keeps' if s.model == 'livestock' else 'Grower keeps') }}</div></div>
+            {% for x in r.scenarios %}
+            <div class="res__row"><div class="res__name">{{ scen(x.key) }}<small>sale &#8377;{{ inr(x.sale) }}</small></div><div class="res__net {{ 'neg' if x.you_net < 0 else 'pos' }}" style="text-align:left">{{ '+' if x.you_net > 0 }}{{ inr(x.you_net) }}</div><div class="res__get">&#8377;{{ inr(x.grower_take) }}</div></div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+
+  <div class="cta-band rv">
+    <div>
+      <h2>{{ 'ನಿಮ್ಮ ಸ್ವಂತ ಸಂಖ್ಯೆಗಳನ್ನು ಹಾಕಿ ನೋಡಿ.' if lang == 'kn' else 'Try it with your own numbers.' }}</h2>
+      <p>{{ 'ಒಳ್ಳೆಯ ಋತು ಮತ್ತು ವಿಫಲವಾದ ಋತು, ಅಕ್ಕಪಕ್ಕ.' if lang == 'kn' else 'The good season and the failed one, side by side.' }}</p>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <a class="btn btn--solid btn--big" href="/earn">{{ t('cta.simulate') }}</a>
+      <a class="btn btn--line btn--big" href="/#join">{{ t('cta.join') }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
