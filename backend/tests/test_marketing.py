@@ -29,3 +29,45 @@ def test_assets_are_versioned(client):
     page = client.get("/earn").text
     assert "/static/earn.css?v=" in page
     assert "/static/site.css?v=" in page
+
+
+MODEL_SLUGS = ("crop-plans", "livestock", "small-spaces", "land-shares", "land-lease")
+
+
+@pytest.mark.parametrize("slug", MODEL_SLUGS)
+def test_every_model_page_renders_with_risks_and_a_worked_example(client, slug):
+    r = client.get(f"/models/{slug}")
+    assert r.status_code == 200
+    assert "What can go wrong" in r.text
+    assert "not a forecast" in r.text.lower()
+
+
+def test_funded_models_show_a_failed_season(client):
+    for slug in ("crop-plans", "livestock", "small-spaces", "land-shares"):
+        assert "Failed season" in client.get(f"/models/{slug}").text
+
+
+def test_land_shares_page_says_a_share_is_not_land(client):
+    assert "never of the land" in client.get("/models/land-shares").text
+
+
+def test_unknown_model_is_a_404(client):
+    assert client.get("/models/nope").status_code == 404
+
+
+def test_models_index_compares_all_five(client):
+    page = client.get("/models").text
+    for needle in ("Crop plan", "Livestock unit", "Small space", "Land shares", "Lease"):
+        assert needle in page
+
+
+def test_model_example_budgets_add_up():
+    from app import content
+    for slug in content.ORDER:
+        m = content.get(slug)
+        if m["costs"]:
+            assert content.cost_total(m) > 0
+    # the crop example matches the simulator's default crop budget
+    assert content.cost_total(content.get("crop-plans")) == 100000
+    assert content.cost_total(content.get("livestock")) == 250000
+    assert content.cost_total(content.get("land-shares")) == 2000000

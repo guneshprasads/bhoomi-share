@@ -25,3 +25,38 @@ def earn(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=De
         # any script runs and the numbers match what the API returns.
         sim=simulator.run("crop", simulator.DEFAULTS["crop"]),
     )
+
+
+# --------------------------------------------------------------------------- #
+# the five models
+# --------------------------------------------------------------------------- #
+
+from .. import content  # noqa: E402
+from ..deps import NotFound  # noqa: E402
+
+
+@router.get("/models")
+def models_index(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=Depends(current_user)):
+    return render(
+        request, "models.html", user=user,
+        models=[content.get(s) for s in content.ORDER],
+        counts=content.open_counts(conn),
+    )
+
+
+@router.get("/models/{slug}")
+def model_detail(slug: str, request: Request, conn: sqlite3.Connection = Depends(conn_dep),
+                 user=Depends(current_user)):
+    model = content.get(slug)
+    if model is None:
+        raise NotFound("There is no such model.")
+    counts = content.open_counts(conn)
+    return render(
+        request, "model.html", user=user,
+        model=model,
+        counts=counts,
+        open_count=counts[model["kind"]],
+        cost_total=content.cost_total(model),
+        sim=content.worked_example(model),
+        others=[content.get(s) for s in content.ORDER if s != slug],
+    )
