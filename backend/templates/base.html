@@ -26,7 +26,11 @@
 <link rel="stylesheet" href="{{ asset('styles.css') }}">
 <link rel="stylesheet" href="{{ asset('site.css') }}">
 {% block head %}{% endblock %}
-<link rel="icon" href="/static/parcel.svg" type="image/svg+xml">
+<link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+<link rel="icon" href="{{ asset('favicon-32.png') }}" type="image/png" sizes="32x32">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+<link rel="manifest" href="{{ asset('site.webmanifest') }}">
 </head>
 <body>
 <a class="skip" href="#top">Skip to content</a>

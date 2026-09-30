@@ -100,3 +100,15 @@ def test_framing_is_refused_by_default_and_the_policy_follows_the_setting():
     from app.hardening import build_csp
     assert "frame-ancestors 'none'" in build_csp("n", "https://t/{z}/{x}/{y}.png")
     assert "frame-ancestors https://*.streamlit.app" in build_csp("n", "https://t/{z}/{x}/{y}.png", ("https://*.streamlit.app",))
+
+
+# ------------------------------------------------------------------ site icon
+
+def test_the_site_icon_is_the_new_logo_in_every_format(client):
+    page = client.get("/").text
+    assert "favicon.svg?v=" in page and "apple-touch-icon.png?v=" in page and "/favicon.ico" in page
+    assert "parcel.svg" not in page
+    ico = client.get("/favicon.ico")
+    assert ico.status_code == 200 and ico.headers["content-type"] == "image/x-icon" and ico.content[:4] == b"\x00\x00\x01\x00"
+    for f in ("favicon.svg", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "site.webmanifest"):
+        assert client.get(f"/static/{f}").status_code == 200

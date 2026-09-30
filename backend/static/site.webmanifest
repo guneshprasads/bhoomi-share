@@ -1,0 +1,13 @@
+{
+  "name": "Bhoomi Share",
+  "short_name": "Bhoomi",
+  "description": "Five ways to work land and space in Karnataka.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#9C1536",
+  "icons": [
+    {"src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/favicon.svg", "sizes": "any", "type": "image/svg+xml"}
+  ]
+}
