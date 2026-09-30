@@ -100,3 +100,26 @@ def karnataka_map(request: Request, conn: sqlite3.Connection = Depends(conn_dep)
         total_plans=sum(plans.values()),
         total_parcels=sum(parcels.values()),
     )
+
+
+@router.get("/faq")
+def faq(request: Request, user=Depends(current_user)):
+    import json
+
+    # FAQPage structured data, so the answers can appear in search results. The
+    # "</" escape keeps an answer from closing the script tag early.
+    jsonld = json.dumps({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": q,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for q, a in content.faq_flat()
+        ],
+    }, ensure_ascii=False).replace("</", "<\\/")
+    return render(request, "faq.html", user=user, groups=content.FAQ_GROUPS, jsonld=jsonld)
+
+
+@router.get("/about")
+def about(request: Request, conn: sqlite3.Connection = Depends(conn_dep), user=Depends(current_user)):
+    return render(request, "about.html", user=user)
