@@ -68,7 +68,7 @@ def current_user(
     user_id = request.session.get(SESSION_KEY)
     if not user_id:
         return None
-    with db.closing_conn(settings.db_path) as conn:
+    with db.closing_conn(settings.db_target) as conn:
         user = db.user_by_id(conn, int(user_id))
     if user is None:
         request.session.clear()

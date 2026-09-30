@@ -294,7 +294,7 @@ def test_photo_upload_strips_exif_and_shows_on_the_page(client, make_user):
                    files=[("photos", ("field.jpg", png_bytes(gps=True), "image/jpeg"))])
     url = r.headers["location"]
 
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         photos = db.photos_for(conn, "listing", int(url.rsplit("/", 1)[-1]))
     assert len(photos) == 1
 
@@ -319,7 +319,7 @@ def test_heic_is_refused_with_an_explanation(make_user):
     page = follow(owner, r)
     assert "HEIC" in page.text
 
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         assert db.photos_for(conn, "listing", 1) == []
 
 
@@ -329,12 +329,12 @@ def test_a_photo_can_be_removed(make_user):
                      files=[("photos", ("a.png", png_bytes(), "image/png"))]).headers["location"]
     listing_id = int(url.rsplit("/", 1)[-1])
 
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         photo = db.photos_for(conn, "listing", listing_id)[0]
     saved = get_settings().uploads_dir / photo["path"]
 
     owner.post(f"/dashboard/listings/{listing_id}/photos/{photo['id']}/delete")
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         assert db.photos_for(conn, "listing", listing_id) == []
     assert not saved.exists(), "the file should go with the row"
 
@@ -397,7 +397,7 @@ def test_shares_maths_and_display(client, make_user):
     url = owner.post("/dashboard/projects/new", data=SHARES).headers["location"]
     project_id = int(url.rsplit("/", 1)[-1])
 
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         project = db.project_by_id(conn, project_id)
     assert project["total_units"] == 80          # 20,00,000 / 25,000
 
@@ -428,7 +428,7 @@ def test_reserving_shares(client, make_user):
     ok = follow(investor, investor.post(f"{url}/pledge", data={"units": "6"}))
     assert "6 shares noted" in ok.text
 
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         pledge = db.pledge_for(conn, int(url.rsplit("/", 1)[-1]), 2)
     assert pledge["units"] == 6
     assert pledge["amount"] == 6 * 25000         # rupees follow from the units
@@ -477,7 +477,7 @@ def test_project_kind_cannot_be_switched_after_posting(make_user):
 
     grower.post(f"/dashboard/projects/{project_id}/edit",
                 data={**CROP, "kind": "shares", "title": "Sneaky switch"})
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         assert db.project_by_id(conn, project_id)["kind"] == "crop"
 
 
@@ -528,7 +528,7 @@ def test_admin_area_is_closed_to_ordinary_accounts(make_user):
 
 def test_admin_area_opens_for_an_admin(client):
     settings = get_settings()
-    with db.closing_conn(settings.db_path) as conn:
+    with db.closing_conn(settings.db_target) as conn:
         db.create_user(conn, name="Gunesh Prasad", email="admin@example.com",
                        phone="9812345678", password_hash=hash_password("pilot-season"),
                        roles="grower", district="Belagavi", taluk="Chikkodi", is_admin=True)
@@ -657,7 +657,7 @@ def test_a_space_is_stored_in_acres_too(make_user):
     """Everything else on the site measures land in acres; keep that column honest."""
     grower = make_user(roles=["grower"])
     url = grower.post("/dashboard/projects/new", data=SPACE).headers["location"]
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         project = db.project_by_id(conn, int(url.rsplit("/", 1)[-1]))
     assert project["area_sqft"] == 1200
     assert project["acres"] == pytest.approx(1200 / 43560, abs=1e-4)
@@ -703,7 +703,7 @@ def test_the_other_kinds_are_unaffected_by_the_new_columns(make_user):
     for payload in (CROP, LIVESTOCK, SHARES):
         url = grower.post("/dashboard/projects/new", data=payload).headers["location"]
         project_id = int(url.rsplit("/", 1)[-1])
-        with db.closing_conn(get_settings().db_path) as conn:
+        with db.closing_conn(get_settings().db_target) as conn:
             project = db.project_by_id(conn, project_id)
         assert project["area_sqft"] == 0 and project["activity"] == ""
 

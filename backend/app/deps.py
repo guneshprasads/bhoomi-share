@@ -30,7 +30,7 @@ class NotFound(Exception):
 
 
 def conn_dep(settings: Settings = Depends(settings_dep)) -> Iterator[sqlite3.Connection]:
-    with db.closing_conn(settings.db_path) as conn:
+    with db.closing_conn(settings.db_target) as conn:
         yield conn
 
 

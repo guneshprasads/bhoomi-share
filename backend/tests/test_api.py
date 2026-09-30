@@ -20,7 +20,7 @@ def test_join(client, entry):
 
 def test_phone_is_normalised(client, entry):
     client.post("/api/waitlist", json={**entry, "phone": "+91 98765 43210"})
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         rows = db.list_waitlist(conn)
     assert [r["phone"] for r in rows] == ["9876543210"]
 
@@ -31,7 +31,7 @@ def test_repeat_number_updates_instead_of_duplicating(client, entry):
     assert r.status_code == 201
     assert r.json()["status"] == "updated"
 
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         rows = db.list_waitlist(conn)
     assert len(rows) == 1
     assert rows[0]["role"] == "Landowner"
@@ -73,7 +73,7 @@ def test_honeypot_is_silently_dropped(client, entry):
     r = client.post("/api/waitlist", json={**entry, "company": "Acme"})
     assert r.status_code == 201
     assert r.json()["status"] == "ignored"
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         assert db.list_waitlist(conn) == []
 
 
@@ -119,10 +119,10 @@ def test_admin_csv(client, entry):
 
 def test_admin_delete(client, entry):
     client.post("/api/waitlist", json=entry)
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         entry_id = db.list_waitlist(conn)[0]["id"]
 
     assert client.delete(f"/api/admin/waitlist/{entry_id}", headers=ADMIN).status_code == 204
     assert client.delete(f"/api/admin/waitlist/{entry_id}", headers=ADMIN).status_code == 404
-    with db.closing_conn(get_settings().db_path) as conn:
+    with db.closing_conn(get_settings().db_target) as conn:
         assert db.list_waitlist(conn) == []

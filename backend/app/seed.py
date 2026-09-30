@@ -19,8 +19,8 @@ log = logging.getLogger("bhoomi.seed")
 DEMO_PASSWORD = "bhoomi-pilot"
 
 
-def seed_if_empty(db_path: Path) -> bool:
-    with db.closing_conn(db_path) as conn:
+def seed_if_empty(target) -> bool:
+    with db.closing_conn(target) as conn:
         if db.one(conn, "SELECT COUNT(*) AS n FROM user")["n"]:
             return False
 

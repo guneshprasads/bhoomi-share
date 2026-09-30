@@ -22,7 +22,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from . import db, seed
 from .deps import Forbidden, LoginRequired, NotFound
 from .hardening import Hardening
-from .routers import admin_pages, api, auth, dashboard, land, marketing, pages, projects, seo
+from .routers import admin_pages, api, auth, dashboard, land, marketing, media, pages, projects, seo
 from .schemas import ErrorOut
 from .security import current_user
 from .settings import get_settings
@@ -47,12 +47,13 @@ LENGTH_MESSAGES = {
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    db.init_db(settings.db_path)
+    db.init_db(settings.db_target)
     if settings.seed_demo:
-        seed.seed_if_empty(settings.db_path)
+        seed.seed_if_empty(settings.db_target)
     if settings.secret_key_is_ephemeral:
         log.warning("BHOOMI_SECRET_KEY is not set: sessions end when this process does.")
     yield
+    db.close_pools()
 
 
 app = FastAPI(
@@ -92,9 +93,8 @@ if settings.allowed_origins:
 app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
 
 settings.uploads_dir.mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=str(settings.uploads_dir)), name="uploads")
 
-for router in (pages.router, marketing.router, seo.router, auth.router, land.router, projects.router,
+for router in (pages.router, marketing.router, seo.router, media.router, auth.router, land.router, projects.router,
                dashboard.router, admin_pages.router, api.router):
     app.include_router(router)
 
