@@ -1,18 +1,31 @@
 <!doctype html>
-<html lang="{{ lang }}">
+<html lang="{{ lang }}" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% block title %}{{ site_name }}{% endblock %}</title>
-<meta name="theme-color" content="#F3ECDC">
-<meta name="description" content="{% block description %}Fund a season's crop on a named parcel, or list farmland you aren't farming. Piloted on our own 15 acres first.{% endblock %}">
+<meta name="theme-color" content="#120C0B">
+<meta name="color-scheme" content="dark">
+{% set _desc %}{% block description %}Fund a season's crop on a named parcel, lease farmland, or put a small space to work. Karnataka, district by district. Piloted on our own 15 acres first.{% endblock %}{% endset %}
+<meta name="description" content="{{ _desc | striptags | trim }}">
+<link rel="canonical" href="{{ request.url.scheme }}://{{ request.url.netloc }}{{ request.url.path }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ site_name }}">
+<meta property="og:title" content="{% block og_title %}{{ self.title() | striptags | trim }}{% endblock %}">
+<meta property="og:description" content="{{ _desc | striptags | trim }}">
+<meta property="og:image" content="{{ request.url.scheme }}://{{ request.url.netloc }}/static/og.svg">
+<meta name="twitter:card" content="summary_large_image">
+<script>document.documentElement.className='js'</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Public+Sans:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Public+Sans:wght@400..700&family=Noto+Sans+Kannada:wght@400..700&display=swap">
 <link rel="stylesheet" href="/static/styles.css">
+<link rel="stylesheet" href="/static/site.css">
+{% block head %}{% endblock %}
 <link rel="icon" href="/static/parcel.svg" type="image/svg+xml">
 </head>
 <body>
+<a class="skip" href="#top">Skip to content</a>
 {% include "partials/header.html" %}
 
 <main id="top">
@@ -26,6 +39,7 @@
 
 {% include "partials/footer.html" %}
 <script src="/static/app.js" defer></script>
+<script src="/static/site.js" defer></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>
