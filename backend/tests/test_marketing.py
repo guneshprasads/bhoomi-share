@@ -71,3 +71,12 @@ def test_model_example_budgets_add_up():
     assert content.cost_total(content.get("crop-plans")) == 100000
     assert content.cost_total(content.get("livestock")) == 250000
     assert content.cost_total(content.get("land-shares")) == 2000000
+
+
+def test_how_it_works_walks_one_season_and_states_what_the_site_does_not_do(client):
+    r = client.get("/how-it-works")
+    assert r.status_code == 200
+    for step in ("A plan is posted", "The agreement is signed", "Proceeds are split"):
+        assert step in r.text
+    assert "Hold deposits, collect rent, or move money" in r.text
+    assert "Guarantee any return" in r.text
