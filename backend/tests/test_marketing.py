@@ -125,3 +125,23 @@ def test_karnataka_map_in_kannada(client):
     client.get("/lang/kn", params={"next": "/karnataka"})
     page = client.get("/karnataka").text
     assert "ಬೆಳಗಾವಿ" in page and "ಮೈಸೂರು" in page
+
+
+def test_faq_renders_groups_and_structured_data(client):
+    r = client.get("/faq")
+    assert r.status_code == 200
+    assert "Is any return guaranteed?" in r.text
+    assert '"@type": "FAQPage"' in r.text
+    assert "Do I own part of the land if I take shares?" in r.text
+
+
+def test_faq_answers_are_consistent_with_the_fine_print():
+    from app import content
+    text = " ".join(a for _, a in content.faq_flat())
+    assert "never of the land" in text
+    assert "No return" in text or "No. Crops fail" in text
+
+
+def test_about_page_states_pilot_and_status(client):
+    page = client.get("/about").text
+    assert "15 acres" in page and "Pre-launch" in page

@@ -352,3 +352,69 @@ def story_with_numbers(story: dict[str, Any]) -> dict[str, Any]:
     out["result"] = simulator.run(story["sim_kind"], story["sim"])
     out["model_obj"] = get(story["model"])
     return out
+
+
+# --------------------------------------------------------------------------- #
+# FAQ
+# --------------------------------------------------------------------------- #
+
+FAQ_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
+    ("The basics", [
+        ("What is Bhoomi Share?",
+         "A site that connects people who have land or space, people who have money, and people who can farm, across Karnataka. There are five ways to work together: crop plans, livestock units, small spaces, land shares and leases. It is pre-launch and being proven on our own 15 acres first."),
+        ("Is this live? Can I invest today?",
+         "No. The site is pre-launch. No investment is being offered or accepted, no money moves through it, and no agreement is executed by it. You can read plans, use the calculators and join the waitlist."),
+        ("Which districts does it cover?",
+         "All 31 Karnataka districts are in the lists, but we open them one at a time after a full season of real numbers, starting with Belagavi, where our pilot is."),
+        ("Is it available in Kannada?",
+         "Yes. Every page can be read in English or Kannada, and the choice is remembered. Anything a person typed themselves, such as a listing's notes, is shown as they wrote it."),
+    ]),
+    ("Money and returns", [
+        ("Is any return guaranteed?",
+         "No. Crops fail, animals die and prices drop. A failed season can return nothing to the person who funded it. That is why every calculator and every model page shows the failed season next to the good one, and why we will not offer a guaranteed return."),
+        ("How are the proceeds split?",
+         "One rule for every funded plan: the sale first repays the listed costs to whoever paid them, then what is left is split by the percentages stated in the plan, for example 70/30. If the sale does not cover the costs, the funder gets back what there is and the grower gets nothing for their labour."),
+        ("Why is the split often 70/30?",
+         "It is what we run on our own land, not a rule. Every plan states its own split, agreed before work starts and written down."),
+        ("Does money pass through the site?",
+         "No. The site puts plans and parcels in front of people and passes on contact details. Any payment and any signature is between the people in the agreement."),
+        ("Are the numbers on the earn page forecasts?",
+         "No. The starting numbers are round examples you can change, and the page only shows what the agreement's arithmetic does with them. A real season can do worse than the worst case shown."),
+        ("What does it cost to use?",
+         "Nothing during the pilot. When there is a fee it will be stated on the how-it-works page before it applies to anyone."),
+    ]),
+    ("Law and safety", [
+        ("Is this a Collective Investment Scheme under SEBI rules?",
+         "Pooling money and managing it for a share of profits can resemble one. So pools are kept small, the number of people per plan is capped, each plan is its own arrangement, and counsel reviews the structure before any money moves. Land shares are capped hardest, because that model is the closest to the line. The fine print explains the reasoning."),
+        ("Do I own part of the land if I take shares?",
+         "No. A share is a share of one cycle's work, never of the land. No part of the survey number is transferred and nothing is registered in your name."),
+        ("Why a licence and not a lease?",
+         "In Karnataka, as in several states, a tenant who farms the same land continuously can build up occupancy or purchase rights. That is why landowners often refuse to write anything down. A short, fixed-term licence to cultivate, drafted for Karnataka, gives both sides paper without that risk, and renewal is a decision rather than a default."),
+        ("Do you verify who owns the land?",
+         "No. Ask for the RTC (pahani) and read it, the way you would anyway. The site does not verify title."),
+        ("Is this legal advice?",
+         "No. We are not your lawyers. Have your own adviser read any agreement before you sign it."),
+    ]),
+    ("Working with land and plans", [
+        ("How does a grower get a plan funded?",
+         "Post a costed plan: parcel, district and survey number, crop or animals, budget, expected sale, the split you want, and photographs. People can read it and register interest; the grower sees whether it is fundable."),
+        ("Does registering interest commit me to anything?",
+         "No. Registering interest is a message to the grower, not a subscription, and is not binding on you or on us."),
+        ("What is a small space?",
+         "A site, shed, terrace or room up to one acre, measured in square feet, used for something small and intensive like mushrooms, vermicompost or microgreens. A 30 by 40 site is 1,200 sq ft. Anything bigger is a farm and belongs under a crop plan or land shares."),
+        ("Can a landowner also list land for farmers?",
+         "Yes. List the parcel with its survey number, water source and hours, soil, road access and photographs. Farmers search by district and irrigation and write to you; you agree rent or a crop share and sign a fixed-term licence."),
+    ]),
+    ("Accounts and data", [
+        ("What do you store about me?",
+         "If you join the waitlist: your name, phone number, the side you are on and your district. If you make an account: that plus email, district, taluk, and a password stored as a salted hash. Photographs you upload are re-saved to remove the location metadata your phone adds."),
+        ("Who can see my phone number?",
+         "When you write to a landowner or register interest in a plan, that person sees your name, district and phone number. That is the point of writing. Nobody else does, and it is not sold or forwarded."),
+        ("How do I delete my data?",
+         "Ask us and we will delete it, without asking why."),
+    ]),
+]
+
+
+def faq_flat() -> list[tuple[str, str]]:
+    return [qa for _, items in FAQ_GROUPS for qa in items]

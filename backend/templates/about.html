@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}About — {{ site_name }}{% endblock %}
+{% block description %}Bhoomi Share is run by a farming family in Karnataka and is being proven on their own 15 acres before it asks anyone else for money or land. The principles it is built on.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('earn.css') }}"><link rel="stylesheet" href="{{ asset('about.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.about') }}</span>
+    {% if lang == 'kn' %}
+      <h1 class="rv">ಒಂದು ಕುಟುಂಬದ ಹೊಲ, <span class="em">ಒಂದು ದೊಡ್ಡ ಪ್ರಶ್ನೆ.</span></h1>
+      <p class="lead rv">ಬೆಳೆಗೆ ಭೂಮಿ, ಹಣ ಮತ್ತು ದುಡಿಯುವ ಕೈ ಬೇಕು. ಈ ಮೂರೂ ಒಬ್ಬರ ಬಳಿಯೇ ಇರುವುದು ಅಪರೂಪ.</p>
+    {% else %}
+      <h1 class="rv">A family farm, <span class="em">and one simple question.</span></h1>
+      <p class="lead rv">A crop needs land, money and someone to farm it. Those three rarely sit with the same person. Bhoomi Share is our attempt to put them together, carefully.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="container aboutgrid">
+  <div class="aboutcol">
+    <h2>The pilot</h2>
+    <p>We farm 15 acres in Belagavi district as a family. Every model on this site runs there first: our own capital in the investor seat, our own soil, a full season of numbers, and one parcel licensed out on the agreement we drafted. We want those numbers, including the parts that went badly, before we take money or land from anyone else.</p>
+    <p>That is why the site is pre-launch, why no money moves through it, and why we open one district at a time.</p>
+
+    <h2>What we believe</h2>
+    <ul class="beliefs">
+      <li><b>Show the failed season.</b><span>Every calculator, story and model page shows what happens when the crop fails. A site that only shows the good case is selling something.</span></li>
+      <li><b>Paper, not handshakes.</b><span>Most land arrangements already happen by word of mouth. That works until it does not. Short, fixed-term agreements protect both sides.</span></li>
+      <li><b>Small on purpose.</b><span>Pools are capped and kept small. We would rather grow slowly than fall foul of the rules on collective investment.</span></li>
+      <li><b>People decide.</b><span>The site puts plans and parcels in front of people. It does not hold money, verify title or sign for anyone.</span></li>
+      <li><b>Two languages, equally.</b><span>Farming in Karnataka happens in Kannada. Every page is available in English and Kannada.</span></li>
+    </ul>
+  </div>
+
+  <aside class="aboutside">
+    <div class="card">
+      <h3>At a glance</h3>
+      <dl class="facts">
+        <div><dt>Where</dt><dd>Karnataka, 31 districts</dd></div>
+        <div><dt>Pilot</dt><dd>15 acres, Belagavi district</dd></div>
+        <div><dt>Status</dt><dd>Pre-launch; nothing offered or accepted</dd></div>
+        <div><dt>Models</dt><dd>Crop plans, livestock, small spaces, land shares, lease</dd></div>
+        <div><dt>Cost</dt><dd>Nothing during the pilot</dd></div>
+        <div><dt>Languages</dt><dd>English, ಕನ್ನಡ</dd></div>
+      </dl>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <h3>Get in touch</h3>
+      <p>The easiest way is the waitlist: tell us which side you are on and where, and we will come back to you once, with what is actually available near you.</p>
+      <p style="margin-top:1rem"><a class="btn btn--solid" href="/#join">{{ t('cta.join') }}</a></p>
+    </div>
+  </aside>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="grid grid--3">
+      <a class="card rv" href="/how-it-works"><h3>{{ t('nav.how') }}</h3><p>One season from first post to final split, and who does what.</p></a>
+      <a class="card rv" href="/fine-print" style="--d:.07s"><h3>{{ t('nav.fineprint') }}</h3><p>The SEBI and tenancy-law reasoning, in full and in plain words.</p></a>
+      <a class="card rv" href="/earn" style="--d:.14s"><h3>{{ t('nav.earn') }}</h3><p>The arithmetic, with your own numbers and the failed season shown.</p></a>
+    </div>
+  </div>
+</section>
+{% endblock %}

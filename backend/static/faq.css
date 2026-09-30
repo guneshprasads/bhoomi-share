@@ -1,0 +1,16 @@
+.faqsearch{position:relative;max-width:520px;margin-top:1.75rem}
+.faqsearch svg{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--text-faint);pointer-events:none}
+.faqsearch input{width:100%;padding:.9rem 1.1rem .9rem 2.8rem;border-radius:999px;font-size:1rem;box-shadow:var(--shadow-sm)}
+.faqpage{display:grid;grid-template-columns:220px minmax(0,1fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:start;padding-bottom:clamp(2rem,4vw,3rem)}
+.faqnav{position:sticky;top:96px;display:grid;gap:.25rem}
+.faqnav a{padding:.6rem .9rem;border-radius:10px;color:var(--text-soft);text-decoration:none;font-weight:500;font-size:.92rem}
+.faqnav a:hover{background:var(--surface-2);color:var(--burgundy)}
+.faqgroup{margin-bottom:clamp(2rem,4vw,3rem);scroll-margin-top:96px}
+.faqgroup h2{font-size:clamp(1.4rem,1.1rem + 1.2vw,1.9rem);margin-bottom:.8rem}
+.faqgroup[hidden],.faq details[hidden]{display:none}
+.faqnone{padding:1.5rem;border:1px dashed var(--line);border-radius:14px;color:var(--text-faint)}
+@media (max-width:860px){
+  .faqpage{grid-template-columns:1fr}
+  .faqnav{position:static;display:flex;flex-wrap:wrap;gap:.4rem}
+  .faqnav a{border:1px solid var(--line);font-size:.85rem}
+}
