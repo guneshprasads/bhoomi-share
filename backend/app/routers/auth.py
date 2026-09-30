@@ -21,6 +21,8 @@ from ..security import (
     logout_session,
     verify_password,
 )
+from ..settings import Settings
+from ..security import settings_dep
 from ..templating import flash, render
 
 router = APIRouter()
@@ -50,9 +52,22 @@ def login(
     password: str = Form(...),
     next: str = Form(""),
     conn: sqlite3.Connection = Depends(conn_dep),
+    settings: Settings = Depends(settings_dep),
 ):
+    # Failed attempts are counted per connection (salted hash, never the raw IP),
+    # in their own namespace so they do not mix with the waitlist's counts.
+    forwarded = request.headers.get("x-forwarded-for")
+    ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")
+    ip_hash = db.hash_ip(ip, settings.ip_salt + ":login")
+    if db.recent_submission_count(conn, ip_hash) >= settings.login_limit_per_hour:
+        return render(
+            request, "login.html", user=None, next=next, email=email, status_code=429,
+            error="Too many failed attempts from this connection. Try again in an hour.",
+        )
     user = db.user_by_email(conn, email.strip())
     if user is None or not verify_password(password, user["password_hash"]):
+        db.log_submission(conn, ip_hash)
+        conn.commit()
         return render(
             request, "login.html", user=None, next=next, email=email,
             error="That email and password do not match anything here.",

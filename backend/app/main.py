@@ -78,7 +78,8 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=600)
 # Added last, so it runs first on the way in and last on the way out: every
 # response, including errors, gets the headers.
-app.add_middleware(Hardening, tile_url=settings.tile_url, hsts=settings.cookie_secure)
+app.add_middleware(Hardening, tile_url=settings.tile_url, hsts=settings.cookie_secure,
+                   frame_ancestors=settings.frame_ancestors, allowed_origins=settings.allowed_origins)
 
 if settings.allowed_origins:
     from fastapi.middleware.cors import CORSMiddleware

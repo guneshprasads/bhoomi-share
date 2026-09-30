@@ -41,6 +41,8 @@ class Settings:
     cookie_secure: bool
     seed_demo: bool
     tile_url: str
+    login_limit_per_hour: int
+    frame_ancestors: tuple[str, ...]
     photos_in_db: bool
     site_url: str
     tile_attribution: str
@@ -99,6 +101,10 @@ def get_settings() -> Settings:
         # Hosts like Render's free tier wipe the disk on every deploy, so with a hosted
         # database the photographs live in the database too (the disk is a cache).
         photos_in_db=_flag("BHOOMI_PHOTOS_IN_DB", bool(_database_url())),
+        login_limit_per_hour=max(3, int(os.environ.get("BHOOMI_LOGIN_LIMIT", "10") or 10)),
+        # Sites allowed to embed this one in an iframe (e.g. https://*.streamlit.app).
+        # Empty, the default, means nobody: the site cannot be framed.
+        frame_ancestors=tuple(o.strip() for o in (os.environ.get("BHOOMI_FRAME_ANCESTORS") or "").split() if o.strip()),
         tile_url=os.environ.get("BHOOMI_TILE_URL", "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
         tile_attribution=os.environ.get(
             "BHOOMI_TILE_ATTRIBUTION",

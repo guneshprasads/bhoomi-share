@@ -71,3 +71,32 @@ def test_unhandled_errors_do_not_leak_a_traceback(client):
         r = c.get("/__boom")
     assert r.status_code == 500
     assert "secret detail" not in r.text and "Traceback" not in r.text
+
+
+# ------------------------------------------------------------------ auth hardening
+
+def test_a_cross_site_post_is_refused_but_same_site_and_non_browser_posts_work(client):
+    form = {"email": "nobody@example.com", "password": "whatever-it-is"}
+    assert client.post("/login", data=form, headers={"origin": "https://evil.example"}).status_code == 403
+    assert client.post("/login", data=form, headers={"origin": "http://testserver"}).status_code == 200
+    assert client.post("/login", data=form).status_code == 200        # no Origin: not a browser
+
+
+def test_repeated_failed_logins_are_throttled(client):
+    form = {"email": "nobody@example.com", "password": "wrong-password"}
+    codes = [client.post("/login", data=form).status_code for _ in range(12)]
+    assert codes[0] == 200 and codes[-1] == 429
+    assert "Too many failed attempts" in client.post("/login", data=form).text
+
+
+def test_a_successful_login_is_not_counted_against_you(client, make_user):
+    make_user(email="ok@example.com", password="pilot-season")
+    ok = {"email": "ok@example.com", "password": "pilot-season"}
+    for _ in range(15):
+        assert client.post("/login", data=ok).status_code == 303
+
+
+def test_framing_is_refused_by_default_and_the_policy_follows_the_setting():
+    from app.hardening import build_csp
+    assert "frame-ancestors 'none'" in build_csp("n", "https://t/{z}/{x}/{y}.png")
+    assert "frame-ancestors https://*.streamlit.app" in build_csp("n", "https://t/{z}/{x}/{y}.png", ("https://*.streamlit.app",))
