@@ -234,7 +234,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ nonce }}">
 /* Show only the fields that belong to the chosen kind. */
 (function () {
   var form = document.querySelector('.form-wide');

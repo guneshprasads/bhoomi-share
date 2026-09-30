@@ -203,6 +203,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script>window.BHOOMI_DEFAULTS={{ defaults | tojson }};</script>
+<script nonce="{{ nonce }}">window.BHOOMI_DEFAULTS={{ defaults | tojson }};</script>
 <script src="{{ asset('earn.js') }}" defer></script>
 {% endblock %}

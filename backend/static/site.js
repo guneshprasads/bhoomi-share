@@ -122,3 +122,11 @@
     }
   });
 })();
+
+/* confirmation prompts: <form data-confirm="Are you sure?">. Kept out of inline
+   handlers so the Content-Security-Policy can forbid those outright. */
+document.addEventListener('submit', function (e) {
+  var f = e.target;
+  var msg = f && f.getAttribute && f.getAttribute('data-confirm');
+  if (msg && !window.confirm(msg)) { e.preventDefault(); }
+});
