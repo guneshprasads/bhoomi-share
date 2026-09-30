@@ -98,3 +98,30 @@ def test_story_numbers_come_from_the_simulator():
     assert expected["you_net"] == 42000
     shalini = content.story_with_numbers(next(s for s in content.STORIES if s["slug"] == "shalini"))
     assert shalini["result"]["per_year"] == 64000
+
+
+def test_karnataka_map_has_all_31_districts(client):
+    page = client.get("/karnataka").text
+    assert page.count('class="tile ') == 31
+    for name in ("Belagavi", "Mysuru", "Kalaburagi", "Bengaluru Urban"):
+        assert name in page
+
+
+def test_karnataka_map_counts_what_is_open(client, make_user):
+    # an empty database: nothing open anywhere, so the panel says so honestly
+    page = client.get("/karnataka").text
+    assert "0</b><span>plans open" in page.replace("\n", "")
+
+
+def test_tile_positions_cover_every_district_once():
+    from app import karnataka as k
+    assert set(k.TILE_POS) == set(k.DISTRICTS)
+    assert len(set(k.TILE_POS.values())) == len(k.DISTRICTS)
+    assert set(k.DISTRICTS_KN) == set(k.DISTRICTS)
+    assert set(k.DIVISION_NOTES) == set(k.DIVISIONS)
+
+
+def test_karnataka_map_in_kannada(client):
+    client.get("/lang/kn", params={"next": "/karnataka"})
+    page = client.get("/karnataka").text
+    assert "ಬೆಳಗಾವಿ" in page and "ಮೈಸೂರು" in page
