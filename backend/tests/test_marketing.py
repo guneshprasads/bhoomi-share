@@ -190,3 +190,26 @@ def test_map_page_ships_leaflet_config_and_attribution(client):
 def test_map_static_assets_are_served(client):
     assert client.get("/static/data/karnataka_districts.geojson").status_code == 200
     assert client.get("/static/vendor/leaflet/leaflet.css").status_code == 200
+
+
+def test_foresight_is_labelled_not_a_forecast_and_has_every_milestone(client):
+    page = client.get("/foresight").text
+    assert "not a forecast" in page.lower() and "2036" in page
+    from app import content
+    for year, title, _ in content.FORESIGHT["milestones"]:
+        assert title in page
+
+
+def test_story_numbers_come_from_the_engine(client):
+    from app import ledger, risk
+    page = client.get("/story").text
+    t = risk.holding(ledger.example_plans())["totals"]
+    from app.templating import inr
+    assert inr(t["expected_shortfall"]) in page and inr(t["after_fixes"]) in page
+    assert "Free while we prove it" in page and "no cut" in page.lower()
+
+
+def test_new_pages_are_in_the_sitemap(client):
+    body = client.get("/sitemap.xml").text
+    for path in ("/ledger", "/ledger/risk", "/story", "/foresight"):
+        assert path + "</loc>" in body

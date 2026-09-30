@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Foresight 2036 — {{ site_name }}{% endblock %}
+{% block description %}Where Karnataka's farm money is heading between 2026 and 2036, what drives it, what could go wrong and what has to change. A foresight canvas, not a forecast.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('story.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">Market foresight &middot; 2026&ndash;2036</span>
+    <h1 class="rv">Where Karnataka&rsquo;s farm money is heading, <span class="em">and what has to change.</span></h1>
+    <p class="lead rv">A trend, its drivers, milestones, what follows if it happens, the future we want and the steps to get there. Drag the year to see each milestone.</p>
+    <p class="disclaimer rv"><strong>A foresight exercise, not a forecast.</strong> It describes what would have to happen, not what will. The curve shows a direction we want to move in, not measured data.</p>
+  </div>
+</section>
+
+<section class="container fs">
+  <div class="card fstrend">
+    <div class="fstrend__top">
+      <div><span class="kicker" style="margin:0">The trend</span><h2>Farm-level money risk becomes visible</h2></div>
+      <div class="fsyear"><output id="yearOut">2026</output></div>
+    </div>
+    <div id="trend"></div>
+    <div class="fsslider f"><label for="year" class="sr">Year</label><input type="range" id="year" min="2026" max="2036" step="1" value="2026" aria-describedby="yearOut"></div>
+    <div class="fsnow card" id="now" aria-live="polite"></div>
+    <p class="muted" style="font-size:.78rem;margin:.6rem 0 0">Illustrative direction: an index of how many plans are shown with a checked account and a stated bad case, 0 to 100. Not measured.</p>
+  </div>
+
+  <div class="rblock-lite">
+    <span class="kicker">Drivers &middot; why now</span>
+    <h2>Six forces that are already moving</h2>
+    <div class="grid grid--3" style="margin-top:1.4rem">
+      {% for t_, d in f.drivers %}<div class="card rv" style="--d:{{ loop.index0 * 0.05 }}s"><span class="pill pill--rose">{{ loop.index }}</span><h3 style="margin-top:.9rem">{{ t_ }}</h3><p>{{ d }}</p></div>{% endfor %}
+    </div>
+  </div>
+
+  <div class="rblock-lite">
+    <span class="kicker">Milestones</span>
+    <h2>What has to happen, year by year</h2>
+    <ol class="fsmiles">
+      {% for y, t_, d in f.milestones %}
+        <li class="rv" data-year="{{ y }}"><span class="fsmiles__y">{{ y }}</span><div><h3>{{ t_ }}</h3><p>{{ d }}</p></div></li>
+      {% endfor %}
+    </ol>
+  </div>
+
+  <div class="rblock-lite">
+    <span class="kicker">Market consequences &middot; if this trend unfolds</span>
+    <h2>Opportunities and risks</h2>
+    <div class="grid grid--2" style="margin-top:1.4rem">
+      <div>
+        <h3 class="fsh fsh--ok">Opportunities</h3>
+        {% for t_, d in f.opportunities %}<div class="card rv fsc fsc--ok"><h3>{{ t_ }}</h3><p>{{ d }}</p></div>{% endfor %}
+      </div>
+      <div>
+        <h3 class="fsh fsh--bad">Risks</h3>
+        {% for t_, d in f.risks %}<div class="card rv fsc fsc--bad"><h3>{{ t_ }}</h3><p>{{ d }}</p></div>{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="rblock-lite">
+    <div class="grid grid--2">
+      <div class="card rv fsfuture">
+        <span class="kicker" style="margin-bottom:.6rem">The future we want</span>
+        <ul class="ticks">{% for x in f.future %}<li>{{ x }}</li>{% endfor %}</ul>
+      </div>
+      <div class="card rv">
+        <span class="kicker" style="margin-bottom:.6rem">Steps to get there</span>
+        <ol class="fssteps">{% for t_, d in f.steps %}<li><b>{{ t_ }}.</b> {{ d }}</li>{% endfor %}</ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band rv" style="margin-top:clamp(2rem,4vw,3rem)">
+    <div><h2>See the first step working.</h2><p>The example farm shows what a checked account and a stated bad case look like today.</p></div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap"><a class="btn btn--solid btn--big" href="/ledger">{{ t('cta.example') }}</a><a class="btn btn--line btn--big" href="/story">{{ t('nav.story') }}</a></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ nonce }}">window.BHOOMI_MILES={{ f.milestones | tojson }};</script>
+<script src="{{ asset('foresight.js') }}" defer></script>
+{% endblock %}

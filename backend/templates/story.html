@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}The story — {{ site_name }}{% endblock %}
+{% block description %}Farm money is mostly guesswork. Bhoomi Share makes every plan's account add up, prices the risk and shows which fix pays back first. The problem, the idea, who it helps and what it costs.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('story.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container shero">
+    <div>
+      <span class="kicker rv">The story</span>
+      <h1 class="rv">Farm money is mostly guesswork. <span class="em">We put a number on it.</span></h1>
+      <p class="lead rv">One checked account per plan, the chance it falls short, and the money at stake: so a funder, a grower, an owner and a farmer can decide with the bad case in view.</p>
+      <div class="lhero__cta rv" style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.6rem">
+        <a class="btn btn--solid btn--big" href="/ledger">{{ t('cta.example') }} &rarr;</a>
+        <a class="btn btn--line btn--big" href="/ledger/risk">{{ t('nav.risk') }}</a>
+      </div>
+    </div>
+    <div class="card shcard rv">
+      <div class="shcard__bar"><i></i><i></i><i></i><span>Example holding &middot; invented data</span></div>
+      <b class="shcard__n" data-count="{{ totals.expected_shortfall }}" data-prefix="&#8377;">&#8377;{{ inr(totals.expected_shortfall) }}</b>
+      <p class="shcard__l">expected shortfall per season across {{ plans_n }} example plans</p>
+      {% set top = (holding.rows | selectattr('expected_shortfall') | map(attribute='expected_shortfall') | list | max) or 1 %}
+      {% for r in (holding.rows | rejectattr('skipped', 'defined') | sort(attribute='expected_shortfall', reverse=True))[:4] %}
+        <div class="shbar"><span>{{ r.name.split(' · ')[0] }}</span><div><i style="width:{{ (r.expected_shortfall / top * 100) | round(1) }}%"></i></div><b>&#8377;{{ inr(r.expected_shortfall) }}</b></div>
+      {% endfor %}
+      <p class="shcard__f">Simulated from stated assumptions. Not a forecast.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head"><span class="kicker">The problem</span><h2>Three things rarely sit together, and nobody can see the bad case.</h2></div>
+    <div class="grid grid--3">
+      <div class="card rv"><span class="pill pill--rose">1</span><h3 style="margin-top:.9rem">Land, money and skill are split up</h3><p>A parcel needs land, working capital and someone who can farm it. Those rarely sit with one person, so good land sits idle and good farmers sit short of money.</p></div>
+      <div class="card rv" style="--d:.07s"><span class="pill pill--rose">2</span><h3 style="margin-top:.9rem">Deals run on a handshake</h3><p>Most land arrangements already happen by word of mouth, on no paper, because writing anything down can build tenancy rights. It works until it does not.</p></div>
+      <div class="card rv" style="--d:.14s"><span class="pill pill--rose">3</span><h3 style="margin-top:.9rem">Nobody sees the bad case</h3><p>A budget that does not add up, a season nobody logged, a yield claimed with no history. A funder is asked to trust numbers nobody has checked.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section__head"><span class="kicker">How it works</span><h2>Check. Predict. Decide.</h2></div>
+    <div class="grid grid--3">
+      <a class="card rv sstep" href="/ledger"><span class="sstep__n">1</span><h3>Check</h3><p>Import a ledger. Every plan gets an account that has to add up: the budget, the spend log, the settlement. Gaps are listed, never guessed.</p><p class="sstep__proof"><b>{{ flagged }}</b> gaps flagged across {{ plans_n }} example plans, before any funder sees them.</p></a>
+      <a class="card rv sstep" style="--d:.07s" href="/ledger/risk"><span class="sstep__n">2</span><h3>Predict</h3><p>Thousands of simulated seasons show the chance the sale falls short of the costs, and the bad case, one season in twenty.</p><p class="sstep__proof">Riskiest example plan: <b>{{ best.name.split(' · ')[0] }}</b>, a <b>{{ (best.p_short * 100) | round | int }}%</b> chance of falling short, bad case <b>&#8377;{{ inr(best.bad_case) }}</b>.</p></a>
+      <a class="card rv sstep" style="--d:.14s" href="/ledger/risk#sec2"><span class="sstep__n">3</span><h3>Decide</h3><p>Compare fixes on the same simulated seasons and see which pays back first, and which is not worth its cost.</p><p class="sstep__proof">Best fixes cut the holding&rsquo;s expected shortfall by <b>{{ cut }}%</b> (&#8377;{{ inr(totals.expected_shortfall) }} &rarr; &#8377;{{ inr(totals.after_fixes) }}).</p></a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head"><span class="kicker">What it delivers</span><h2>Outcomes you can put a number on</h2><p>Figures are from the invented example holding and the example calculators. They show the kind of answer each side gets, not results anyone achieved.</p></div>
+    <div class="grid grid--4">
+      <div class="card rv sout"><span class="pill pill--rose">Funders</span><b>&#8377;{{ inr(totals.expected_shortfall) }} &rarr; &#8377;{{ inr(totals.after_fixes) }}</b><p>Expected shortfall across the example holding, before and after the best fix on each plan.</p></div>
+      <div class="card rv sout" style="--d:.06s"><span class="pill pill--gold">Growers</span><b>+9.7%</b><p>One example plan's budget lines exceed its stated budget by this much. Flagged before any funder reads it.</p></div>
+      <div class="card rv sout" style="--d:.12s"><span class="pill pill--rose">Landowners</span><b>&#8377;{{ inr(rent.per_year) }} a year</b><p>Four idle acres licensed for two seasons at the example rent, on a fixed-term licence, if renewed.</p></div>
+      <div class="card rv sout" style="--d:.18s"><span class="pill pill--gold">Farmers</span><b>{{ farm.breakeven_vs_expected_pct }}%</b><p>Break-even revenue as a share of what is expected, before signing for land: how bad a season can be survived.</p></div>
+    </div>
+    <p class="muted" style="font-size:.85rem;margin-top:1.2rem"><a href="/earn">Try your own numbers on the earn page &rarr;</a></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container sgrid">
+    <div>
+      <div class="section__head" style="margin-bottom:1.2rem"><span class="kicker">What it costs</span><h2>Free while we prove it.</h2></div>
+      <p class="lead">We are not charging funders, growers, owners or farmers during the pilot. We take no cut of any plan&rsquo;s proceeds, and no money passes through the site.</p>
+      <p style="margin-top:1rem">If there is ever a fee, it will be decided with counsel, stated on the how-it-works page before it applies to anyone, and never buried in a split. We would rather not have a business model than one we cannot explain.</p>
+    </div>
+    <div class="card">
+      <h3>What is data, what is model, what is assumed</h3>
+      <ul class="ticks" style="margin-top:1rem">
+        <li><b>Data:</b> the ledger&rsquo;s budget lines, logs and past seasons. The example is invented and says so.</li>
+        <li><b>Model:</b> a seeded simulation of yield and price, with a failed-season event.</li>
+        <li><b>Assumed:</b> yield spread, price swing, failure chance, every fix&rsquo;s cost and effect. All editable on the page.</li>
+      </ul>
+      <p class="muted" style="font-size:.82rem;margin-top:1rem">Risk outputs are simulations from stated assumptions, not forecasts.</p>
+    </div>
+  </div>
+</section>
+
+<section class="container" style="padding-bottom:clamp(2.5rem,5vw,4rem)">
+  <div class="cta-band rv">
+    <div><h2>See it on a whole example farm.</h2><p>Six plans, one holding, one page. Then bring your own ledger.</p></div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap"><a class="btn btn--solid btn--big" href="/ledger">{{ t('cta.example') }} &rarr;</a><a class="btn btn--line btn--big" href="/foresight">{{ t('nav.foresight') }}</a></div>
+  </div>
+</section>
+{% endblock %}
