@@ -1,0 +1,72 @@
+/* Bhoomi Share — shared behaviour for the v2 pages.
+   Dependency-free. Every effect is progressive: with JS off, or with
+   prefers-reduced-motion, the page is fully visible and fully usable. */
+
+(function () {
+  'use strict';
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* header gains a solid background once the page has scrolled */
+  var hdr = document.querySelector('.hdr');
+  if (hdr) {
+    var onScroll = function () { hdr.classList.toggle('is-scrolled', window.scrollY > 8); };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  /* reveal-on-scroll */
+  var rv = document.querySelectorAll('.rv');
+  if (rv.length) {
+    if (reduce || !('IntersectionObserver' in window)) {
+      rv.forEach(function (el) { el.classList.add('in'); });
+    } else {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+      rv.forEach(function (el) { io.observe(el); });
+    }
+  }
+
+  /* count-up numbers: <span data-count="1240" data-prefix="₹">  */
+  function format(n) {
+    // Indian digit grouping, matching the server's inr() helper
+    var s = String(Math.round(n));
+    if (s.length <= 3) { return s; }
+    var tail = s.slice(-3), head = s.slice(0, -3), parts = [];
+    while (head.length > 2) { parts.unshift(head.slice(-2)); head = head.slice(0, -2); }
+    if (head) { parts.unshift(head); }
+    return parts.join(',') + ',' + tail;
+  }
+  var counters = document.querySelectorAll('[data-count]');
+  counters.forEach(function (el) {
+    var target = parseFloat(el.getAttribute('data-count')) || 0;
+    var prefix = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+    var plain = el.hasAttribute('data-plain');
+    var show = function (v) { el.textContent = prefix + (plain ? String(Math.round(v)) : format(v)) + suffix; };
+    if (reduce || !('IntersectionObserver' in window)) { show(target); return; }
+    show(0);
+    var obs = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) { return; }
+      obs.disconnect();
+      var start = null, dur = 1400;
+      (function step(ts) {
+        if (start === null) { start = ts; }
+        var t = Math.min((ts - start) / dur, 1);
+        show(target * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) { requestAnimationFrame(step); }
+      })(performance.now());
+    }, { threshold: 0.4 });
+    obs.observe(el);
+  });
+
+  /* dropdowns: Escape closes, and focus leaving the group closes it */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') { return; }
+    var active = document.activeElement;
+    if (active && active.closest && active.closest('.nav__group')) { active.blur(); }
+  });
+})();

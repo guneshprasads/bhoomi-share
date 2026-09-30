@@ -1,25 +1,51 @@
 <footer class="ftr">
-  <div class="wrap ftr__in">
-    <a class="mark" href="/">
-      <svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true" focusable="false">
-        <rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="#211A12" stroke-width="1"></rect>
-        <rect x="12.5" y="0.5" width="9" height="9" fill="none" stroke="#211A12" stroke-width="1"></rect>
-        <rect x="0.5" y="12.5" width="9" height="9" fill="none" stroke="#211A12" stroke-width="1"></rect>
-        <rect x="12.5" y="12.5" width="9" height="9" fill="#3E4A2E" stroke="#3E4A2E" stroke-width="1"></rect>
-      </svg>
-      <span class="mark__name">{{ site_name }}</span>
-    </a>
-    <p class="ftr__tag">{% if lang == 'kn' %}ಒಂದು ಕುಟುಂಬದ ಹೊಲ, ಹದಿನೈದು ಎಕರೆ, ಮತ್ತು ಅದರ ಮೇಲೆ ಸಾಬೀತು ಮಾಡಬೇಕಾದ ಒಪ್ಪಂದಗಳು.{% else %}A family farm in Karnataka, five ways to work land and space, and fifteen acres to prove them on.{% endif %}</p>
-    <p class="pair" style="width:100%;margin-top:1rem">
-      <a href="/seasons">{{ t('nav.crop') }}</a>
-      <a href="/livestock">{{ t('nav.livestock') }}</a>
-      <a href="/spaces">{{ t('nav.space') }}</a>
-      <a href="/shares">{{ t('nav.shares') }}</a>
-      <a href="/land">{{ t('nav.land') }}</a>
-      <a href="/how-it-works">{{ t('nav.how') }}</a>
-      <a href="/fine-print">{{ t('nav.fineprint') }}</a>
-      <a href="/#join">Waitlist</a>
-    </p>
-    <p class="ftr__note">{{ t('notice.prelaunch') }}</p>
+  <div class="container">
+    <div class="ftr__grid">
+      <div class="ftr__brand">
+        <a class="mark" href="/">
+          {% include "partials/glyph.html" %}
+          <span class="mark__name">Bhoomi <em>Share</em></span>
+        </a>
+        <p>{% if lang == 'kn' %}ಒಂದು ಕುಟುಂಬದ ಹೊಲ, ಐದು ದಾರಿಗಳು, ಮತ್ತು ಅವನ್ನು ಸಾಬೀತು ಮಾಡಲು ಹದಿನೈದು ಎಕರೆ.{% else %}A family farm in Karnataka, five ways to work land and space, and fifteen acres to prove them on.{% endif %}</p>
+        <p style="margin-top:1.1rem"><a class="btn btn--solid btn--small" href="/#join">{{ t('cta.join') }}</a></p>
+      </div>
+
+      <nav aria-label="{{ t('footer.product') }}">
+        <h4>{{ t('footer.product') }}</h4>
+        <ul>
+          <li><a href="/earn">{{ t('nav.earn') }}</a></li>
+          <li><a href="/invest">{{ t('nav.plans') }}</a></li>
+          <li><a href="/land">{{ t('nav.land') }}</a></li>
+          <li><a href="/karnataka">{{ t('nav.karnataka') }}</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="Models">
+        <h4>{{ t('nav.models') }}</h4>
+        <ul>
+          <li><a href="/models/crop-plans">{{ t('kind.crop') }}</a></li>
+          <li><a href="/models/livestock">{{ t('kind.livestock') }}</a></li>
+          <li><a href="/models/small-spaces">{{ t('kind.space') }}</a></li>
+          <li><a href="/models/land-shares">{{ t('kind.shares') }}</a></li>
+          <li><a href="/models/land-lease">{{ t('kind.lease') }}</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="{{ t('footer.learn') }}">
+        <h4>{{ t('footer.learn') }}</h4>
+        <ul>
+          <li><a href="/how-it-works">{{ t('nav.how') }}</a></li>
+          <li><a href="/stories">{{ t('nav.stories') }}</a></li>
+          <li><a href="/faq">{{ t('nav.faq') }}</a></li>
+          <li><a href="/fine-print">{{ t('nav.fineprint') }}</a></li>
+          <li><a href="/about">{{ t('nav.about') }}</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="ftr__legal">
+      <p>{{ t('notice.prelaunch') }}</p>
+      <p>&copy; {{ now.year }} {{ site_name }}</p>
+    </div>
   </div>
 </footer>
