@@ -213,3 +213,51 @@ def test_new_pages_are_in_the_sitemap(client):
     body = client.get("/sitemap.xml").text
     for path in ("/ledger", "/ledger/risk", "/story", "/foresight"):
         assert path + "</loc>" in body
+
+
+# ------------------------------------------------------------------ /why
+
+def test_why_data_file_is_real_and_complete():
+    import json
+    from pathlib import Path
+
+    d = json.loads((Path(__file__).resolve().parent.parent / "static" / "data" / "why.json").read_text())
+    years = [r["year"] for r in d["annual"]]
+    assert years[0] == 2010 and years == sorted(years) and len(years) >= 15
+    for r in d["annual"]:
+        assert 30 < r["agri_employment"] < 60 and 10 < r["agri_gdp_share"] < 25
+    months = d["food_inflation_monthly"]
+    assert months[0][0] == "2010-01" and len(months) > 150
+    assert all(-20 < v < 40 for _, v in months)
+    assert d["sources"] and all(s["url"].startswith("https://") for s in d["sources"])
+
+
+def test_why_numbers_are_derived_from_the_data_not_typed_in():
+    from app import why
+
+    n = why.numbers()
+    d = why.load()
+    vals = [v for _, v in d["food_inflation_monthly"]]
+    assert n["peak_val"] == round(max(vals), 1) and n["low_val"] == round(min(vals), 1)
+    assert n["swing"] == round(max(vals) - min(vals), 1)
+    assert n["months_total"] == len(vals)
+    assert n["emp_last"] == round(d["annual"][-1]["agri_employment"], 1)
+
+
+def test_why_page_cites_sources_and_labels_revenue_as_hypothesis(client):
+    from app import why
+
+    page = client.get("/why").text
+    n = why.numbers()
+    assert f"{n['peak_val']}%" in page and n["peak_label"] in page
+    assert "World Bank" in page and "FAOSTAT" in page and n["retrieved"] in page
+    assert "no revenue today" in page.lower() and "to validate" in page
+    assert "not an offer to invest" in page.lower()
+    # nothing that reads like a promise or a made-up financial figure
+    for bad in ("guaranteed return", "projected revenue", "valuation", "ROI of"):
+        assert bad not in page
+
+
+def test_why_page_is_in_the_sitemap_and_nav(client):
+    assert "/why</loc>" in client.get("/sitemap.xml").text
+    assert 'href="/why"' in client.get("/").text

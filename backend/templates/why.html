@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Why it matters — {{ site_name }}{% endblock %}
+{% block description %}Food prices swing hard, farming still carries over 40% of Indian jobs on about 16% of output, and nobody funding a farm can see its bad case. The data, the gap, and why Bhoomi Share is worth backing.{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ asset('story.css') }}"><link rel="stylesheet" href="{{ asset('why.css') }}">{% endblock %}
+
+{% block body %}
+<section class="pagehero">
+  <div class="container">
+    <span class="kicker rv">{{ t('nav.why') }}</span>
+    <h1 class="rv">Farm money is volatile, <span class="em">and nobody can see the bad case.</span></h1>
+    <p class="lead rv">The data on why this problem is real, what we built for it, who we think would pay, and what we do not know yet. Written for people deciding whether to back it.</p>
+    <p class="disclaimer rv"><strong>Read this first.</strong> This page describes a project. It is not an offer to invest, not financial advice and not a forecast. Figures in the charts are public data with sources below; anything about revenue is a <b>hypothesis we have not yet tested</b>, and we say so each time.</p>
+  </div>
+</section>
+
+<!-- 1. PRICES -->
+<section class="container wsec">
+  <div class="rblock-lite">
+    <span class="kicker">1 &middot; The problem is real</span>
+    <h2>Food prices don&rsquo;t just rise. They <em>swing</em>.</h2>
+    <p class="lsub" style="max-width:72ch">Year-on-year food price inflation in India, month by month since {{ w.food_first[:4] }}. A farm is funded months before it sells, so the price it will meet is a bet. The swing is the risk.</p>
+  </div>
+  <div class="card chartcard"><div id="foodChart" class="chart"></div>
+    <div class="callouts">
+      <div><b>{{ w.peak_val }}%</b><span>peak, {{ w.peak_label }}</span></div>
+      <div><b>{{ w.low_val }}%</b><span>low, {{ w.low_label }}</span></div>
+      <div><b>{{ w.swing }} points</b><span>between peak and low</span></div>
+      <div><b>{{ w.months_above_10 }} of {{ w.months_total }}</b><span>months at 10% or more</span></div>
+    </div>
+    <p class="chartnote">Annual average: {{ w.top_year_avg }}% in {{ w.top_year }}, {{ w.low_year_avg }}% in {{ w.low_year }}. {{ w.months_negative }} months were negative. Source: FAO, FAOSTAT Consumer Price Indices, India (data to {{ w.food_last_label }}).</p></div>
+  <p class="takeaway"><b>What it means:</b> a grower, a funder or a lender who plans a season on today&rsquo;s price is exposed to a swing of this size by harvest. That is before rainfall, pests or disease.</p>
+</section>
+
+<!-- 2. EMPLOYMENT VS OUTPUT -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="rblock-lite" style="padding-top:0">
+      <span class="kicker">2 &middot; The people at stake</span>
+      <h2>{{ w.emp_last }}% of workers, {{ w.gdp_last }}% of output.</h2>
+      <p class="lsub" style="max-width:72ch">Agriculture still employs about {{ w.emp_last | round | int }} in every 100 Indian workers but produces about {{ w.gdp_last | round | int }}% of GDP: roughly {{ w.ratio_last }} times more of the workforce than of the economy. Output per farm worker is low, working capital is scarce, and risk is carried alone.</p>
+    </div>
+    <div class="card chartcard"><div id="shareChart" class="chart"></div>
+      <p class="chartnote">India, {{ w.year_first }}&ndash;{{ w.year_last }}. Employment in agriculture fell from {{ w.emp_first }}% to {{ w.emp_last }}% of total employment; agriculture&rsquo;s share of GDP stayed between about 16% and 19%. Source: World Bank, World Development Indicators.</p></div>
+  </div>
+</section>
+
+<!-- 3. THE GAP -->
+<section class="section">
+  <div class="container">
+    <div class="section__head"><span class="kicker">3 &middot; The gap</span><h2>The people who fund a season can&rsquo;t see its bad case.</h2>
+      <p>A budget that doesn&rsquo;t add up, a season nobody logged, a yield claimed with no history, a price assumed flat. A funder is asked to trust numbers nobody has checked, so money is either not offered, or offered dear.</p></div>
+    <div class="grid grid--3">
+      <div class="card rv"><span class="pill pill--rose">Idle</span><h3 style="margin-top:.9rem">Land and skill without capital</h3><p>Good land sits unfarmed and good farmers sit short of working capital. The two rarely meet on paper, because a handshake is the norm and writing anything down can build tenancy rights.</p></div>
+      <div class="card rv" style="--d:.07s"><span class="pill pill--rose">Opaque</span><h3 style="margin-top:.9rem">Risk nobody can price</h3><p>Without a checked account and a stated bad case, a lender cannot tell a careful plan from a careless one, so careful growers are priced like careless ones.</p></div>
+      <div class="card rv" style="--d:.14s"><span class="pill pill--rose">Volatile</span><h3 style="margin-top:.9rem">Prices that swing</h3><p>Section 1: a {{ w.swing }}-point range in food price inflation over the period. A flat-price budget is a hope, not a plan.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. WHAT WE BUILT -->
+<section class="section section--alt">
+  <div class="container wgrid">
+    <div>
+      <span class="kicker">4 &middot; What we built</span>
+      <h2 style="font-size:clamp(1.6rem,1.1rem + 2vw,2.4rem)">One checked account per plan, and the bad case in plain view.</h2>
+      <p class="lead" style="margin-top:1rem">Check that every plan&rsquo;s account adds up. Predict the chance a season falls short and the one-in-twenty bad case. Decide which fix pays back first.</p>
+      <ul class="ticks" style="margin-top:1.2rem">
+        <li>Shown on an <b>invented example farm</b>, clearly labelled, with every assumption editable.</li>
+        <li>Prices today are an <b>assumed</b> swing. The step that makes this investable is replacing that assumption with real price history for Karnataka&rsquo;s crops.</li>
+        <li>Bilingual (English and &#3221;&#3240;&#3277;&#3240;&#3233;), tested, and built to run on free infrastructure.</li>
+      </ul>
+      <p style="margin-top:1.4rem;display:flex;gap:.75rem;flex-wrap:wrap"><a class="btn btn--solid btn--big" href="/ledger">{{ t('cta.example') }} &rarr;</a><a class="btn btn--line btn--big" href="/ledger/risk">{{ t('nav.risk') }}</a></p>
+    </div>
+    <div class="card shcard">
+      <div class="shcard__bar"><i></i><i></i><i></i><span>Example holding &middot; invented data</span></div>
+      <b class="shcard__n">&#8377;{{ inr(p.totals.expected_shortfall) }}</b>
+      <p class="shcard__l">expected shortfall per season across {{ p.plans_n }} example plans, from stated assumptions</p>
+      {% set top = p.top[0].expected_shortfall %}
+      {% for r in p.top %}<div class="shbar"><span>{{ r.name.split(' · ')[0] }}</span><div><i style="width:{{ (r.expected_shortfall / top * 100) | round(1) }}%"></i></div><b>&#8377;{{ inr(r.expected_shortfall) }}</b></div>{% endfor %}
+      <p class="shcard__f">The best fix on each plan cuts this by <b>{{ p.cut }}%</b>. A simulation, not a forecast.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. WHO WOULD PAY -->
+<section class="section">
+  <div class="container">
+    <div class="section__head"><span class="kicker">5 &middot; Who would pay</span><h2>Four hypotheses about revenue. None tested yet.</h2>
+      <p>We have <b>no revenue today</b>, and the site is free during the pilot with no cut of any plan. These are the buyers we think have the problem. Each is a hypothesis to validate, not a projection.</p></div>
+    <div class="card ltable wtable"><table>
+      <thead><tr><th>Who</th><th>Their problem</th><th>What we would offer</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Lenders, microfinance, NBFCs</th><td>Cannot see the bad case of a small-farm loan or tell careful plans from careless ones.</td><td>A checked account and a risk report per plan; a ranked view of where to act first.</td><td><span class="pilltag pilltag--missing">to validate</span></td></tr>
+        <tr><th scope="row">Insurers and input suppliers</th><td>Hard to price and reach thousands of small plans.</td><td>A risk-ranked pipeline of plans, with insurance and inputs as compared fixes.</td><td><span class="pilltag pilltag--missing">to validate</span></td></tr>
+        <tr><th scope="row">Farmer producer organisations, cooperatives</th><td>Records are scattered; collective plans need trusted accounts.</td><td>The ledger and risk tool for their members' plans.</td><td><span class="pilltag pilltag--missing">to validate</span></td></tr>
+        <tr><th scope="row">Growers, landowners, farmers</th><td>Need working capital, rent, or land, on paper that protects them.</td><td>Free: they bring the data. Any fee is decided with counsel and stated first.</td><td><span class="pilltag pilltag--ok">free in the pilot</span></td></tr>
+      </tbody></table></div>
+    <h3 style="margin-top:2rem;font-size:1.2rem">How we will find out</h3>
+    <ul class="ticks wlist">
+      <li>Finish the pilot season on our own 15 acres and publish the numbers, <b>including the parts that went badly</b>.</li>
+      <li>Check the model against reality: how often did a plan the tool called risky actually fall short?</li>
+      <li>Talk to lenders, producer organisations and insurers in Belagavi and write down what they would actually pay for.</li>
+      <li>Measure the time a reviewer saves on a plan whose account has already been checked.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6. FUNDING UNLOCKS -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section__head"><span class="kicker">6 &middot; What backing would unlock</span><h2>Milestones, in order.</h2></div>
+    <ol class="mstones">
+      <li class="rv"><b>Counsel-cleared structure.</b><span>Pools capped and small, licences fixed-term, nothing that resembles a public scheme.</span></li>
+      <li class="rv"><b>One district open.</b><span>Belagavi first, with real plans, learning before opening a second.</span></li>
+      <li class="rv"><b>Real data in place of assumptions.</b><span>Mandi prices (Agmarknet, e-NAM) and weather replace the assumed swing, so the risk numbers are measured.</span></li>
+      <li class="rv"><b>Reach.</b><span>Kannada-first, low-bandwidth mobile, so growers use it without an intermediary.</span></li>
+      <li class="rv"><b>First paying pilots</b> with a lender or producer organisation, if the interviews support it.</li>
+    </ol>
+    <p class="muted" style="font-size:.85rem;margin-top:1rem">We deliberately give no amounts or timelines here: they should come from the pilot, not from this page.</p>
+  </div>
+</section>
+
+<!-- 7. RISKS -->
+<section class="section">
+  <div class="container">
+    <div class="section__head"><span class="kicker">7 &middot; What could go wrong</span><h2>Stated plainly.</h2></div>
+    <div class="grid grid--2">
+      <div class="card rv fsc fsc--bad"><h3>Regulation</h3><p>Pooling money can resemble a Collective Investment Scheme, and tenancy law shapes every land agreement. The product is built small and capped for that reason, and counsel review comes before money moves.</p></div>
+      <div class="card rv fsc fsc--bad"><h3>Trust and adoption</h3><p>Growers must record honestly and funders must read the bad case. A tool nobody uses is worth nothing.</p></div>
+      <div class="card rv fsc fsc--bad"><h3>Model risk</h3><p>A simulation can look precise and be wrong. Every number carries its assumptions, and the tool must be checked against real seasons before anyone relies on it.</p></div>
+      <div class="card rv fsc fsc--bad"><h3>Shared weather</h3><p>Plans in one district can fail together in one bad monsoon. Diversifying across districts and models matters.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="section section--alt">
+  <div class="container">
+    <h3 style="font-size:1.2rem;margin-bottom:.8rem">Sources and how this page was made</h3>
+    <ul class="srcs">
+      {% for s in w.sources %}<li><a href="{{ s.url }}" rel="noopener" target="_blank">{{ s.label }}</a>: {{ s.series | join('; ') }}.{% if s.note %} <em>{{ s.note }}</em>{% endif %}</li>{% endfor %}
+    </ul>
+    <p class="muted" style="font-size:.85rem;max-width:75ch">Data retrieved {{ w.retrieved }} by <code>scripts/build_why_data.py</code> and stored in <code>static/data/why.json</code>; every figure above is computed from that file. Food price inflation is the series for India as a whole, not for Karnataka or any crop: state and crop price history is the next dataset to add. Example-farm numbers are invented and come from the same engine as the calculators. Nothing here is an offer, a forecast or advice.</p>
+  </div>
+</section>
+
+<section class="container" style="padding-block:clamp(2.5rem,5vw,4rem)">
+  <div class="cta-band rv">
+    <div><h2>Talk to us, or try the example farm.</h2><p>If you lend to, insure, supply or organise small farms and want to tell us what you would pay for, join the waitlist and say so.</p></div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap"><a class="btn btn--solid btn--big" href="/#join">{{ t('cta.join') }}</a><a class="btn btn--line btn--big" href="/story">{{ t('nav.story') }}</a></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ nonce }}">window.BHOOMI_WHY={{ {'data': asset('data/why.json')} | tojson }};</script>
+<script src="{{ asset('why.js') }}" defer></script>
+{% endblock %}
