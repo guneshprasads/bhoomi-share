@@ -276,6 +276,7 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # BHOOMI_ADMIN_T
 | `/ledger` | Farm ledger: import a CSV or try the example farm; balance checks, trust scores, money flows, yields, input costs |
 | `/ledger/risk` | Money-at-risk: per-plan simulation, fixes compared, whole-holding ranking, three-source trust |
 | `/story`, `/foresight` | The problem, idea and outcomes; the 2026-2036 foresight canvas |
+| `/why` | **Why it matters**: investor-facing page with two real-data charts (India food price inflation, FAO; agriculture's share of jobs vs output, World Bank), the gap, who might pay (hypotheses, none tested), milestones, risks and sources |
 | `/models`, `/models/{slug}` | The five models compared, and one page per model |
 | `/how-it-works` | One funded season as a six-phase journey |
 | `/stories` | Six illustrative worked examples |

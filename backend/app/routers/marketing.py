@@ -159,3 +159,10 @@ def story(request: Request, user=Depends(current_user)):
         holding=n["holding"], totals=n["totals"], flagged=n["flagged"], plans_n=n["plans_n"],
         cut=n["cut"], best=n["best"], rent=rent, farm=farm,
     )
+
+
+@router.get("/why")
+def why(request: Request, user=Depends(current_user)):
+    from .. import why as why_data
+
+    return render(request, "why.html", user=user, w=why_data.numbers(), p=content.product_numbers())

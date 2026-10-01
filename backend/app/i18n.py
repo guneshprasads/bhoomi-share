@@ -29,6 +29,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "nav.dashboard": {"en": "Dashboard", "kn": "ನನ್ನ ಪುಟ"},
     "nav.admin": {"en": "Admin", "kn": "ನಿರ್ವಹಣೆ"},
     "nav.earn": {"en": "Ways to earn", "kn": "ಗಳಿಕೆಯ ದಾರಿ"},
+    "nav.why": {"en": "Why it matters", "kn": "ಏಕೆ ಮುಖ್ಯ"},
     "nav.foresight": {"en": "Foresight 2036", "kn": "ಭವಿಷ್ಯ 2036"},
     "nav.story": {"en": "The story", "kn": "ನಮ್ಮ ಕಥೆ"},
     "nav.ledger": {"en": "Farm ledger", "kn": "ಕೃಷಿ ಲೆಡ್ಜರ್"},
